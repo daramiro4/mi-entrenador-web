@@ -1,8 +1,10 @@
+"use server";
+
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { getActiveSeason } from "@/lib/seasons";
+import { archiveActiveSeason } from "@/lib/seasons";
 
-export default async function RootPage() {
+export async function archiveAndRestartOnboarding() {
   const supabase = await createClient();
   const {
     data: { user },
@@ -12,11 +14,6 @@ export default async function RootPage() {
     redirect("/login");
   }
 
-  const activeSeason = await getActiveSeason(supabase, user.id);
-
-  if (!activeSeason) {
-    redirect("/onboarding");
-  }
-
-  redirect("/dashboard");
+  await archiveActiveSeason(supabase, user.id);
+  redirect("/onboarding");
 }
