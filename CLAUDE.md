@@ -10,7 +10,7 @@ Webapp de entrenador personal de ciclismo. Next.js + Supabase Auth + Tailwind, d
 
 ## Esquema de Supabase relevante
 - `profiles`, `seasons`, `daily_metrics`, `activities`, `strength_sessions`, `ftp_history`, `fatigue_index`, `workouts` ya existen.
-- `planned_sessions` es NUEVA (definida en diseño, aún sin crear en Supabase): `id`, `user_id`, `season_id`, `date`, `workout_template_id` (FK a `workouts`, nullable), `session_type` (quality/z2/strength/rest), `planned_tss`, `status` (planned/done/skipped/postponed/degraded), `actual_activity_id` (FK a `activities`, nullable), `notes` (jsonb).
+- `planned_sessions` ya existe en Supabase (migración `supabase/migrations/20260831174042_create_planned_sessions.sql`): `id`, `user_id`, `season_id`, `date`, `workout_template_id` (FK a `workouts`, nullable), `session_type` (quality/z2/strength/rest), `planned_tss`, `status` (planned/done/skipped/postponed/degraded), `actual_activity_id` (FK a `activities`, nullable), `notes` (jsonb).
 - `workouts` es una biblioteca de definiciones reutilizables (nombre, tipo, intervalos) — NO mezclar con instancias de plan día a día. Esa separación es intencional, no la rompas.
 - RLS en todas las tablas de usuario: `auth.uid() = user_id`.
 
@@ -51,8 +51,18 @@ Webapp de entrenador personal de ciclismo. Next.js + Supabase Auth + Tailwind, d
 - Site URL / Redirect URLs de Supabase Auth deben apuntar a la URL de producción real de Vercel.
 
 ## Estado actual (Fase D — motor de plan)
-El modelo deportivo está completamente diseñado y las decisiones de arquitectura arriba están cerradas. Aún NO existe:
-- La tabla `planned_sessions` en Supabase
-- Ningún código del motor de generación de plan
-- La UI del dashboard para el plan semanal (tira semanal, marcar hecho/saltar/posponer)
-- El anillo de fatiga con el lenguaje simplificado (hoy solo muestra el dato técnico)
+Ya existe:
+- La tabla `planned_sessions` en Supabase, con RLS (`supabase/migrations/20260831174042_create_planned_sessions.sql`).
+- El motor puro de generación semanal (`lib/plan-generator.ts`): reparte TSS semanal en quality/z2/strength/rest, o genera la ventana de reaclimatación (decisión 5) si han pasado ≥14 días sin actividad de ciclismo. Aritmética de calendario compartida en `lib/week.ts`.
+- Persistencia (`lib/planned-sessions.ts`) y orquestación (`lib/weekly-plan.ts: generateAndSaveWeeklyPlan`, que junta FTP/última actividad + motor + insert).
+- Disparo de la **primera semana**: se genera una sola vez dentro de `submitOnboarding` (`app/onboarding/actions.ts`), justo tras crear la temporada. Es el único trigger que existe — no hay generación automática en el dashboard ni botón manual todavía (evita mutar datos en el render de un Server Component; ver `node_modules/next/dist/docs/01-app/02-guides/server-actions.md`).
+- `WeeklyStrip` (`components/dashboard/WeeklyStrip.tsx`) ya pinta los 7 días con datos reales de `planned_sessions`; si la temporada no tiene sesiones generadas (p. ej. temporadas creadas antes de esta pieza), sigue mostrando el placeholder "Aún no hay sesiones planificadas."
+
+Supuestos de diseño tomados por no estar cerrados arriba (documentados como constantes en `lib/plan-generator.ts`, fáciles de ajustar): fórmula de TSS semanal objetivo (`hours_per_week * 55`), número de días de calidad por semana según `goal_type`/`focus_areas`, y la ventana de reaclimatación fija en 4 días Z1-Z2 + 1 ramp test.
+
+Aún NO existe:
+- El evento de "cierre semanal" que genera la semana siguiente (decisión 1) — hoy solo se genera la semana 1 en el onboarding.
+- La capa diaria adaptativa (decisión 4) y la redistribución de TSS perdido (decisión 3).
+- Marcar hecho/saltar/posponer en la UI.
+- La narrativa semanal vía IA (decisión 7).
+- El anillo de fatiga con el lenguaje simplificado (hoy solo muestra el dato técnico).
