@@ -1,8 +1,10 @@
 import { SESSION_TYPE_CIRCLE_CLASS, SESSION_TYPE_LABEL } from "@/lib/labels";
 import type { PlannedSession } from "@/lib/types";
 import { getWeekdayIndex } from "@/lib/week";
+import { SendToGarminButton } from "./SendToGarminButton";
 
 const DAYS = ["L", "M", "X", "J", "V", "S", "D"];
+const GARMIN_ELIGIBLE_SESSION_TYPES = new Set(["quality", "z2"]);
 
 export function WeeklyStrip({ sessions }: { sessions: PlannedSession[] }) {
   const sessionsByWeekday = new Array<PlannedSession | undefined>(7);
@@ -29,6 +31,9 @@ export function WeeklyStrip({ sessions }: { sessions: PlannedSession[] }) {
               </div>
               {session?.planned_tss != null && (
                 <span className="metric text-[10px] text-fog">{session.planned_tss}</span>
+              )}
+              {session && GARMIN_ELIGIBLE_SESSION_TYPES.has(session.session_type) && (
+                <SendToGarminButton plannedSessionId={session.id} />
               )}
             </div>
           );

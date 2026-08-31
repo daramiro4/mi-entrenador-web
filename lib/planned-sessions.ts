@@ -25,6 +25,25 @@ export async function getPlannedSessionsForWeek(
   return data as PlannedSession[];
 }
 
+export async function getPlannedSessionById(
+  supabase: TypedSupabaseClient,
+  userId: string,
+  plannedSessionId: string
+): Promise<PlannedSession | null> {
+  const { data, error } = await supabase
+    .from("planned_sessions")
+    .select("*")
+    .eq("id", plannedSessionId)
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(`No se pudo obtener la sesión planificada: ${error.message}`);
+  }
+
+  return data as PlannedSession | null;
+}
+
 export async function insertPlannedSessions(
   supabase: TypedSupabaseClient,
   userId: string,
