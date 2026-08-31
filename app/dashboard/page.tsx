@@ -2,6 +2,8 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getActiveSeason } from "@/lib/seasons";
 import { getLatestFtp, getLatestFatigueIndex } from "@/lib/metrics";
+import { getPlannedSessionsForWeek } from "@/lib/planned-sessions";
+import { getMondayOfWeek, todayISODate } from "@/lib/week";
 import { HeroStatus } from "@/components/dashboard/HeroStatus";
 import { SeasonSummaryCard } from "@/components/dashboard/SeasonSummaryCard";
 import { WeeklyStrip } from "@/components/dashboard/WeeklyStrip";
@@ -22,9 +24,11 @@ export default async function DashboardPage() {
     redirect("/onboarding");
   }
 
-  const [latestFtp, fatigueIndex] = await Promise.all([
+  const weekStartDate = getMondayOfWeek(todayISODate());
+  const [latestFtp, fatigueIndex, weeklySessions] = await Promise.all([
     getLatestFtp(supabase, user.id),
     getLatestFatigueIndex(supabase, user.id),
+    getPlannedSessionsForWeek(supabase, user.id, weekStartDate),
   ]);
 
   return (
@@ -32,7 +36,7 @@ export default async function DashboardPage() {
       <div className="max-w-2xl mx-auto space-y-6">
         <HeroStatus fatigueIndex={fatigueIndex} />
         <SeasonSummaryCard season={season} currentFtpWatts={latestFtp?.ftp_watts ?? null} />
-        <WeeklyStrip />
+        <WeeklyStrip sessions={weeklySessions} />
         <div className="pt-2">
           <ChangeGoalButton />
         </div>

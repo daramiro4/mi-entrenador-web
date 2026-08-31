@@ -58,6 +58,27 @@ export async function getLatestWeightKg(
   return profile?.weight_kg ?? null;
 }
 
+/** Fecha de la última actividad de ciclismo registrada, o null si nunca hubo una. */
+export async function getLastCyclingActivityDate(
+  supabase: TypedSupabaseClient,
+  userId: string
+): Promise<string | null> {
+  const { data, error } = await supabase
+    .from("activities")
+    .select("date")
+    .eq("user_id", userId)
+    .eq("activity_type", "cycling")
+    .order("date", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(`No se pudo obtener la última actividad de ciclismo: ${error.message}`);
+  }
+
+  return data?.date ?? null;
+}
+
 export async function getLatestFatigueIndex(
   supabase: TypedSupabaseClient,
   userId: string

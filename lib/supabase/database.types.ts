@@ -214,6 +214,80 @@ export type Database = {
           },
         ]
       }
+      planned_sessions: {
+        Row: {
+          actual_activity_id: number | null
+          created_at: string
+          date: string
+          id: string
+          notes: Json | null
+          planned_tss: number | null
+          season_id: number
+          session_type: string
+          status: string
+          updated_at: string
+          user_id: string
+          workout_template_id: string | null
+        }
+        Insert: {
+          actual_activity_id?: number | null
+          created_at?: string
+          date: string
+          id?: string
+          notes?: Json | null
+          planned_tss?: number | null
+          season_id: number
+          session_type: string
+          status?: string
+          updated_at?: string
+          user_id: string
+          workout_template_id?: string | null
+        }
+        Update: {
+          actual_activity_id?: number | null
+          created_at?: string
+          date?: string
+          id?: string
+          notes?: Json | null
+          planned_tss?: number | null
+          season_id?: number
+          session_type?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+          workout_template_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "planned_sessions_actual_activity_id_fkey"
+            columns: ["actual_activity_id"]
+            isOneToOne: false
+            referencedRelation: "activities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "planned_sessions_season_id_fkey"
+            columns: ["season_id"]
+            isOneToOne: false
+            referencedRelation: "seasons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "planned_sessions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "planned_sessions_workout_template_id_fkey"
+            columns: ["workout_template_id"]
+            isOneToOne: false
+            referencedRelation: "workouts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           api_key: string

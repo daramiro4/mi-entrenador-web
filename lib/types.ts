@@ -13,10 +13,26 @@ export type SeasonStatus = "active" | "completed" | "archived";
 
 export type FatigueRecommendation = "normal" | "precaucion" | "descanso";
 
+export type SessionType = "quality" | "z2" | "strength" | "rest";
+
+export type PlannedSessionStatus =
+  | "planned"
+  | "done"
+  | "skipped"
+  | "postponed"
+  | "degraded";
+
 export interface SeasonNotes {
   event_type?: string;
   free_text?: string;
   weight_goal_capped?: boolean;
+  [key: string]: unknown;
+}
+
+export interface PlannedSessionNotes {
+  kind?: "ramp_test";
+  reacclimatization_discount_pct?: number;
+  effective_ftp_watts?: number;
   [key: string]: unknown;
 }
 
@@ -42,4 +58,21 @@ export interface NewSeasonInput {
   hours_per_week: number | null;
   strength_days_per_week: number | null;
   notes: SeasonNotes;
+}
+
+export type PlannedSession = Omit<
+  Tables<"planned_sessions">,
+  "session_type" | "status" | "notes"
+> & {
+  session_type: SessionType;
+  status: PlannedSessionStatus;
+  notes: PlannedSessionNotes | null;
+};
+
+/** Borrador de una sesión planificada, previo a insertarse en la base de datos. */
+export interface PlannedSessionDraft {
+  date: string;
+  session_type: SessionType;
+  planned_tss: number | null;
+  notes: PlannedSessionNotes | null;
 }
