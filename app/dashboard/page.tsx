@@ -4,9 +4,11 @@ import { getActiveSeason } from "@/lib/seasons";
 import { getLatestFtp, getLatestFatigueIndex } from "@/lib/metrics";
 import { getPlannedSessionsForWeek, getPlannedSessionsSince } from "@/lib/planned-sessions";
 import { computeProgressSignal } from "@/lib/progress";
+import { getLatestWeeklyNarrative } from "@/lib/weekly-narratives";
 import { getMondayOfWeek, todayISODate } from "@/lib/week";
 import { HeroStatus } from "@/components/dashboard/HeroStatus";
 import { SeasonSummaryCard } from "@/components/dashboard/SeasonSummaryCard";
+import { WeeklyNarrativeCard } from "@/components/dashboard/WeeklyNarrativeCard";
 import { WeeklyStrip } from "@/components/dashboard/WeeklyStrip";
 import { ChangeGoalButton } from "@/components/dashboard/ChangeGoalButton";
 import { DailyAdaptationEffect } from "@/components/dashboard/DailyAdaptationEffect";
@@ -29,10 +31,11 @@ export default async function DashboardPage() {
 
   const today = todayISODate();
   const weekStartDate = getMondayOfWeek(today);
-  const [latestFtp, fatigueIndex, weeklySessions] = await Promise.all([
+  const [latestFtp, fatigueIndex, weeklySessions, latestNarrative] = await Promise.all([
     getLatestFtp(supabase, user.id),
     getLatestFatigueIndex(supabase, user.id),
     getPlannedSessionsForWeek(supabase, user.id, weekStartDate),
+    getLatestWeeklyNarrative(supabase, user.id),
   ]);
 
   const progress = latestFtp
@@ -55,6 +58,7 @@ export default async function DashboardPage() {
           currentFtpWatts={latestFtp?.ftp_watts ?? null}
           progress={progress}
         />
+        <WeeklyNarrativeCard narrative={latestNarrative} />
         <WeeklyStrip sessions={weeklySessions} today={today} />
         <div className="pt-2">
           <ChangeGoalButton />

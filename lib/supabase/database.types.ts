@@ -469,6 +469,48 @@ export type Database = {
           },
         ]
       }
+      weekly_narratives: {
+        Row: {
+          created_at: string
+          id: number
+          narrative: string
+          season_id: number
+          user_id: string
+          week_start_date: string
+        }
+        Insert: {
+          created_at?: string
+          id?: never
+          narrative: string
+          season_id: number
+          user_id: string
+          week_start_date: string
+        }
+        Update: {
+          created_at?: string
+          id?: never
+          narrative?: string
+          season_id?: number
+          user_id?: string
+          week_start_date?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "weekly_narratives_season_id_fkey"
+            columns: ["season_id"]
+            isOneToOne: false
+            referencedRelation: "seasons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "weekly_narratives_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       workouts: {
         Row: {
           created_at: string | null
