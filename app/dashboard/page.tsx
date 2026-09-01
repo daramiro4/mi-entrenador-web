@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getActiveSeason } from "@/lib/seasons";
 import { getLatestFtp, getLatestFatigueIndex } from "@/lib/metrics";
 import { getPlannedSessionsForWeek, getPlannedSessionsSince } from "@/lib/planned-sessions";
+import { getActivitiesForWeek } from "@/lib/activities";
 import { computeProgressSignal } from "@/lib/progress";
 import { getLatestWeeklyNarrative } from "@/lib/weekly-narratives";
 import { getMondayOfWeek, todayISODate } from "@/lib/week";
@@ -30,12 +31,14 @@ export default async function DashboardPage() {
 
   const today = todayISODate();
   const weekStartDate = getMondayOfWeek(today);
-  const [latestFtp, fatigueIndex, weeklySessions, latestNarrative] = await Promise.all([
-    getLatestFtp(supabase, user.id),
-    getLatestFatigueIndex(supabase, user.id),
-    getPlannedSessionsForWeek(supabase, user.id, weekStartDate),
-    getLatestWeeklyNarrative(supabase, user.id),
-  ]);
+  const [latestFtp, fatigueIndex, weeklySessions, latestNarrative, weeklyActivities] =
+    await Promise.all([
+      getLatestFtp(supabase, user.id),
+      getLatestFatigueIndex(supabase, user.id),
+      getPlannedSessionsForWeek(supabase, user.id, weekStartDate),
+      getLatestWeeklyNarrative(supabase, user.id),
+      getActivitiesForWeek(supabase, user.id, weekStartDate),
+    ]);
 
   const progress = latestFtp
     ? computeProgressSignal(
@@ -57,7 +60,7 @@ export default async function DashboardPage() {
           progress={progress}
         />
         <WeeklyNarrativeCard narrative={latestNarrative} />
-        <WeeklyStrip sessions={weeklySessions} today={today} />
+        <WeeklyStrip sessions={weeklySessions} activities={weeklyActivities} today={today} />
         <div className="pt-2">
           <ChangeGoalButton />
         </div>

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { SESSION_TYPE_CIRCLE_CLASS, SESSION_TYPE_LABEL } from "@/lib/labels";
-import type { PlannedSession } from "@/lib/types";
+import type { ActivityRow, PlannedSession } from "@/lib/types";
 import { getWeekdayIndex } from "@/lib/week";
 import { SendToGarminButton } from "./SendToGarminButton";
 import { PlannedSessionActions } from "./PlannedSessionActions";
@@ -12,9 +12,11 @@ const GARMIN_ELIGIBLE_SESSION_TYPES = new Set(["quality", "z2"]);
 
 export function WeeklyStrip({
   sessions,
+  activities,
   today,
 }: {
   sessions: PlannedSession[];
+  activities: ActivityRow[];
   today: string;
 }) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -71,7 +73,12 @@ export function WeeklyStrip({
         <p className="text-sm text-fog mt-3">Aún no hay sesiones planificadas.</p>
       )}
       {selectedSession && (
-        <PlannedSessionActions session={selectedSession} weekSessions={sessions} today={today} />
+        <PlannedSessionActions
+          session={selectedSession}
+          weekSessions={sessions}
+          activities={activities}
+          today={today}
+        />
       )}
     </div>
   );

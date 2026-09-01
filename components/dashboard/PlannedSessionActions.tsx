@@ -8,9 +8,37 @@ import {
   undoPlannedSessionStatusAction,
 } from "@/app/dashboard/planned-session-actions";
 import { PLANNED_SESSION_STATUS_LABEL, SESSION_TYPE_LABEL } from "@/lib/labels";
-import type { PlannedSession } from "@/lib/types";
+import type { ActivityRow, PlannedSession } from "@/lib/types";
 import { getValidPostponeDates } from "@/lib/postpone";
 import { getValidRedistributionDates } from "@/lib/redistribute";
+
+function activityStats(
+  session: PlannedSession,
+  activity: ActivityRow | undefined
+): { label: string; value: string }[] {
+  if (!activity) return [];
+  const stats: { label: string; value: string }[] = [];
+
+  if (activity.tss != null) {
+    stats.push({
+      label: "TSS",
+      value:
+        session.planned_tss != null
+          ? `${Math.round(activity.tss)} / ${session.planned_tss}`
+          : `${Math.round(activity.tss)}`,
+    });
+  }
+  if (activity.normalized_power != null) {
+    stats.push({ label: "Pot. normalizada", value: `${Math.round(activity.normalized_power)} W` });
+  } else if (activity.avg_power != null) {
+    stats.push({ label: "Pot. media", value: `${Math.round(activity.avg_power)} W` });
+  }
+  if (activity.duration_minutes != null) {
+    stats.push({ label: "Duración", value: `${Math.round(activity.duration_minutes)} min` });
+  }
+
+  return stats;
+}
 
 const WEEKDAY_LABELS = ["lun", "mar", "mié", "jue", "vie", "sáb", "dom"];
 
@@ -25,10 +53,12 @@ type Mode = "idle" | "postponing" | "skipping";
 export function PlannedSessionActions({
   session,
   weekSessions,
+  activities,
   today,
 }: {
   session: PlannedSession;
   weekSessions: PlannedSession[];
+  activities: ActivityRow[];
   today: string;
 }) {
   const [isPending, startTransition] = useTransition();
@@ -49,9 +79,14 @@ export function PlannedSessionActions({
 
   if (session.status === "done" || session.status === "skipped") {
     const canUndo = !session.notes?.redistributed_to_session_id;
+    const linkedActivity =
+      session.actual_activity_id != null
+        ? activities.find((a) => a.id === session.actual_activity_id)
+        : undefined;
+    const stats = activityStats(session, linkedActivity);
 
     return (
-      <div className="pt-3 border-t border-fog/15 space-y-1">
+      <div className="pt-3 border-t border-fog/15 space-y-2">
         <div className="flex items-center justify-between">
           <span className="text-sm text-paper">{SESSION_TYPE_LABEL[session.session_type]}</span>
           <div className="flex items-center gap-3">
@@ -74,6 +109,16 @@ export function PlannedSessionActions({
             )}
           </div>
         </div>
+        {stats.length > 0 && (
+          <div className="flex gap-6">
+            {stats.map((stat) => (
+              <div key={stat.label}>
+                <p className="metric text-sm text-paper">{stat.value}</p>
+                <p className="text-[10px] text-fog uppercase tracking-wide">{stat.label}</p>
+              </div>
+            ))}
+          </div>
+        )}
         {error && <p className="text-xs text-fatiga">{error}</p>}
       </div>
     );
