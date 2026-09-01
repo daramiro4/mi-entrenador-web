@@ -81,7 +81,17 @@ export async function postponePlannedSessionAction(
     return { ok: false, error: "Ese día ya no está disponible para posponer." };
   }
 
-  await postponePlannedSession(supabase, user.id, plannedSessionId, newDate);
+  const conflictingRest = weekSessions.find(
+    (s) => s.date === newDate && s.session_type === "rest"
+  );
+
+  await postponePlannedSession(
+    supabase,
+    user.id,
+    plannedSessionId,
+    newDate,
+    conflictingRest?.id ?? null
+  );
   revalidatePath("/dashboard");
   return { ok: true, error: null };
 }

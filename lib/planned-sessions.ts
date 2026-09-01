@@ -61,12 +61,31 @@ export async function updatePlannedSessionStatus(
   }
 }
 
+/**
+ * Mueve `plannedSessionId` a `newDate`. Si ese día ya tiene una fila `rest`
+ * (el caso normal — `getValidPostponeDates` solo permite días vacíos o de
+ * descanso), esa fila de descanso se borra para no dejar dos filas con la
+ * misma fecha.
+ */
 export async function postponePlannedSession(
   supabase: TypedSupabaseClient,
   userId: string,
   plannedSessionId: string,
-  newDate: string
+  newDate: string,
+  conflictingRestSessionId: string | null
 ): Promise<void> {
+  if (conflictingRestSessionId) {
+    const { error: deleteError } = await supabase
+      .from("planned_sessions")
+      .delete()
+      .eq("id", conflictingRestSessionId)
+      .eq("user_id", userId);
+
+    if (deleteError) {
+      throw new Error(`No se pudo liberar el día de descanso: ${deleteError.message}`);
+    }
+  }
+
   const { error } = await supabase
     .from("planned_sessions")
     .update({ date: newDate })
