@@ -44,6 +44,7 @@ export type FtpHistoryRow = Tables<"ftp_history">;
 export type DailyMetricsRow = Tables<"daily_metrics">;
 export type FatigueIndexRow = Tables<"fatigue_index">;
 export type WeeklyNarrative = Tables<"weekly_narratives">;
+export type ActivityRow = Tables<"activities">;
 
 export type Season = Omit<Tables<"seasons">, "goal_type" | "status" | "focus_areas" | "notes"> & {
   goal_type: GoalType;

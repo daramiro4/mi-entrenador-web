@@ -11,8 +11,7 @@ import { SeasonSummaryCard } from "@/components/dashboard/SeasonSummaryCard";
 import { WeeklyNarrativeCard } from "@/components/dashboard/WeeklyNarrativeCard";
 import { WeeklyStrip } from "@/components/dashboard/WeeklyStrip";
 import { ChangeGoalButton } from "@/components/dashboard/ChangeGoalButton";
-import { DailyAdaptationEffect } from "@/components/dashboard/DailyAdaptationEffect";
-import { WeeklyGenerationEffect } from "@/components/dashboard/WeeklyGenerationEffect";
+import { DashboardSyncEffect } from "@/components/dashboard/DashboardSyncEffect";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -46,8 +45,7 @@ export default async function DashboardPage() {
 
   return (
     <main className="flex-1 px-6 py-10 md:py-16">
-      <WeeklyGenerationEffect />
-      <DailyAdaptationEffect />
+      <DashboardSyncEffect />
       <div className="max-w-2xl mx-auto space-y-6">
         <HeroStatus
           fatigueIndex={fatigueIndex}

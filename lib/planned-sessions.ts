@@ -112,6 +112,24 @@ export async function skipPlannedSessionWithRedistribution(
   }
 }
 
+/** Emparejamiento de actividades reales: marca `done` y enlaza `actual_activity_id`. */
+export async function markPlannedSessionDoneFromActivity(
+  supabase: TypedSupabaseClient,
+  userId: string,
+  plannedSessionId: string,
+  activityId: number
+): Promise<void> {
+  const { error } = await supabase
+    .from("planned_sessions")
+    .update({ status: "done", actual_activity_id: activityId })
+    .eq("id", plannedSessionId)
+    .eq("user_id", userId);
+
+  if (error) {
+    throw new Error(`No se pudo enlazar la actividad a la sesión: ${error.message}`);
+  }
+}
+
 /** Capa diaria adaptativa (decisión 4): baja el tipo/TSS de la sesión y la marca `degraded`. */
 export async function degradePlannedSession(
   supabase: TypedSupabaseClient,
