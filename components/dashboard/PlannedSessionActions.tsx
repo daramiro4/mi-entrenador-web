@@ -5,6 +5,7 @@ import {
   markPlannedSessionDoneAction,
   postponePlannedSessionAction,
   skipPlannedSessionAction,
+  undoPlannedSessionStatusAction,
 } from "@/app/dashboard/planned-session-actions";
 import { PLANNED_SESSION_STATUS_LABEL, SESSION_TYPE_LABEL } from "@/lib/labels";
 import type { PlannedSession } from "@/lib/types";
@@ -34,20 +35,6 @@ export function PlannedSessionActions({
   const [error, setError] = useState<string | null>(null);
   const [mode, setMode] = useState<Mode>("idle");
 
-  if (session.status === "done" || session.status === "skipped") {
-    return (
-      <div className="pt-3 border-t border-fog/15 flex items-center justify-between">
-        <span className="text-sm text-paper">{SESSION_TYPE_LABEL[session.session_type]}</span>
-        <span className="text-xs text-fog uppercase tracking-wide">
-          {PLANNED_SESSION_STATUS_LABEL[session.status]}
-        </span>
-      </div>
-    );
-  }
-
-  const postponeDates = getValidPostponeDates(weekSessions, session, today);
-  const redistributeDates = getValidRedistributionDates(weekSessions, session, today);
-
   const runAction = (action: () => Promise<{ ok: boolean; error: string | null }>) => {
     setError(null);
     startTransition(async () => {
@@ -59,6 +46,41 @@ export function PlannedSessionActions({
       }
     });
   };
+
+  if (session.status === "done" || session.status === "skipped") {
+    const canUndo = !session.notes?.redistributed_to_session_id;
+
+    return (
+      <div className="pt-3 border-t border-fog/15 space-y-1">
+        <div className="flex items-center justify-between">
+          <span className="text-sm text-paper">{SESSION_TYPE_LABEL[session.session_type]}</span>
+          <div className="flex items-center gap-3">
+            <span className="text-xs text-fog uppercase tracking-wide">
+              {PLANNED_SESSION_STATUS_LABEL[session.status]}
+            </span>
+            {canUndo ? (
+              <button
+                type="button"
+                disabled={isPending}
+                onClick={() => runAction(() => undoPlannedSessionStatusAction(session.id))}
+                className="text-xs text-fog hover:text-paper underline disabled:opacity-40 disabled:pointer-events-none cursor-pointer"
+              >
+                Deshacer
+              </button>
+            ) : (
+              <span className="text-xs text-fog" title="El TSS ya se movió a otro día">
+                (TSS movido)
+              </span>
+            )}
+          </div>
+        </div>
+        {error && <p className="text-xs text-fatiga">{error}</p>}
+      </div>
+    );
+  }
+
+  const postponeDates = getValidPostponeDates(weekSessions, session, today);
+  const redistributeDates = getValidRedistributionDates(weekSessions, session, today);
 
   const handleSkipClick = () => {
     if (session.planned_tss == null) {

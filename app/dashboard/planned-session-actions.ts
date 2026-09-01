@@ -8,6 +8,7 @@ import {
   getPlannedSessionsForWeek,
   postponePlannedSession,
   setPlannedSessionTss,
+  skipPlannedSessionWithRedistribution,
   updatePlannedSessionStatus,
 } from "@/lib/planned-sessions";
 import { getValidPostponeDates } from "@/lib/postpone";
@@ -81,13 +82,50 @@ export async function skipPlannedSessionAction(
     return { ok: false, error: "No se encontró el día de destino." };
   }
 
-  await updatePlannedSessionStatus(supabase, user.id, plannedSessionId, "skipped");
+  await skipPlannedSessionWithRedistribution(supabase, user.id, plannedSessionId, {
+    ...(session.notes ?? {}),
+    redistributed_to_session_id: target.id,
+    redistributed_tss: session.planned_tss,
+  });
   await setPlannedSessionTss(
     supabase,
     user.id,
     target.id,
     (target.planned_tss ?? 0) + session.planned_tss
   );
+  revalidatePath("/dashboard");
+  return { ok: true, error: null };
+}
+
+export async function undoPlannedSessionStatusAction(
+  plannedSessionId: string
+): Promise<PlannedSessionActionResult> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/login");
+  }
+
+  const session = await getPlannedSessionById(supabase, user.id, plannedSessionId);
+  if (!session) {
+    return { ok: false, error: "No se encontró la sesión planificada." };
+  }
+
+  if (session.status !== "done" && session.status !== "skipped") {
+    return { ok: false, error: "No hay nada que deshacer." };
+  }
+
+  if (session.notes?.redistributed_to_session_id) {
+    return {
+      ok: false,
+      error: "No se puede deshacer: el TSS ya se movió a otro día.",
+    };
+  }
+
+  await updatePlannedSessionStatus(supabase, user.id, plannedSessionId, "planned");
   revalidatePath("/dashboard");
   return { ok: true, error: null };
 }

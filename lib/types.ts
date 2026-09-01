@@ -33,6 +33,9 @@ export interface PlannedSessionNotes {
   kind?: "ramp_test";
   reacclimatization_discount_pct?: number;
   effective_ftp_watts?: number;
+  /** Presente cuando saltar esta sesión movió su TSS a otra — bloquea "deshacer". */
+  redistributed_to_session_id?: string;
+  redistributed_tss?: number;
   [key: string]: unknown;
 }
 

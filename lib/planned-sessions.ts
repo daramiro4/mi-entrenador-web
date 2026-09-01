@@ -1,6 +1,11 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database, Json } from "./supabase/database.types";
-import type { PlannedSession, PlannedSessionDraft, PlannedSessionStatus } from "./types";
+import type {
+  PlannedSession,
+  PlannedSessionDraft,
+  PlannedSessionNotes,
+  PlannedSessionStatus,
+} from "./types";
 import { getWeekEndDate } from "./week";
 
 type TypedSupabaseClient = SupabaseClient<Database>;
@@ -58,6 +63,29 @@ export async function updatePlannedSessionStatus(
 
   if (error) {
     throw new Error(`No se pudo actualizar el estado de la sesión: ${error.message}`);
+  }
+}
+
+/**
+ * Marca `plannedSessionId` como `skipped` y guarda en `notes` a qué sesión se
+ * movió su TSS (fusionado con las notas ya existentes, ej. datos de la
+ * ventana de reaclimatación — nunca se pisan). Esa marca es lo que impide
+ * "deshacer" más tarde: revertir sin más dejaría el TSS duplicado.
+ */
+export async function skipPlannedSessionWithRedistribution(
+  supabase: TypedSupabaseClient,
+  userId: string,
+  plannedSessionId: string,
+  notes: PlannedSessionNotes
+): Promise<void> {
+  const { error } = await supabase
+    .from("planned_sessions")
+    .update({ status: "skipped", notes: notes as unknown as Json })
+    .eq("id", plannedSessionId)
+    .eq("user_id", userId);
+
+  if (error) {
+    throw new Error(`No se pudo saltar la sesión: ${error.message}`);
   }
 }
 
