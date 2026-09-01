@@ -61,6 +61,23 @@ export async function updatePlannedSessionStatus(
   }
 }
 
+export async function setPlannedSessionTss(
+  supabase: TypedSupabaseClient,
+  userId: string,
+  plannedSessionId: string,
+  plannedTss: number
+): Promise<void> {
+  const { error } = await supabase
+    .from("planned_sessions")
+    .update({ planned_tss: plannedTss })
+    .eq("id", plannedSessionId)
+    .eq("user_id", userId);
+
+  if (error) {
+    throw new Error(`No se pudo actualizar el TSS de la sesión: ${error.message}`);
+  }
+}
+
 /**
  * Mueve `plannedSessionId` a `newDate`. Si ese día ya tiene una fila `rest`
  * (el caso normal — `getValidPostponeDates` solo permite días vacíos o de
