@@ -47,6 +47,29 @@ export type WeeklyNarrative = Tables<"weekly_narratives">;
 export type ActivityRow = Tables<"activities">;
 export type StrengthSessionRow = Tables<"strength_sessions">;
 
+export type WorkoutStepKind = "warmup" | "interval" | "recovery" | "cooldown";
+
+export interface WorkoutStep {
+  kind: WorkoutStepKind;
+  duration_seconds: number;
+  target_low_pct_ftp: number;
+  target_high_pct_ftp: number;
+}
+
+export type WorkoutType = "quality" | "z2";
+
+export type Workout = Omit<Tables<"workouts">, "intervals" | "type"> & {
+  intervals: WorkoutStep[];
+  type: WorkoutType | null;
+};
+
+export interface NewWorkoutInput {
+  name: string;
+  type: WorkoutType;
+  notes: string | null;
+  intervals: WorkoutStep[];
+}
+
 export type Season = Omit<Tables<"seasons">, "goal_type" | "status" | "focus_areas" | "notes"> & {
   goal_type: GoalType;
   status: SeasonStatus;

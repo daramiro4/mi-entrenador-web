@@ -13,6 +13,7 @@ import { SeasonSummaryCard } from "@/components/dashboard/SeasonSummaryCard";
 import { WeeklyNarrativeCard } from "@/components/dashboard/WeeklyNarrativeCard";
 import { WeeklyStrip } from "@/components/dashboard/WeeklyStrip";
 import { ChangeGoalButton } from "@/components/dashboard/ChangeGoalButton";
+import { LinkButton } from "@/components/ui/Button";
 import { DashboardSyncEffect } from "@/components/dashboard/DashboardSyncEffect";
 
 export default async function DashboardPage() {
@@ -74,7 +75,10 @@ export default async function DashboardPage() {
           strengthSessions={weeklyStrengthSessions}
           today={today}
         />
-        <div className="pt-2">
+        <div className="pt-2 flex gap-3">
+          <LinkButton href="/workouts" variant="secondary">
+            Plantillas de entreno
+          </LinkButton>
           <ChangeGoalButton />
         </div>
       </div>

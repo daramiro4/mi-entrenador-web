@@ -1,4 +1,11 @@
-import type { FocusArea, GoalType, PlannedSessionStatus, SessionType } from "./types";
+import type {
+  FocusArea,
+  GoalType,
+  PlannedSessionStatus,
+  SessionType,
+  WorkoutStepKind,
+  WorkoutType,
+} from "./types";
 
 export const GOAL_TYPE_LABEL: Record<GoalType, string> = {
   ftp_improvement: "Mejorar FTP",
@@ -35,4 +42,16 @@ export const PLANNED_SESSION_STATUS_LABEL: Record<PlannedSessionStatus, string> 
   skipped: "Saltada",
   postponed: "Pospuesta",
   degraded: "Degradada",
+};
+
+export const WORKOUT_TYPE_LABEL: Record<WorkoutType, string> = {
+  quality: "Calidad",
+  z2: "Z2",
+};
+
+export const WORKOUT_STEP_KIND_LABEL: Record<WorkoutStepKind, string> = {
+  warmup: "Calentamiento",
+  interval: "Intervalo",
+  recovery: "Recuperación",
+  cooldown: "Enfriamiento",
 };
