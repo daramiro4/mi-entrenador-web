@@ -60,6 +60,7 @@ describe("generateWeeklyPlan", () => {
       hoursPerWeek: 8,
       strengthDaysPerWeek: 2,
       currentFtpWatts: 250,
+      targetFtpWatts: 250,
       lastCyclingActivityDate: "2026-09-01",
       today: "2026-09-07",
     });
@@ -85,6 +86,7 @@ describe("generateWeeklyPlan", () => {
       hoursPerWeek: null,
       strengthDaysPerWeek: null,
       currentFtpWatts: null,
+      targetFtpWatts: null,
       lastCyclingActivityDate: "2026-09-05",
       today: "2026-09-07",
     });
@@ -102,6 +104,7 @@ describe("generateWeeklyPlan", () => {
       hoursPerWeek: 8,
       strengthDaysPerWeek: 2,
       currentFtpWatts: 250,
+      targetFtpWatts: 250,
       lastCyclingActivityDate: "2026-08-08", // 30 días antes
       today: "2026-09-07",
     });
@@ -115,6 +118,12 @@ describe("generateWeeklyPlan", () => {
 
     // Ninguna sesión de la ventana lleva TSS objetivo.
     expect(week.every((d) => d.planned_tss === null)).toBe(true);
+
+    // Las z2 sí llevan una duración fija y el FTP efectivo ya descontado,
+    // para poder enviarse a Garmin sin TSS (decisión 5 + envío manual).
+    const z2Sessions = week.filter((d) => d.session_type === "z2");
+    expect(z2Sessions.every((d) => d.notes?.duration_minutes === 60)).toBe(true);
+    expect(z2Sessions.every((d) => d.notes?.effective_ftp_watts === 225)).toBe(true);
   });
 
   it("nunca ha registrado ciclismo (lastCyclingActivityDate null): también entra en reaclimatación, tope -15%", () => {
@@ -125,11 +134,35 @@ describe("generateWeeklyPlan", () => {
       hoursPerWeek: 5,
       strengthDaysPerWeek: 0,
       currentFtpWatts: null,
+      targetFtpWatts: null,
       lastCyclingActivityDate: null,
       today: "2026-09-07",
     });
 
     const rampTest = week.find((d) => d.notes?.kind === "ramp_test");
     expect(rampTest?.notes?.reacclimatization_discount_pct).toBe(-0.15);
+
+    // Sin FTP medido ni objetivo, no hay base para calcular un FTP efectivo.
+    const z2Sessions = week.filter((d) => d.session_type === "z2");
+    expect(z2Sessions.every((d) => d.notes?.effective_ftp_watts === undefined)).toBe(true);
+    expect(z2Sessions.every((d) => d.notes?.duration_minutes === 60)).toBe(true);
+  });
+
+  it("sin FTP medido pero con FTP objetivo de temporada: lo usa como base del descuento", () => {
+    const week = generateWeeklyPlan({
+      weekStartDate: "2026-09-07",
+      goalType: "maintenance",
+      focusAreas: [],
+      hoursPerWeek: 5,
+      strengthDaysPerWeek: 0,
+      currentFtpWatts: null,
+      targetFtpWatts: 250,
+      lastCyclingActivityDate: null,
+      today: "2026-09-07",
+    });
+
+    const z2Sessions = week.filter((d) => d.session_type === "z2");
+    // -15% de tope, sobre el FTP objetivo: round(250 * 0.85) = 213.
+    expect(z2Sessions.every((d) => d.notes?.effective_ftp_watts === 213)).toBe(true);
   });
 });

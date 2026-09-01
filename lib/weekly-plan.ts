@@ -27,6 +27,7 @@ export async function generateAndSaveWeeklyPlan(
     hoursPerWeek: season.hours_per_week,
     strengthDaysPerWeek: season.strength_days_per_week,
     currentFtpWatts: latestFtp?.ftp_watts ?? null,
+    targetFtpWatts: season.target_ftp,
     lastCyclingActivityDate,
     today: todayISODate(),
   });

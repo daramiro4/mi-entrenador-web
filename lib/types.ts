@@ -33,6 +33,8 @@ export interface PlannedSessionNotes {
   kind?: "ramp_test";
   reacclimatization_discount_pct?: number;
   effective_ftp_watts?: number;
+  /** Duración objetivo en minutos para sesiones z2 de reaclimatación (decisión 5) — sin `planned_tss`, así que el envío a Garmin no puede derivar la duración desde el TSS. */
+  duration_minutes?: number;
   /** Presente cuando saltar esta sesión movió su TSS a otra — bloquea "deshacer". */
   redistributed_to_session_id?: string;
   redistributed_tss?: number;

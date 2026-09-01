@@ -16,11 +16,21 @@ export async function sendPlannedSessionToGarmin(
     return { ok: false, error: "Este tipo de sesión no se puede enviar a Garmin." };
   }
 
-  if (session.planned_tss == null) {
+  // Las z2 de la ventana de reaclimatación (decisión 5) no llevan planned_tss
+  // a propósito -- llevan una duración fija en su lugar (lib/plan-generator.ts).
+  const durationMinutes =
+    session.session_type === "z2" ? session.notes?.duration_minutes ?? null : null;
+
+  if (session.planned_tss == null && durationMinutes == null) {
     return { ok: false, error: "La sesión no tiene un TSS planificado." };
   }
 
-  if (ftpWatts == null) {
+  // Si aún no hay ningún ftp_history medido, se usa el FTP efectivo ya
+  // descontado que el generador guardó en notes (solo aplica a la ventana
+  // de reaclimatización).
+  const effectiveFtpWatts = ftpWatts ?? session.notes?.effective_ftp_watts ?? null;
+
+  if (effectiveFtpWatts == null) {
     return { ok: false, error: "No hay un FTP registrado para calcular las zonas de potencia." };
   }
 
@@ -41,8 +51,10 @@ export async function sendPlannedSessionToGarmin(
       body: JSON.stringify({
         date: session.date,
         session_type: session.session_type,
-        planned_tss: session.planned_tss,
-        ftp_watts: ftpWatts,
+        ftp_watts: effectiveFtpWatts,
+        ...(session.planned_tss != null
+          ? { planned_tss: session.planned_tss }
+          : { duration_minutes: durationMinutes }),
       }),
     });
 
