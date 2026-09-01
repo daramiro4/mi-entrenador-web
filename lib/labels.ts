@@ -1,4 +1,4 @@
-import type { FocusArea, GoalType, SessionType } from "./types";
+import type { FocusArea, GoalType, PlannedSessionStatus, SessionType } from "./types";
 
 export const GOAL_TYPE_LABEL: Record<GoalType, string> = {
   ftp_improvement: "Mejorar FTP",
@@ -27,4 +27,12 @@ export const SESSION_TYPE_CIRCLE_CLASS: Record<SessionType, string> = {
   z2: "bg-volt/15 border-volt text-volt",
   strength: "bg-fog/15 border-fog text-paper",
   rest: "border-fog/25 text-fog",
+};
+
+export const PLANNED_SESSION_STATUS_LABEL: Record<PlannedSessionStatus, string> = {
+  planned: "Planificada",
+  done: "Hecho",
+  skipped: "Saltada",
+  postponed: "Pospuesta",
+  degraded: "Degradada",
 };

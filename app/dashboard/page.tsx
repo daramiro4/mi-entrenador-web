@@ -24,7 +24,8 @@ export default async function DashboardPage() {
     redirect("/onboarding");
   }
 
-  const weekStartDate = getMondayOfWeek(todayISODate());
+  const today = todayISODate();
+  const weekStartDate = getMondayOfWeek(today);
   const [latestFtp, fatigueIndex, weeklySessions] = await Promise.all([
     getLatestFtp(supabase, user.id),
     getLatestFatigueIndex(supabase, user.id),
@@ -36,7 +37,7 @@ export default async function DashboardPage() {
       <div className="max-w-2xl mx-auto space-y-6">
         <HeroStatus fatigueIndex={fatigueIndex} />
         <SeasonSummaryCard season={season} currentFtpWatts={latestFtp?.ftp_watts ?? null} />
-        <WeeklyStrip sessions={weeklySessions} />
+        <WeeklyStrip sessions={weeklySessions} today={today} />
         <div className="pt-2">
           <ChangeGoalButton />
         </div>

@@ -1,6 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database, Json } from "./supabase/database.types";
-import type { PlannedSession, PlannedSessionDraft } from "./types";
+import type { PlannedSession, PlannedSessionDraft, PlannedSessionStatus } from "./types";
 import { getWeekEndDate } from "./week";
 
 type TypedSupabaseClient = SupabaseClient<Database>;
@@ -42,6 +42,40 @@ export async function getPlannedSessionById(
   }
 
   return data as PlannedSession | null;
+}
+
+export async function updatePlannedSessionStatus(
+  supabase: TypedSupabaseClient,
+  userId: string,
+  plannedSessionId: string,
+  status: PlannedSessionStatus
+): Promise<void> {
+  const { error } = await supabase
+    .from("planned_sessions")
+    .update({ status })
+    .eq("id", plannedSessionId)
+    .eq("user_id", userId);
+
+  if (error) {
+    throw new Error(`No se pudo actualizar el estado de la sesión: ${error.message}`);
+  }
+}
+
+export async function postponePlannedSession(
+  supabase: TypedSupabaseClient,
+  userId: string,
+  plannedSessionId: string,
+  newDate: string
+): Promise<void> {
+  const { error } = await supabase
+    .from("planned_sessions")
+    .update({ date: newDate })
+    .eq("id", plannedSessionId)
+    .eq("user_id", userId);
+
+  if (error) {
+    throw new Error(`No se pudo posponer la sesión: ${error.message}`);
+  }
 }
 
 export async function insertPlannedSessions(

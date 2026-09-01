@@ -57,12 +57,15 @@ Ya existe:
 - Persistencia (`lib/planned-sessions.ts`) y orquestación (`lib/weekly-plan.ts: generateAndSaveWeeklyPlan`, que junta FTP/última actividad + motor + insert).
 - Disparo de la **primera semana**: se genera una sola vez dentro de `submitOnboarding` (`app/onboarding/actions.ts`), justo tras crear la temporada. Es el único trigger que existe — no hay generación automática en el dashboard ni botón manual todavía (evita mutar datos en el render de un Server Component; ver `node_modules/next/dist/docs/01-app/02-guides/server-actions.md`).
 - `WeeklyStrip` (`components/dashboard/WeeklyStrip.tsx`) ya pinta los 7 días con datos reales de `planned_sessions`; si la temporada no tiene sesiones generadas (p. ej. temporadas creadas antes de esta pieza), sigue mostrando el placeholder "Aún no hay sesiones planificadas."
+- **Decisión 10 (envío manual a Garmin)**: hecho y verificado en producción contra una cuenta real. Botón "Enviar a Garmin" en `WeeklyStrip` (solo en sesiones `quality`/`z2`) → `app/dashboard/garmin-actions.ts` → servicio Python separado en el repo `mi-entrenador-garmin` (`api/send_workout.py`, función Vercel independiente del cron diario, mismo login nativo de `garminconnect`). `api/workout_builder.py` sintetiza el workout (bloque Z2 continuo, o calentamiento+intervalos+enfriamiento para calidad) a partir de `session_type`/`planned_tss`/FTP — no existe todavía una biblioteca de `workouts` real, así que esto es una traducción sintética, documentada como ajustable. Auth entre los dos repos vía secreto compartido (`GARMIN_SEND_SERVICE_URL`/`GARMIN_SEND_SECRET`, configurados en Vercel de ambos proyectos, no en el código).
 
-Supuestos de diseño tomados por no estar cerrados arriba (documentados como constantes en `lib/plan-generator.ts`, fáciles de ajustar): fórmula de TSS semanal objetivo (`hours_per_week * 55`), número de días de calidad por semana según `goal_type`/`focus_areas`, y la ventana de reaclimatación fija en 4 días Z1-Z2 + 1 ramp test.
+Supuestos de diseño tomados por no estar cerrados arriba (documentados como constantes en `lib/plan-generator.ts` y `mi-entrenador-garmin/api/workout_builder.py`, fáciles de ajustar): fórmula de TSS semanal objetivo (`hours_per_week * 55`), número de días de calidad por semana según `goal_type`/`focus_areas`, la ventana de reaclimatación fija en 4 días Z1-Z2 + 1 ramp test, y las zonas/duraciones sintéticas de los workouts enviados a Garmin.
 
 Aún NO existe:
 - El evento de "cierre semanal" que genera la semana siguiente (decisión 1) — hoy solo se genera la semana 1 en el onboarding.
 - La capa diaria adaptativa (decisión 4) y la redistribución de TSS perdido (decisión 3).
-- Marcar hecho/saltar/posponer en la UI.
-- La narrativa semanal vía IA (decisión 7).
-- El anillo de fatiga con el lenguaje simplificado (hoy solo muestra el dato técnico).
+- Marcar hecho/saltar/posponer en la UI (decisión 9) — `WeeklyStrip` es de solo lectura salvo el botón de Garmin.
+- La narrativa semanal vía IA (decisión 7) y la señal de progreso entre tests de FTP (decisión 8) — ambas dependen de que exista el cierre semanal.
+- El anillo de fatiga con el lenguaje simplificado (decisión 6) — hoy solo muestra el dato técnico.
+
+**Nota sobre despliegue**: los dos repos (`mi-entrenador-web`, `mi-entrenador-garmin`) están en el mismo equipo de Vercel (`entrenamiento-garmin`) pero como proyectos separados. La identidad de git local debe ser `daramiro4 <daramiro4@gmail.com>` (ya configurada globalmente) — con otra identidad, Vercel bloquea silenciosamente los deploys disparados por push a GitHub (se quedan en estado `UNKNOWN` sin error visible en `git push`).
