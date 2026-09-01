@@ -8,9 +8,10 @@ import {
   undoPlannedSessionStatusAction,
 } from "@/app/dashboard/planned-session-actions";
 import { PLANNED_SESSION_STATUS_LABEL, SESSION_TYPE_LABEL } from "@/lib/labels";
-import type { ActivityRow, PlannedSession, StrengthSessionRow } from "@/lib/types";
+import type { ActivityRow, HrZoneSeconds, PlannedSession, StrengthSessionRow } from "@/lib/types";
 import { getValidPostponeDates } from "@/lib/postpone";
 import { getValidRedistributionDates } from "@/lib/redistribute";
+import { formatHrZoneMinutes } from "@/lib/hr-zones";
 
 function activityStats(
   session: PlannedSession,
@@ -36,8 +37,21 @@ function activityStats(
   if (activity.duration_minutes != null) {
     stats.push({ label: "Duración", value: `${Math.round(activity.duration_minutes)} min` });
   }
+  if (activity.avg_hr != null) {
+    stats.push({ label: "FC media", value: `${Math.round(activity.avg_hr)} ppm` });
+  }
+  if (activity.max_hr != null) {
+    stats.push({ label: "FC máx", value: `${Math.round(activity.max_hr)} ppm` });
+  }
 
   return stats;
+}
+
+function hrZoneSummary(activity: ActivityRow | undefined): string | null {
+  if (!activity?.hr_zone_seconds) return null;
+  const zones = formatHrZoneMinutes(activity.hr_zone_seconds as unknown as HrZoneSeconds);
+  if (zones.length === 0) return null;
+  return zones.map((z) => `${z.zone} ${z.minutes}min`).join(" · ");
 }
 
 function formatExercise(row: StrengthSessionRow): string {
@@ -93,6 +107,7 @@ export function PlannedSessionActions({
         ? activities.find((a) => a.id === session.actual_activity_id)
         : undefined;
     const stats = activityStats(session, linkedActivity);
+    const hrZones = hrZoneSummary(linkedActivity);
     const exercises =
       session.session_type === "strength" && linkedActivity
         ? strengthSessions.filter((s) => s.activity_id === linkedActivity.id)
@@ -132,6 +147,7 @@ export function PlannedSessionActions({
             ))}
           </div>
         )}
+        {hrZones && <p className="text-xs text-fog">{hrZones}</p>}
         {exercises.length > 0 && (
           <ul className="space-y-1">
             {exercises.map((exercise) => (

@@ -48,10 +48,11 @@ function describeArc(cx: number, cy: number, r: number, startAngle: number, endA
 export interface FatigueRingProps {
   acwrRatio: number | null;
   recommendation: FatigueRecommendation | null;
+  notes?: string | null;
   size?: number;
 }
 
-export function FatigueRing({ acwrRatio, recommendation, size = 208 }: FatigueRingProps) {
+export function FatigueRing({ acwrRatio, recommendation, notes, size = 208 }: FatigueRingProps) {
   const [expanded, setExpanded] = useState(false);
   const center = size / 2;
   const radius = (size - STROKE) / 2 - 4;
@@ -107,6 +108,7 @@ export function FatigueRing({ acwrRatio, recommendation, size = 208 }: FatigueRi
               >
                 {RECOMMENDATION_LABEL[recommendation as FatigueRecommendation]}
               </span>
+              {notes && <span className="text-[10px] text-fog mt-1.5 leading-tight">{notes}</span>}
             </>
           ) : (
             <>

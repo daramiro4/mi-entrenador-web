@@ -49,6 +49,14 @@ export type WeeklyNarrative = Tables<"weekly_narratives">;
 export type ActivityRow = Tables<"activities">;
 export type StrengthSessionRow = Tables<"strength_sessions">;
 
+export interface HrZoneSeconds {
+  z1: number;
+  z2: number;
+  z3: number;
+  z4: number;
+  z5: number;
+}
+
 export type WorkoutStepKind = "warmup" | "interval" | "recovery" | "cooldown";
 
 export interface WorkoutStep {

@@ -17,12 +17,15 @@ export type Database = {
       activities: {
         Row: {
           activity_type: string
+          avg_hr: number | null
           avg_power: number | null
           created_at: string
           date: string
           duration_minutes: number | null
           external_id: string | null
+          hr_zone_seconds: Json | null
           id: number
+          max_hr: number | null
           normalized_power: number | null
           raw_data: Json | null
           source: string | null
@@ -32,12 +35,15 @@ export type Database = {
         }
         Insert: {
           activity_type: string
+          avg_hr?: number | null
           avg_power?: number | null
           created_at?: string
           date: string
           duration_minutes?: number | null
           external_id?: string | null
+          hr_zone_seconds?: Json | null
           id?: never
+          max_hr?: number | null
           normalized_power?: number | null
           raw_data?: Json | null
           source?: string | null
@@ -47,12 +53,15 @@ export type Database = {
         }
         Update: {
           activity_type?: string
+          avg_hr?: number | null
           avg_power?: number | null
           created_at?: string
           date?: string
           duration_minutes?: number | null
           external_id?: string | null
+          hr_zone_seconds?: Json | null
           id?: never
+          max_hr?: number | null
           normalized_power?: number | null
           raw_data?: Json | null
           source?: string | null
@@ -570,7 +579,7 @@ export type Database = {
 
 type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
 
-type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
+type DefaultSchema = DatabaseWithoutInternals["public"]
 
 export type Tables<
   DefaultSchemaTableNameOrOptions extends

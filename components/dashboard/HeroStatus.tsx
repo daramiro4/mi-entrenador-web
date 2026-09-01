@@ -27,6 +27,7 @@ export function HeroStatus({
       <FatigueRing
         acwrRatio={fatigueIndex?.acwr_ratio ?? null}
         recommendation={(fatigueIndex?.recommendation as FatigueRecommendation | null) ?? null}
+        notes={fatigueIndex?.notes ?? null}
       />
       <div className="text-center sm:text-left">
         <p className="text-fog text-sm uppercase tracking-wide">Hoy</p>

@@ -38,6 +38,9 @@ function mkActivity(activity_type: string, id: number): ActivityRow {
     source: "garmin",
     created_at: "",
     external_id: null,
+    avg_hr: null,
+    max_hr: null,
+    hr_zone_seconds: null,
   };
 }
 
