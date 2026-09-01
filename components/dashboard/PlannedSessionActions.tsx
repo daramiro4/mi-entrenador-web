@@ -8,7 +8,7 @@ import {
   undoPlannedSessionStatusAction,
 } from "@/app/dashboard/planned-session-actions";
 import { PLANNED_SESSION_STATUS_LABEL, SESSION_TYPE_LABEL } from "@/lib/labels";
-import type { ActivityRow, PlannedSession } from "@/lib/types";
+import type { ActivityRow, PlannedSession, StrengthSessionRow } from "@/lib/types";
 import { getValidPostponeDates } from "@/lib/postpone";
 import { getValidRedistributionDates } from "@/lib/redistribute";
 
@@ -40,6 +40,13 @@ function activityStats(
   return stats;
 }
 
+function formatExercise(row: StrengthSessionRow): string {
+  const parts: string[] = [];
+  if (row.sets != null && row.reps != null) parts.push(`${row.sets}×${row.reps}`);
+  if (row.weight_kg != null) parts.push(`${row.weight_kg} kg`);
+  return parts.length > 0 ? `${row.exercise} — ${parts.join(" @ ")}` : row.exercise;
+}
+
 const WEEKDAY_LABELS = ["lun", "mar", "mié", "jue", "vie", "sáb", "dom"];
 
 function formatDayLabel(date: string): string {
@@ -54,11 +61,13 @@ export function PlannedSessionActions({
   session,
   weekSessions,
   activities,
+  strengthSessions,
   today,
 }: {
   session: PlannedSession;
   weekSessions: PlannedSession[];
   activities: ActivityRow[];
+  strengthSessions: StrengthSessionRow[];
   today: string;
 }) {
   const [isPending, startTransition] = useTransition();
@@ -84,6 +93,10 @@ export function PlannedSessionActions({
         ? activities.find((a) => a.id === session.actual_activity_id)
         : undefined;
     const stats = activityStats(session, linkedActivity);
+    const exercises =
+      session.session_type === "strength" && linkedActivity
+        ? strengthSessions.filter((s) => s.activity_id === linkedActivity.id)
+        : [];
 
     return (
       <div className="pt-3 border-t border-fog/15 space-y-2">
@@ -118,6 +131,18 @@ export function PlannedSessionActions({
               </div>
             ))}
           </div>
+        )}
+        {exercises.length > 0 && (
+          <ul className="space-y-1">
+            {exercises.map((exercise) => (
+              <li key={exercise.id} className="text-xs text-paper">
+                {formatExercise(exercise)}
+              </li>
+            ))}
+          </ul>
+        )}
+        {session.session_type === "strength" && linkedActivity && exercises.length === 0 && (
+          <p className="text-xs text-fog">Sin ejercicios registrados para esta sesión.</p>
         )}
         {error && <p className="text-xs text-fatiga">{error}</p>}
       </div>
