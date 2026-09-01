@@ -7,7 +7,7 @@ import type {
   PlannedSessionStatus,
   SessionType,
 } from "./types";
-import { getWeekEndDate } from "./week";
+import { getMondayOfWeek, getWeekEndDate } from "./week";
 
 type TypedSupabaseClient = SupabaseClient<Database>;
 
@@ -26,6 +26,28 @@ export async function getPlannedSessionsForWeek(
 
   if (error) {
     throw new Error(`No se pudieron obtener las sesiones planificadas: ${error.message}`);
+  }
+
+  return data as PlannedSession[];
+}
+
+/** Todas las sesiones desde `sinceDate` hasta el domingo de la semana de `today`, inclusive. */
+export async function getPlannedSessionsSince(
+  supabase: TypedSupabaseClient,
+  userId: string,
+  sinceDate: string,
+  today: string
+): Promise<PlannedSession[]> {
+  const { data, error } = await supabase
+    .from("planned_sessions")
+    .select("*")
+    .eq("user_id", userId)
+    .gte("date", sinceDate)
+    .lte("date", getWeekEndDate(getMondayOfWeek(today)))
+    .order("date");
+
+  if (error) {
+    throw new Error(`No se pudieron obtener las sesiones del bloque: ${error.message}`);
   }
 
   return data as PlannedSession[];

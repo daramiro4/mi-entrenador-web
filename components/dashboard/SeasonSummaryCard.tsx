@@ -1,4 +1,5 @@
 import { GOAL_TYPE_LABEL, FOCUS_AREA_LABEL } from "@/lib/labels";
+import type { ProgressSignal } from "@/lib/progress";
 import type { Season } from "@/lib/types";
 
 function daysUntil(dateStr: string): number {
@@ -11,9 +12,11 @@ function daysUntil(dateStr: string): number {
 export function SeasonSummaryCard({
   season,
   currentFtpWatts,
+  progress,
 }: {
   season: Season;
   currentFtpWatts: number | null;
+  progress: ProgressSignal | null;
 }) {
   const daysLeft = season.target_date ? daysUntil(season.target_date) : null;
 
@@ -59,6 +62,23 @@ export function SeasonSummaryCard({
           <div>
             <p className="text-xs text-fog uppercase tracking-wide">FTP objetivo</p>
             <p className="metric text-xl text-ember">{Math.round(season.target_ftp)} W</p>
+          </div>
+        </div>
+      )}
+
+      {progress?.pct != null && (
+        <div className="pt-3 border-t border-fog/15">
+          <div className="flex items-baseline justify-between">
+            <p className="text-xs text-fog uppercase tracking-wide">Progreso del bloque</p>
+            <p className="metric text-sm text-paper">
+              {Math.round(progress.completedTss)} / {Math.round(progress.targetTss)} TSS
+            </p>
+          </div>
+          <div className="h-1.5 rounded-full bg-fog/15 mt-2 overflow-hidden">
+            <div
+              className="h-full bg-volt rounded-full"
+              style={{ width: `${Math.min(100, Math.round(progress.pct * 100))}%` }}
+            />
           </div>
         </div>
       )}
