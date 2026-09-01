@@ -80,3 +80,26 @@ Supuestos de diseño tomados por no estar cerrados arriba (documentados como con
 - Una biblioteca real de `workouts` con intervalos (hoy `workout_template_id` siempre es `null`; el envío a Garmin sintetiza el contenido al vuelo desde `session_type`/`planned_tss`).
 
 **Nota sobre despliegue**: los dos repos (`mi-entrenador-web`, `mi-entrenador-garmin`) están en el mismo equipo de Vercel (`entrenamiento-garmin`) pero como proyectos separados. La identidad de git local debe ser `daramiro4 <daramiro4@gmail.com>` (ya configurada globalmente) — con otra identidad, Vercel bloquea silenciosamente los deploys disparados por push a GitHub (se quedan en estado `UNKNOWN` sin error visible en `git push`).
+
+## Tests
+Vitest (único setup de testing documentado para esta versión de Next.js —
+ver `node_modules/next/dist/docs/01-app/02-guides/testing/vitest.md`, no hay
+guía de Jest). Cobertura por ahora: solo la lógica pura de `lib/*.ts` que
+lleva casi todo el riesgo real de negocio del proyecto (motor de plan,
+posponer/redistribuir, capa adaptativa, progreso, emparejamiento de
+actividades, prompt de la narrativa, calculadora de FTP) — cada `lib/X.ts`
+con lógica no trivial tiene su `lib/X.test.ts` al lado. Deliberadamente
+**sin cubrir todavía**: las funciones de `lib/*.ts` que hablan con Supabase
+(necesitarían mockear el cliente), los Server Actions, y los componentes
+React.
+
+- `npm test` — Vitest en modo watch.
+- `npx vitest run` — una sola pasada (lo que usa CI).
+- `npm run typecheck` — `next typegen && tsc --noEmit`. **Usar este script,
+  no `tsc --noEmit` a secas**: sin los tipos que Next genera en `.next/types`
+  (`LayoutProps`, etc.), `tsc` falla en un checkout limpio aunque funcione en
+  local si ya corriste `next dev` antes — así se rompió el primer intento de
+  CI de esta pieza.
+- `.github/workflows/ci.yml` corre typecheck + lint + tests en cada push/PR a
+  `main`. Es informativo — no bloquea el deploy de Vercel, que se dispara
+  aparte por el webhook del push.
