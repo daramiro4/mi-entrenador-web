@@ -8,6 +8,7 @@ import { HeroStatus } from "@/components/dashboard/HeroStatus";
 import { SeasonSummaryCard } from "@/components/dashboard/SeasonSummaryCard";
 import { WeeklyStrip } from "@/components/dashboard/WeeklyStrip";
 import { ChangeGoalButton } from "@/components/dashboard/ChangeGoalButton";
+import { DailyAdaptationEffect } from "@/components/dashboard/DailyAdaptationEffect";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -34,6 +35,7 @@ export default async function DashboardPage() {
 
   return (
     <main className="flex-1 px-6 py-10 md:py-16">
+      <DailyAdaptationEffect />
       <div className="max-w-2xl mx-auto space-y-6">
         <HeroStatus fatigueIndex={fatigueIndex} />
         <SeasonSummaryCard season={season} currentFtpWatts={latestFtp?.ftp_watts ?? null} />

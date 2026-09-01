@@ -79,6 +79,26 @@ export async function getLastCyclingActivityDate(
   return data?.date ?? null;
 }
 
+/** Fila exacta de `fatigue_index` para `date` (no "la más reciente") — para no adaptar el día de hoy con una lectura de ayer. */
+export async function getFatigueIndexForDate(
+  supabase: TypedSupabaseClient,
+  userId: string,
+  date: string
+): Promise<FatigueIndexRow | null> {
+  const { data, error } = await supabase
+    .from("fatigue_index")
+    .select("*")
+    .eq("user_id", userId)
+    .eq("date", date)
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(`No se pudo obtener el índice de fatiga del día: ${error.message}`);
+  }
+
+  return data;
+}
+
 export async function getLatestFatigueIndex(
   supabase: TypedSupabaseClient,
   userId: string

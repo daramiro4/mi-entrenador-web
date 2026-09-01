@@ -5,6 +5,7 @@ import type {
   PlannedSessionDraft,
   PlannedSessionNotes,
   PlannedSessionStatus,
+  SessionType,
 } from "./types";
 import { getWeekEndDate } from "./week";
 
@@ -86,6 +87,25 @@ export async function skipPlannedSessionWithRedistribution(
 
   if (error) {
     throw new Error(`No se pudo saltar la sesión: ${error.message}`);
+  }
+}
+
+/** Capa diaria adaptativa (decisión 4): baja el tipo/TSS de la sesión y la marca `degraded`. */
+export async function degradePlannedSession(
+  supabase: TypedSupabaseClient,
+  userId: string,
+  plannedSessionId: string,
+  newSessionType: SessionType,
+  newPlannedTss: number | null
+): Promise<void> {
+  const { error } = await supabase
+    .from("planned_sessions")
+    .update({ session_type: newSessionType, planned_tss: newPlannedTss, status: "degraded" })
+    .eq("id", plannedSessionId)
+    .eq("user_id", userId);
+
+  if (error) {
+    throw new Error(`No se pudo degradar la sesión: ${error.message}`);
   }
 }
 
