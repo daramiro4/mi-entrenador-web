@@ -46,7 +46,10 @@ export default async function DashboardPage() {
       <WeeklyGenerationEffect />
       <DailyAdaptationEffect />
       <div className="max-w-2xl mx-auto space-y-6">
-        <HeroStatus fatigueIndex={fatigueIndex} />
+        <HeroStatus
+          fatigueIndex={fatigueIndex}
+          todaySession={weeklySessions.find((s) => s.date === today) ?? null}
+        />
         <SeasonSummaryCard
           season={season}
           currentFtpWatts={latestFtp?.ftp_watts ?? null}
