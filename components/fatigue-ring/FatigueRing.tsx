@@ -14,7 +14,8 @@ const TOTAL_ANGLE = END_ANGLE - START_ANGLE;
 const SCALE_MAX = 2;
 
 // Vista por defecto: lenguaje humano, nunca el ratio ACWR crudo (decisión 6).
-const RECOMMENDATION_PHRASE: Record<FatigueRecommendation, string> = {
+// Exportado para que SyncGarminButton reutilice la misma frase tras sincronizar.
+export const RECOMMENDATION_PHRASE: Record<FatigueRecommendation, string> = {
   normal: "Recuperado",
   precaucion: "Cuidado, vas cargado",
   descanso: "Necesitas descansar",

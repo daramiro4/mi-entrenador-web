@@ -1,7 +1,7 @@
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 import Link, { type LinkProps } from "next/link";
 
-type Variant = "primary" | "secondary" | "ghost" | "danger";
+type Variant = "primary" | "secondary" | "ghost" | "danger" | "volt";
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: Variant;
@@ -12,6 +12,9 @@ export const BUTTON_VARIANT_CLASSES: Record<Variant, string> = {
   secondary: "border border-fog/30 text-paper hover:border-fog/60 bg-transparent",
   ghost: "text-fog hover:text-paper bg-transparent",
   danger: "border border-fatiga/50 text-fatiga hover:bg-fatiga/10 bg-transparent",
+  // Acción técnica/de dato (ej. forzar una sincronización), no un logro --
+  // por eso no usa ember, que queda reservado a las acciones "principales".
+  volt: "border border-volt/50 text-volt hover:bg-volt/10 bg-transparent",
 };
 
 const BUTTON_BASE_CLASSES =

@@ -1,4 +1,5 @@
 import { FatigueRing } from "@/components/fatigue-ring/FatigueRing";
+import { SyncGarminButton } from "@/components/dashboard/SyncGarminButton";
 import { PLANNED_SESSION_STATUS_LABEL, SESSION_TYPE_LABEL } from "@/lib/labels";
 import type { FatigueIndexRow, FatigueRecommendation, PlannedSession } from "@/lib/types";
 
@@ -39,6 +40,9 @@ export function HeroStatus({
             ? todaySubtitle(todaySession)
             : "El plan de entrenamiento llega en la próxima fase."}
         </p>
+        <div className="mt-3">
+          <SyncGarminButton />
+        </div>
       </div>
     </div>
   );
