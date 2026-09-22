@@ -1,3 +1,4 @@
+import type { ExtraSessionVariant } from "./extra-session";
 import type { PlannedSession } from "./types";
 
 export interface SendToGarminResult {
@@ -10,6 +11,8 @@ export interface GarminWorkoutStepPreview {
   duration_minutes: number;
   target_low_watts?: number;
   target_high_watts?: number;
+  /** Solo en la sesión extra por pulso: número de zona de pulso de Garmin (1-5). */
+  target_hr_zone?: number;
 }
 
 export interface GarminWorkoutPreview {
@@ -77,59 +80,13 @@ function getGarminServiceConfig(): { serviceUrl: string; secret: string } | null
   return { serviceUrl, secret };
 }
 
-export async function previewPlannedSessionForGarmin(
-  session: PlannedSession,
-  ftpWatts: number | null
-): Promise<PreviewGarminResult> {
-  const built = buildGarminPayload(session, ftpWatts);
-  if (!built.ok) return { ok: false, error: built.error, preview: null };
-
-  const config = getGarminServiceConfig();
-  if (!config) {
-    return { ok: false, error: "El servicio de envío a Garmin no está configurado.", preview: null };
-  }
-
-  try {
-    const response = await fetch(config.serviceUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${config.secret}`,
-      },
-      body: JSON.stringify({ ...built.payload, preview: true }),
-    });
-
-    const payload = (await response.json()) as {
-      ok?: boolean;
-      error?: string;
-      preview?: GarminWorkoutPreview;
-    };
-
-    if (!response.ok || !payload.ok || !payload.preview) {
-      return {
-        ok: false,
-        error: payload.error ?? `Error del servicio de Garmin (${response.status}).`,
-        preview: null,
-      };
-    }
-
-    return { ok: true, error: null, preview: payload.preview };
-  } catch (e) {
-    return {
-      ok: false,
-      error: e instanceof Error ? e.message : "Error de red al contactar con Garmin.",
-      preview: null,
-    };
-  }
-}
-
-export async function sendPlannedSessionToGarmin(
-  session: PlannedSession,
-  ftpWatts: number | null
-): Promise<SendToGarminResult> {
-  const built = buildGarminPayload(session, ftpWatts);
-  if (!built.ok) return { ok: false, error: built.error };
-
+/** POST al servicio de envío de mi-entrenador-garmin (api/send_workout.py). */
+async function postToGarminService(
+  body: Record<string, unknown>
+): Promise<
+  | { ok: true; preview: GarminWorkoutPreview | null }
+  | { ok: false; error: string }
+> {
   const config = getGarminServiceConfig();
   if (!config) {
     return { ok: false, error: "El servicio de envío a Garmin no está configurado." };
@@ -142,17 +99,75 @@ export async function sendPlannedSessionToGarmin(
         "Content-Type": "application/json",
         Authorization: `Bearer ${config.secret}`,
       },
-      body: JSON.stringify(built.payload),
+      body: JSON.stringify(body),
     });
 
-    const payload = (await response.json()) as { ok?: boolean; error?: string };
+    const payload = (await response.json()) as {
+      ok?: boolean;
+      error?: string;
+      preview?: GarminWorkoutPreview;
+    };
 
     if (!response.ok || !payload.ok) {
       return { ok: false, error: payload.error ?? `Error del servicio de Garmin (${response.status}).` };
     }
 
-    return { ok: true, error: null };
+    return { ok: true, preview: payload.preview ?? null };
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : "Error de red al contactar con Garmin." };
   }
+}
+
+async function previewGarminPayload(payload: Record<string, unknown>): Promise<PreviewGarminResult> {
+  const result = await postToGarminService({ ...payload, preview: true });
+  if (!result.ok) return { ok: false, error: result.error, preview: null };
+  if (!result.preview) {
+    return { ok: false, error: "El servicio de Garmin no devolvió la vista previa.", preview: null };
+  }
+  return { ok: true, error: null, preview: result.preview };
+}
+
+async function sendGarminPayload(payload: Record<string, unknown>): Promise<SendToGarminResult> {
+  const result = await postToGarminService(payload);
+  return result.ok ? { ok: true, error: null } : { ok: false, error: result.error };
+}
+
+export async function previewPlannedSessionForGarmin(
+  session: PlannedSession,
+  ftpWatts: number | null
+): Promise<PreviewGarminResult> {
+  const built = buildGarminPayload(session, ftpWatts);
+  if (!built.ok) return { ok: false, error: built.error, preview: null };
+  return previewGarminPayload(built.payload);
+}
+
+export async function sendPlannedSessionToGarmin(
+  session: PlannedSession,
+  ftpWatts: number | null
+): Promise<SendToGarminResult> {
+  const built = buildGarminPayload(session, ftpWatts);
+  if (!built.ok) return { ok: false, error: built.error };
+  return sendGarminPayload(built.payload);
+}
+
+/**
+ * Sesión extra en el gimnasio (lib/extra-session.ts): por pulso, sin FTP ni
+ * TSS — el servicio construye el workout a partir de la variante.
+ */
+function buildExtraSessionPayload(variant: ExtraSessionVariant, date: string) {
+  return { date, session_type: "extra_hr", variant };
+}
+
+export async function previewExtraSessionForGarmin(
+  variant: ExtraSessionVariant,
+  date: string
+): Promise<PreviewGarminResult> {
+  return previewGarminPayload(buildExtraSessionPayload(variant, date));
+}
+
+export async function sendExtraSessionToGarmin(
+  variant: ExtraSessionVariant,
+  date: string
+): Promise<SendToGarminResult> {
+  return sendGarminPayload(buildExtraSessionPayload(variant, date));
 }
