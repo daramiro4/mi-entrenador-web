@@ -17,7 +17,7 @@ import type { FormatSlug } from "@/lib/strength/types";
 import { SendToForerunner } from "./SendToForerunner";
 
 /** Selector de formato + tarjeta del workout de hoy. */
-export function WorkoutStudio({ workout, defaultFormat }: { workout: StrengthWorkoutRecord | null; defaultFormat: FormatSlug }) {
+export function WorkoutStudio({ workout, defaultFormat, garminEnabled }: { workout: StrengthWorkoutRecord | null; defaultFormat: FormatSlug; garminEnabled: boolean }) {
   const router = useRouter();
   const [format, setFormat] = useState<FormatSlug>(defaultFormat);
   const [pending, start] = useTransition();
@@ -66,7 +66,7 @@ export function WorkoutStudio({ workout, defaultFormat }: { workout: StrengthWor
                   {workout.status === "in_progress" ? "Continuar" : "Empezar"}
                 </LinkButton>
               )}
-              <SendToForerunner workoutId={workout.id} />
+              <SendToForerunner workoutId={workout.id} enabled={garminEnabled} />
               <Button variant="secondary" onClick={generate} disabled={pending}>
                 <Sparkles size={18} strokeWidth={1.75} aria-hidden="true" className="mr-2" />
                 {pending ? "Generando…" : "Generar otra"}
