@@ -9,6 +9,6 @@ export default function PreviewEntreno() {
   const alternatives: Record<string, string[]> = {};
   for (const b of fx.strengthWorkout.blocks) for (const e of b.exercises) alternatives[e.slug] = eligibleAlternatives(e.slug, prefs);
   // Empieza ya en el primer ejercicio principal.
-  const w = { ...fx.strengthWorkout, progress: { step: 4, done: {}, swaps: {}, started_at: new Date(Date.now() - 125_000).toISOString() } };
+  const w = { ...fx.strengthWorkout, progress: { step: 4, done: {}, swaps: {}, started_at: "2026-11-01T08:00:00.000Z" } };
   return <LiveWorkout workout={w} alternatives={alternatives} />;
 }
