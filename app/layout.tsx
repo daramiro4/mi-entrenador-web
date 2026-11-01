@@ -1,38 +1,27 @@
 import type { Metadata } from "next";
-import { Barlow_Condensed, IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
+import { Inter } from "next/font/google";
+import { Blobs } from "@/components/ui/Blobs";
 import "./globals.css";
 
-const barlowCondensed = Barlow_Condensed({
-  variable: "--font-barlow-condensed",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
-  weight: ["600", "700", "800"],
-});
-
-const ibmPlexSans = IBM_Plex_Sans({
-  variable: "--font-ibm-plex-sans",
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
-});
-
-const ibmPlexMono = IBM_Plex_Mono({
-  variable: "--font-ibm-plex-mono",
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
   title: "Mi Entrenador",
-  description: "Entrenador personal de ciclismo",
+  description: "Entrenador personal de ciclismo y fuerza",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html
-      lang="es"
-      className={`${barlowCondensed.variable} ${ibmPlexSans.variable} ${ibmPlexMono.variable} h-full`}
-    >
-      <body className="min-h-full flex flex-col font-sans antialiased">
-        {children}
+    <html lang="es" className={`${inter.variable} h-full`}>
+      <body className="min-h-full font-sans antialiased">
+        <div className="app-root flex flex-col">
+          <Blobs />
+          <div className="relative z-10 flex-1 flex flex-col">{children}</div>
+        </div>
       </body>
     </html>
   );

@@ -1,0 +1,86 @@
+/*
+ * Tokens "Garmin by Apple" — ÚNICO sitio donde se editan los tonos.
+ * Los azules Garmin son aproximados.
+ */
+:root {
+  --bg: #f4f8fc;
+  --surface: rgba(255, 255, 255, 0.58);
+  --surface-2: rgba(0, 90, 160, 0.06);
+  --label: #1d1d1f;
+  --label-2: #5c5c61;
+  --separator: rgba(60, 60, 67, 0.14);
+  --fill: rgba(120, 120, 128, 0.12);
+  --accent: #007cc3;
+  --on-accent: #ffffff;
+  --success: #248a3d;
+  --success-soft: #34c759;
+  --warning: #b25000;
+  --warning-soft: #ff9f0a;
+  --danger: #d70015;
+  --m-sleep: #5b4fc9;
+  --m-stress: #c96a00;
+  --m-battery: #0089ad;
+  --m-hrv: #1e8f5f;
+  --glass: rgba(255, 255, 255, 0.72);
+  --edge: rgba(255, 255, 255, 0.95);
+  --edge-2: rgba(255, 255, 255, 0.7);
+  --drop: rgba(0, 70, 130, 0.1);
+  --blob-o: 0.45;
+  --accent-halo: rgba(0, 124, 195, 0.35);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #05080d;
+    --surface: rgba(28, 28, 30, 0.55);
+    --surface-2: rgba(255, 255, 255, 0.08);
+    --label: #f5f5f7;
+    --label-2: #a1a1a6;
+    --separator: rgba(84, 84, 88, 0.55);
+    --fill: rgba(120, 120, 128, 0.24);
+    --accent: #2ba3e8;
+    --on-accent: #00131f;
+    --success: #30d158;
+    --success-soft: #30d158;
+    --warning: #ffd60a;
+    --warning-soft: #ffa23a;
+    --danger: #ff453a;
+    --m-sleep: #9a92f5;
+    --m-stress: #ffa23a;
+    --m-battery: #3ccbe8;
+    --m-hrv: #3dd68c;
+    --glass: rgba(28, 28, 30, 0.72);
+    --edge: rgba(255, 255, 255, 0.18);
+    --edge-2: rgba(255, 255, 255, 0.08);
+    --drop: rgba(0, 0, 0, 0.5);
+    --blob-o: 0.35;
+    --accent-halo: rgba(43, 163, 232, 0.35);
+  }
+}
+
+:root[data-theme="dark"] {
+  --bg: #05080d;
+  --surface: rgba(28, 28, 30, 0.55);
+  --surface-2: rgba(255, 255, 255, 0.08);
+  --label: #f5f5f7;
+  --label-2: #a1a1a6;
+  --separator: rgba(84, 84, 88, 0.55);
+  --fill: rgba(120, 120, 128, 0.24);
+  --accent: #2ba3e8;
+  --on-accent: #00131f;
+  --success: #30d158;
+  --success-soft: #30d158;
+  --warning: #ffd60a;
+  --warning-soft: #ffa23a;
+  --danger: #ff453a;
+  --m-sleep: #9a92f5;
+  --m-stress: #ffa23a;
+  --m-battery: #3ccbe8;
+  --m-hrv: #3dd68c;
+  --glass: rgba(28, 28, 30, 0.72);
+  --edge: rgba(255, 255, 255, 0.18);
+  --edge-2: rgba(255, 255, 255, 0.08);
+  --drop: rgba(0, 0, 0, 0.5);
+  --blob-o: 0.35;
+  --accent-halo: rgba(43, 163, 232, 0.35);
+}

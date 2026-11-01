@@ -8,17 +8,17 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 export const BUTTON_VARIANT_CLASSES: Record<Variant, string> = {
-  primary: "bg-ember text-paper hover:bg-ember/90",
-  secondary: "border border-fog/30 text-paper hover:border-fog/60 bg-transparent",
-  ghost: "text-fog hover:text-paper bg-transparent",
-  danger: "border border-fatiga/50 text-fatiga hover:bg-fatiga/10 bg-transparent",
-  // Acción técnica/de dato (ej. forzar una sincronización), no un logro --
-  // por eso no usa ember, que queda reservado a las acciones "principales".
-  volt: "border border-volt/50 text-volt hover:bg-volt/10 bg-transparent",
+  // Primario: uno por vista, pill, halo + brillo interior.
+  primary: "bg-accent text-on-accent btn-primary-glow hover:brightness-105",
+  secondary: "bg-fill text-accent hover:brightness-95",
+  ghost: "text-label-2 hover:text-label bg-transparent",
+  danger: "bg-danger/10 text-danger hover:bg-danger/15",
+  // Acción técnica/de dato (ej. forzar una sincronización).
+  volt: "bg-fill text-accent hover:brightness-95",
 };
 
 const BUTTON_BASE_CLASSES =
-  "px-5 py-2.5 rounded-sm font-sans font-semibold text-sm tracking-wide transition-colors disabled:opacity-40 disabled:pointer-events-none cursor-pointer inline-block";
+  "min-h-12 px-6 py-2.5 rounded-full font-sans font-semibold text-sm transition disabled:opacity-40 disabled:pointer-events-none cursor-pointer inline-flex items-center justify-center";
 
 export function Button({ variant = "primary", className = "", ...props }: ButtonProps) {
   return (

@@ -4,7 +4,7 @@ import { useState } from "react";
 import type { FatigueRecommendation } from "@/lib/types";
 
 // Única excepción a los 7 tokens de la paleta: zona "precaución" del arco.
-const AMBER = "#f2a93b";
+const AMBER = "var(--warning-soft)";
 
 const STROKE = 14;
 const START_ANGLE = -135;
@@ -29,7 +29,7 @@ const RECOMMENDATION_LABEL: Record<FatigueRecommendation, string> = {
 };
 
 const RECOMMENDATION_COLOR: Record<FatigueRecommendation, string> = {
-  normal: "var(--color-volt)",
+  normal: "var(--success-soft)",
   precaucion: AMBER,
   descanso: "var(--color-fatiga)",
 };
@@ -86,8 +86,8 @@ export function FatigueRing({ acwrRatio, recommendation, notes, size = 208 }: Fa
         <path
           d={trackPath}
           fill="none"
-          stroke="var(--color-fog)"
-          strokeOpacity={0.2}
+          stroke="var(--fill)"
+          strokeOpacity={1}
           strokeWidth={STROKE}
           strokeLinecap="round"
         />
