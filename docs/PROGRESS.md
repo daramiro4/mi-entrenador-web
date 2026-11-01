@@ -34,3 +34,6 @@ Hecho: `lib/strength/{engine,validator,progression,history,tss,antidote,service,
 
 ## 2026-11-01 — Fases 6 y 7 (UI de fuerza y entreno en vivo)
 Hecho: `/fuerza` (cuestionario, formato, workout de hoy, lista con fichas, progreso por patrón, antídoto, esfuerzo percibido, preferencias), `/fuerza/entreno/[id]` (viñeta animada, peso −/+, descansos, cambio de ejercicio, reanudable, resumen + RPE + esfuerzo). Pruebas: lógica en `lib/strength/*.test.ts`; la UI requiere migraciones aplicadas + sesión (ver DECISIONS D9).
+
+## 2026-11-01 — Fase 8 (IA opcional)
+Hecho: `lib/strength/ai.ts` + tests (modelo inyectado). Interruptor `STRENGTH_AI_ENABLED` (apagado). Sin clave de Gemini en el entorno: sin prueba real.

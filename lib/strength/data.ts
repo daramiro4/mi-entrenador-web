@@ -62,6 +62,7 @@ export interface StrengthWorkoutRecord {
   garmin_workout_id: string | null;
   progress: StrengthProgress | null;
   planned_session_id: string | null;
+  guidance: string | null;
 }
 
 /** Estado persistido del entreno en vivo para poder cerrar y reanudar. */
@@ -92,6 +93,7 @@ function toRecord(row: Database["public"]["Tables"]["strength_workouts"]["Row"])
     garmin_workout_id: row.garmin_workout_id,
     progress: row.progress as unknown as StrengthProgress | null,
     planned_session_id: row.planned_session_id,
+    guidance: ((row.generation_log as { guidance?: string | null } | null)?.guidance as string | null | undefined) ?? null,
   };
 }
 

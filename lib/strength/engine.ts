@@ -208,6 +208,23 @@ function pickName(input: GenerateInput, rand: () => number): string {
   return list[Math.floor(rand() * list.length)];
 }
 
+/** Construye una rutina a partir de ejercicios ya elegidos (p. ej. por la capa IA). Las cargas siguen siendo del motor. */
+export function generateFromExercises(input: GenerateInput, exs: Exercise[], name?: string): GeneratedWorkout {
+  const warmup = buildWarmup(exs, input);
+  const warmMin = estimateMinutes({ format: input.format, blocks: [warmup] });
+  const main = buildMain(input.format, exs, input, Math.max(8, input.prefs.session_minutes - warmMin));
+  const w: GeneratedWorkout = {
+    name: name ?? pickName(input, rng(input.seed)),
+    format: input.format,
+    duration_min: 0,
+    requested_min: input.prefs.session_minutes,
+    intensity: intensityFor(input),
+    blocks: [warmup, main],
+  };
+  w.duration_min = estimateMinutes(w);
+  return w;
+}
+
 /** Un intento de generación por reglas (determinista dada la semilla). */
 export function generateOnce(input: GenerateInput, attempt: number): GeneratedWorkout {
   const rand = rng(input.seed + attempt * 7919);

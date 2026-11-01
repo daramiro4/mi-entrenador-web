@@ -47,6 +47,8 @@ export interface GeneratedWorkout {
   duration_min: number;
   requested_min: number;
   intensity: Intensity;
+  /** Texto breve de guía (solo la capa IA lo redacta). */
+  guidance?: string;
   blocks: WorkoutBlock[];
 }
 

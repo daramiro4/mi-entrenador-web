@@ -58,6 +58,7 @@ export function WorkoutStudio({ workout, defaultFormat }: { workout: StrengthWor
               {workout.status === "done" && <Chip tone="success">Hecho</Chip>}
               {workout.status === "in_progress" && <Chip tone="warning">En curso</Chip>}
             </div>
+            {workout.guidance && <p className="mt-3 text-sm text-label-2">{workout.guidance}</p>}
             <div className="mt-4 flex flex-wrap items-center gap-2">
               {workout.status !== "done" && (
                 <LinkButton href={`/fuerza/entreno/${workout.id}`}>

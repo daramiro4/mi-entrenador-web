@@ -7,7 +7,7 @@
 - [x] 5. Generador y validador (reglas, progresión, TSS, antídoto, API interna, tests)
 - [x] 6. UI de fuerza (/fuerza, cuestionario, generar/guardar, esfuerzo percibido)
 - [x] 7. Entreno en vivo (/fuerza/entreno/[id])
-- [ ] 8. Capa IA opcional (Gemini) + narrativa
+- [x] 8. Capa IA opcional (Gemini) + narrativa
 - [ ] 9. Servicio Garmin (mapeo, validador de catálogo, dry-run, smoke test, docs/GARMIN.md)
 - [ ] 10. Pulido y entrega (a11y, rendimiento, reduced motion, fallback, capturas, README)
 - [ ] Informe final docs/REPORT.md
