@@ -118,7 +118,7 @@ export function PlannedSessionActions({
         <div className="flex items-center justify-between">
           <span className="text-sm text-paper">{SESSION_TYPE_LABEL[session.session_type]}</span>
           <div className="flex items-center gap-3">
-            <span className="text-xs text-fog uppercase tracking-wide">
+            <span className="text-xs text-fog">
               {PLANNED_SESSION_STATUS_LABEL[session.status]}
             </span>
             {canUndo ? (
@@ -142,7 +142,7 @@ export function PlannedSessionActions({
             {stats.map((stat) => (
               <div key={stat.label}>
                 <p className="metric text-sm text-paper">{stat.value}</p>
-                <p className="text-[10px] text-fog uppercase tracking-wide">{stat.label}</p>
+                <p className="text-[10px] text-fog">{stat.label}</p>
               </div>
             ))}
           </div>

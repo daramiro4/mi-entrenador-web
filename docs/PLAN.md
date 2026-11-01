@@ -1,7 +1,7 @@
 # PLAN — rama feat/garmin-apple-fuerza
 
-- [ ] 1. Cimientos (tokens, tema, fuente, manchas, componentes base, /ui)
-- [ ] 2. Dashboard Hoy
+- [x] 1. Cimientos (tokens, tema, fuente, manchas, componentes base, /ui)
+- [x] 2. Dashboard Hoy
 - [ ] 3. Datos de fuerza (migraciones, RLS, seed, tipos)
 - [ ] 4. Viñetas (PoseFigure + poses + tarjeta de ejercicio)
 - [ ] 5. Generador y validador (reglas, progresión, TSS, antídoto, API interna, tests)

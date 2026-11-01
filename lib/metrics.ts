@@ -1,6 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "./supabase/database.types";
-import type { FatigueIndexRow, FtpHistoryRow } from "./types";
+import type { DailyMetricsRow, FatigueIndexRow, FtpHistoryRow } from "./types";
 
 type TypedSupabaseClient = SupabaseClient<Database>;
 
@@ -113,6 +113,64 @@ export async function getLatestFatigueIndex(
 
   if (error) {
     throw new Error(`No se pudo obtener el índice de fatiga: ${error.message}`);
+  }
+
+  return data;
+}
+
+/** Historial de fatigue_index desde `sinceDate` (inclusive) hasta hoy, ascendente — para el gráfico de tendencia. */
+export async function getFatigueIndexHistory(
+  supabase: TypedSupabaseClient,
+  userId: string,
+  sinceDate: string
+): Promise<FatigueIndexRow[]> {
+  const { data, error } = await supabase
+    .from("fatigue_index")
+    .select("*")
+    .eq("user_id", userId)
+    .gte("date", sinceDate)
+    .order("date", { ascending: true });
+
+  if (error) {
+    throw new Error(`No se pudo obtener el historial de fatiga: ${error.message}`);
+  }
+
+  return data;
+}
+
+/** Historial de daily_metrics desde `sinceDate` (inclusive) hasta hoy, ascendente. */
+export async function getDailyMetricsHistory(
+  supabase: TypedSupabaseClient,
+  userId: string,
+  sinceDate: string
+): Promise<DailyMetricsRow[]> {
+  const { data, error } = await supabase
+    .from("daily_metrics")
+    .select("*")
+    .eq("user_id", userId)
+    .gte("date", sinceDate)
+    .order("date", { ascending: true });
+
+  if (error) {
+    throw new Error(`No se pudo obtener el historial de métricas diarias: ${error.message}`);
+  }
+
+  return data;
+}
+
+/** Historial completo de ftp_history, ascendente — para la curva de progresión. */
+export async function getFtpHistory(
+  supabase: TypedSupabaseClient,
+  userId: string
+): Promise<FtpHistoryRow[]> {
+  const { data, error } = await supabase
+    .from("ftp_history")
+    .select("*")
+    .eq("user_id", userId)
+    .order("date", { ascending: true });
+
+  if (error) {
+    throw new Error(`No se pudo obtener el historial de FTP: ${error.message}`);
   }
 
   return data;

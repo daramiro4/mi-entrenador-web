@@ -84,10 +84,10 @@ export function ExtraSessionButton() {
       {error && <span className="text-[10px] text-fatiga">{error}</span>}
 
       {state.mode === "previewing" && (
-        <div className="data-surface rounded-sm p-3 space-y-2 text-left w-64">
+        <div className="data-surface p-3 space-y-2 text-left w-64">
           <div>
             <p className="text-sm text-paper font-semibold">{state.preview.workout_name}</p>
-            <p className="text-[10px] text-fog uppercase tracking-wide">
+            <p className="text-[10px] text-fog">
               {state.preview.estimated_duration_minutes} min en total · por pulso
             </p>
             <p className="text-xs text-fog mt-1">{state.reason}</p>

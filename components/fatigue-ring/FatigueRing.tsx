@@ -102,9 +102,9 @@ export function FatigueRing({ acwrRatio, recommendation, notes, size = 208 }: Fa
               <span className="metric text-3xl font-semibold" style={{ color }}>
                 {(acwrRatio as number).toFixed(2)}
               </span>
-              <span className="text-xs uppercase tracking-wide text-fog mt-1">ACWR</span>
+              <span className="text-xs text-fog mt-1">ACWR</span>
               <span
-                className="font-display text-base uppercase tracking-wide mt-2"
+                className="font-display text-base mt-2"
                 style={{ color }}
               >
                 {RECOMMENDATION_LABEL[recommendation as FatigueRecommendation]}
@@ -114,12 +114,12 @@ export function FatigueRing({ acwrRatio, recommendation, notes, size = 208 }: Fa
           ) : (
             <>
               <span
-                className="font-display text-xl uppercase tracking-wide leading-tight"
+                className="font-display text-xl leading-tight"
                 style={{ color }}
               >
                 {RECOMMENDATION_PHRASE[recommendation as FatigueRecommendation]}
               </span>
-              <span className="text-[10px] uppercase tracking-wide text-fog mt-2">
+              <span className="text-[10px] text-fog mt-2">
                 Toca para ver el detalle
               </span>
             </>

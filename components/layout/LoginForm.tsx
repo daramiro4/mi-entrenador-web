@@ -38,8 +38,8 @@ export function LoginForm({ initialError }: { initialError?: string }) {
 
   if (status === "sent") {
     return (
-      <div className="data-surface rounded-sm p-6 text-center space-y-2">
-        <p className="font-display text-2xl uppercase text-paper">Revisa tu email</p>
+      <div className="data-surface p-6 text-center space-y-2">
+        <p className="font-display text-2xl text-paper">Revisa tu email</p>
         <p className="text-fog text-sm">
           Te hemos enviado un enlace de acceso a <span className="text-paper">{email}</span>.
         </p>

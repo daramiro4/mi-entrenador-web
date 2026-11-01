@@ -157,7 +157,7 @@ export function OnboardingWizard({
   return (
     <div className="space-y-8">
       <div className="space-y-2">
-        <p className="metric text-xs text-fog uppercase tracking-wide">
+        <p className="metric text-xs text-fog">
           Paso {currentStepIndex + 1} de {steps.length}
         </p>
         <div className="flex gap-1.5">

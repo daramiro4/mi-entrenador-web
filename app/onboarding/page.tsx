@@ -28,7 +28,7 @@ export default async function OnboardingPage() {
     <main className="flex-1 px-6 py-10 md:py-16">
       <div className="max-w-xl mx-auto space-y-8">
         <div className="space-y-1">
-          <p className="font-display text-3xl uppercase tracking-wide text-paper">
+          <p className="font-display text-3xl text-paper">
             Vamos a montar tu temporada
           </p>
           <p className="text-fog text-sm">

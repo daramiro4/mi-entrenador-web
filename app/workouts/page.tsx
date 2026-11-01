@@ -20,7 +20,7 @@ export default async function WorkoutsPage() {
     <main className="flex-1 px-6 py-10 md:py-16">
       <div className="max-w-2xl mx-auto space-y-6">
         <div className="flex items-center justify-between">
-          <p className="font-display text-3xl uppercase tracking-wide text-paper">
+          <p className="font-display text-3xl text-paper">
             Plantillas de entreno
           </p>
           <LinkButton href="/workouts/new">Nueva</LinkButton>

@@ -14,11 +14,11 @@ export function WorkoutsList({ workouts }: { workouts: Workout[] }) {
       {workouts.map((workout) => (
         <div
           key={workout.id}
-          className="data-surface rounded-sm p-4 flex items-center justify-between gap-4"
+          className="data-surface p-4 flex items-center justify-between gap-4"
         >
           <div>
             <p className="text-paper font-semibold">{workout.name}</p>
-            <p className="text-xs text-fog uppercase tracking-wide">
+            <p className="text-xs text-fog">
               {workout.type ? WORKOUT_TYPE_LABEL[workout.type] : "—"} ·{" "}
               {computeWorkoutDurationMinutes(workout.intervals)} min ·{" "}
               {workout.intervals.length} pasos

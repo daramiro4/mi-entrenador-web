@@ -21,10 +21,10 @@ export function SeasonSummaryCard({
   const daysLeft = season.target_date ? daysUntil(season.target_date) : null;
 
   return (
-    <div className="data-surface rounded-sm p-5 space-y-4">
+    <div className="data-surface p-5 space-y-4">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="font-display text-2xl uppercase tracking-wide text-paper leading-none">
+          <p className="font-display text-2xl text-paper leading-none">
             {season.name}
           </p>
           <p className="text-fog text-sm mt-1">{GOAL_TYPE_LABEL[season.goal_type]}</p>
@@ -32,7 +32,7 @@ export function SeasonSummaryCard({
         {daysLeft !== null && (
           <div className="text-right shrink-0">
             <p className="metric text-2xl text-volt leading-none">{daysLeft}</p>
-            <p className="text-xs text-fog uppercase tracking-wide mt-1">días restantes</p>
+            <p className="text-xs text-fog mt-1">días restantes</p>
           </div>
         )}
       </div>
@@ -53,14 +53,14 @@ export function SeasonSummaryCard({
       {season.target_ftp != null && (
         <div className="flex items-center gap-6 pt-3 border-t border-fog/15">
           <div>
-            <p className="text-xs text-fog uppercase tracking-wide">FTP actual</p>
+            <p className="text-xs text-fog">FTP actual</p>
             <p className="metric text-xl text-paper">
               {currentFtpWatts != null ? `${Math.round(currentFtpWatts)} W` : "—"}
             </p>
           </div>
           <span className="text-fog">→</span>
           <div>
-            <p className="text-xs text-fog uppercase tracking-wide">FTP objetivo</p>
+            <p className="text-xs text-fog">FTP objetivo</p>
             <p className="metric text-xl text-ember">{Math.round(season.target_ftp)} W</p>
           </div>
         </div>
@@ -69,7 +69,7 @@ export function SeasonSummaryCard({
       {progress?.pct != null && (
         <div className="pt-3 border-t border-fog/15">
           <div className="flex items-baseline justify-between">
-            <p className="text-xs text-fog uppercase tracking-wide">Progreso del bloque</p>
+            <p className="text-xs text-fog">Progreso del bloque</p>
             <p className="metric text-sm text-paper">
               {Math.round(progress.completedTss)} / {Math.round(progress.targetTss)} TSS
             </p>

@@ -63,10 +63,10 @@ export function SendToGarminButton({ plannedSessionId }: { plannedSessionId: str
       {error && <span className="text-[9px] text-fatiga text-center">{error}</span>}
 
       {mode === "previewing" && preview && (
-        <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 z-10 w-56 data-surface rounded-sm p-3 space-y-2 text-left shadow-lg">
+        <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 z-10 w-56 data-surface p-3 space-y-2 text-left shadow-lg">
           <div>
             <p className="text-sm text-paper font-semibold">{preview.workout_name}</p>
-            <p className="text-[10px] text-fog uppercase tracking-wide">
+            <p className="text-[10px] text-fog">
               {preview.estimated_duration_minutes} min en total
             </p>
           </div>

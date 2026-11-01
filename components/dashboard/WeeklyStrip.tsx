@@ -2,6 +2,9 @@
 
 import { useState } from "react";
 import { SESSION_TYPE_CIRCLE_CLASS, SESSION_TYPE_LABEL } from "@/lib/labels";
+import type { ReactNode } from "react";
+import { DAY_STATE_LABEL, dayState } from "@/lib/dashboard-stats";
+import { addDays } from "@/lib/week";
 import type { ActivityRow, PlannedSession, StrengthSessionRow } from "@/lib/types";
 import { getWeekdayIndex } from "@/lib/week";
 import { SendToGarminButton } from "./SendToGarminButton";
@@ -15,11 +18,15 @@ export function WeeklyStrip({
   activities,
   strengthSessions,
   today,
+  header,
+  weekStartDate,
 }: {
   sessions: PlannedSession[];
   activities: ActivityRow[];
   strengthSessions: StrengthSessionRow[];
   today: string;
+  header?: ReactNode;
+  weekStartDate: string;
 }) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
@@ -31,8 +38,8 @@ export function WeeklyStrip({
   const selectedSession = sessions.find((s) => s.id === selectedId) ?? null;
 
   return (
-    <div className="data-surface rounded-sm p-5">
-      <p className="text-xs text-fog uppercase tracking-wide mb-3">Esta semana</p>
+    <div id="plan" className="data-surface scroll-mt-20">
+      {header}
       <div className="grid grid-cols-7 gap-2">
         {DAYS.map((day, index) => {
           const session = sessionsByWeekday[index];
@@ -48,7 +55,7 @@ export function WeeklyStrip({
                 onClick={() =>
                   setSelectedId((current) => (current === session!.id ? null : session!.id))
                 }
-                className={`h-10 w-10 rounded-full border flex items-center justify-center text-[10px] font-semibold transition-opacity disabled:cursor-default ${
+                className={`h-11 w-11 rounded-full border flex items-center justify-center text-[10px] font-semibold transition-opacity disabled:cursor-default ${
                   isSelectable ? "cursor-pointer" : ""
                 } ${isSelected ? "ring-2 ring-paper/50" : ""} ${
                   session ? SESSION_TYPE_CIRCLE_CLASS[session.session_type] : "border-fog/25"
@@ -61,6 +68,9 @@ export function WeeklyStrip({
                     : SESSION_TYPE_LABEL[session.session_type][0]
                   : ""}
               </button>
+              <span className="text-[10px] leading-none text-label-2">
+                {DAY_STATE_LABEL[dayState(session, addDays(weekStartDate, index), today)]}
+              </span>
               {session?.planned_tss != null && (
                 <span className="metric text-[10px] text-fog">{session.planned_tss}</span>
               )}

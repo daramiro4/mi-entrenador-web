@@ -10,7 +10,7 @@ export function ChangeGoalButton() {
 
   if (confirming) {
     return (
-      <div className="data-surface rounded-sm p-4 space-y-3">
+      <div className="data-surface p-4 space-y-3">
         <p className="text-sm text-paper">
           Esto archivará tu temporada activa y volverás a pasar por el cuestionario. ¿Seguro?
         </p>

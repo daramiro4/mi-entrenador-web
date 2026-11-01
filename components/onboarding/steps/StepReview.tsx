@@ -27,7 +27,7 @@ export function StepReview({
   return (
     <div className="space-y-6">
       {autoFtpResult && (
-        <div className="data-surface rounded-sm p-4 space-y-2">
+        <div className="data-surface p-4 space-y-2">
           <p className="text-sm text-fog leading-relaxed">
             Partiendo de{" "}
             <span className="metric text-paper">{autoFtpResult.currentWkg.toFixed(2)} W/kg</span>{" "}

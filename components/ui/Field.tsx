@@ -11,7 +11,7 @@ export function Field({
 }) {
   return (
     <div className="space-y-2">
-      <span className="block font-display text-xl uppercase tracking-wide text-paper leading-none">
+      <span className="block font-display text-xl text-paper leading-none">
         {label}
       </span>
       {children}

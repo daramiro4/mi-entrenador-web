@@ -22,7 +22,7 @@ export default async function EditWorkoutPage(props: PageProps<"/workouts/[id]/e
   return (
     <main className="flex-1 px-6 py-10 md:py-16">
       <div className="max-w-2xl mx-auto space-y-6">
-        <p className="font-display text-3xl uppercase tracking-wide text-paper">
+        <p className="font-display text-3xl text-paper">
           Editar plantilla
         </p>
         <WorkoutForm mode="edit" workout={workout} />

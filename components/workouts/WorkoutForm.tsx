@@ -109,7 +109,7 @@ export function WorkoutForm({
       </Field>
 
       <div className="space-y-3">
-        <span className="block font-display text-xl uppercase tracking-wide text-paper leading-none">
+        <span className="block font-display text-xl text-paper leading-none">
           Pasos
         </span>
 
@@ -119,10 +119,10 @@ export function WorkoutForm({
           {steps.map((step, index) => (
             <div
               key={index}
-              className="data-surface rounded-sm p-3 grid grid-cols-[1fr_1fr_1fr_1fr_auto] gap-2 items-end"
+              className="data-surface p-3 grid grid-cols-[1fr_1fr_1fr_1fr_auto] gap-2 items-end"
             >
               <label className="space-y-1">
-                <span className="text-[10px] text-fog uppercase tracking-wide">Tipo de paso</span>
+                <span className="text-[10px] text-fog">Tipo de paso</span>
                 <select
                   className={SELECT_CLASSES}
                   value={step.kind}
@@ -137,7 +137,7 @@ export function WorkoutForm({
               </label>
 
               <label className="space-y-1">
-                <span className="text-[10px] text-fog uppercase tracking-wide">Duración (s)</span>
+                <span className="text-[10px] text-fog">Duración (s)</span>
                 <NumberInput
                   value={step.duration_seconds}
                   onChange={(e) => updateStep(index, { duration_seconds: Number(e.target.value) })}
@@ -145,7 +145,7 @@ export function WorkoutForm({
               </label>
 
               <label className="space-y-1">
-                <span className="text-[10px] text-fog uppercase tracking-wide">% FTP mín.</span>
+                <span className="text-[10px] text-fog">% FTP mín.</span>
                 <NumberInput
                   value={step.target_low_pct_ftp}
                   onChange={(e) =>
@@ -155,7 +155,7 @@ export function WorkoutForm({
               </label>
 
               <label className="space-y-1">
-                <span className="text-[10px] text-fog uppercase tracking-wide">% FTP máx.</span>
+                <span className="text-[10px] text-fog">% FTP máx.</span>
                 <NumberInput
                   value={step.target_high_pct_ftp}
                   onChange={(e) =>
