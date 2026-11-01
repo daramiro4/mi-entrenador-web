@@ -31,3 +31,6 @@ Hecho: `components/strength/PoseFigure.tsx` (PoseFigure, PosePair, PoseLoop con 
 
 ## 2026-11-01 — Fase 5 (generador y validador)
 Hecho: `lib/strength/{engine,validator,progression,history,tss,antidote,service,data}.ts`, API interna `POST /api/fuerza/generar` ({format, save?}), 41 ejercicios (+remo invertido), ~90 tests nuevos (motor, validador, progresión, TSS, historial, seed). Probar: `npx vitest run lib/strength`. La API requiere sesión y las migraciones aplicadas (si no: 503 con mensaje).
+
+## 2026-11-01 — Fases 6 y 7 (UI de fuerza y entreno en vivo)
+Hecho: `/fuerza` (cuestionario, formato, workout de hoy, lista con fichas, progreso por patrón, antídoto, esfuerzo percibido, preferencias), `/fuerza/entreno/[id]` (viñeta animada, peso −/+, descansos, cambio de ejercicio, reanudable, resumen + RPE + esfuerzo). Pruebas: lógica en `lib/strength/*.test.ts`; la UI requiere migraciones aplicadas + sesión (ver DECISIONS D9).

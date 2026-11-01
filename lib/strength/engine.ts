@@ -261,3 +261,15 @@ export function generateWorkout(input: GenerateInput): GenerateResult {
   }
   return { workout: null, attempts };
 }
+
+/** Alternativas elegibles (equipamiento, nivel y zonas) de un ejercicio, para "Cambiar ejercicio". */
+export function eligibleAlternatives(slug: string, prefs: GenerateInput["prefs"], recentDiscomfort: Contraindication[] = []): string[] {
+  const ex = EXERCISE_BY_SLUG[slug];
+  if (!ex) return [];
+  const probe = { prefs, recentDiscomfort } as GenerateInput;
+  const mobilityOk = (e: Exercise) => e.pattern === "mobility" && !e.contraindications.some((c) => blockedAreas(probe).has(c));
+  return ex.alternatives.filter((s) => {
+    const alt = EXERCISE_BY_SLUG[s];
+    return !!alt && (isEligible(alt, probe) || mobilityOk(alt));
+  });
+}

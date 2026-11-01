@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { computeBadges, computeStreak, computeTotals, dayState, greeting, redistributionLine, weekHeadline } from "./dashboard-stats";
+import { sumTss, computeBadges, computeStreak, computeTotals, dayState, greeting, redistributionLine, weekHeadline } from "./dashboard-stats";
 import type { PlannedSession } from "./types";
 
 const s = (o: Partial<PlannedSession>): PlannedSession =>
@@ -35,6 +35,14 @@ describe("dashboard-stats", () => {
     expect(t.strengthKgMonth).toBe(600);
     expect(t.hoursLast30).toBe(1.5);
     expect(computeBadges({ streak: 2, totals: t, activityCount: 1 }).filter((b) => b.earned).length).toBe(2);
+  });
+  it("sumTss no cuenta dos veces la fuerza del mismo día (Garmin + app)", () => {
+    expect(sumTss([
+      { tss: 30, date: "2026-11-02", activity_type: "strength", source: "garmin" },
+      { tss: 20, date: "2026-11-02", activity_type: "strength", source: "mi-entrenador-web" },
+      { tss: 50, date: "2026-11-03", activity_type: "cycling", source: "garmin" },
+    ])).toBe(80);
+    expect(sumTss([{ tss: 20, date: "2026-11-02", activity_type: "strength", source: "mi-entrenador-web" }])).toBe(20);
   });
   it("saludo", () => {
     expect(greeting(8, "David")).toBe("Buenos días, David");

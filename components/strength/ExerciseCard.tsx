@@ -6,12 +6,12 @@ import { EQUIPMENT_LABEL, LEVEL_LABEL, PATTERN_LABEL } from "@/lib/strength/labe
 import type { Exercise } from "@/lib/strength/types";
 
 /** Ficha del ejercicio: posturas, claves de técnica, error común, alternativas y envío al reloj. */
-export function ExerciseCard({ exercise }: { exercise: Exercise }) {
+export function ExerciseCard({ exercise, bare = false }: { exercise: Exercise; bare?: boolean }) {
   const alts = exercise.alternatives.map((s) => EXERCISE_BY_SLUG[s]?.name_es).filter(Boolean);
   return (
-    <article className="glass-card is-hoverable flex flex-col gap-4">
+    <article className={`${bare ? "" : "glass-card is-hoverable"} flex flex-col gap-4`}>
       <header>
-        <h3 className="text-lg font-semibold">{exercise.name_es}</h3>
+        {!bare && <h3 className="text-lg font-semibold">{exercise.name_es}</h3>}
         <div className="mt-2 flex flex-wrap gap-2">
           <Chip tone="accent">{PATTERN_LABEL[exercise.pattern]}</Chip>
           <Chip>{LEVEL_LABEL[exercise.level]}</Chip>

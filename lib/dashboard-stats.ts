@@ -6,8 +6,26 @@ export const STREAK_MIN_PCT = 85;
 
 const WEEKDAY_NAME = ["lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo"];
 
-export function sumTss(activities: Pick<ActivityRow, "tss">[]): number {
-  return Math.round(activities.reduce((acc, a) => acc + (a.tss ?? 0), 0));
+/**
+ * TSS total de actividades. Evita doble conteo: si el mismo día hay una actividad de
+ * fuerza de Garmin con TSS y otra escrita por la app (`source = mi-entrenador-web`),
+ * solo cuenta la de Garmin.
+ */
+export function sumTss(
+  activities: Array<Pick<ActivityRow, "tss"> & Partial<Pick<ActivityRow, "date" | "activity_type" | "source">>>
+): number {
+  const garminStrengthDays = new Set(
+    activities
+      .filter((a) => a.activity_type === "strength" && a.source !== "mi-entrenador-web" && (a.tss ?? 0) > 0)
+      .map((a) => a.date)
+  );
+  return Math.round(
+    activities.reduce((acc, a) => {
+      const duplicate =
+        a.source === "mi-entrenador-web" && a.activity_type === "strength" && garminStrengthDays.has(a.date);
+      return duplicate ? acc : acc + (a.tss ?? 0);
+    }, 0)
+  );
 }
 
 export function sumPlannedTss(sessions: Pick<PlannedSession, "planned_tss">[]): number {

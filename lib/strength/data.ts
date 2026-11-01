@@ -1,7 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database, Json } from "@/lib/supabase/database.types";
 import { addDays } from "@/lib/week";
-import type { Contraindication, Equipment } from "./types";
+import type { Contraindication, Equipment, FormatSlug } from "./types";
 import type { GeneratedWorkout, Prefs, WorkoutBlock } from "./workout-types";
 import type { PastWorkout } from "./history";
 
@@ -49,7 +49,7 @@ export async function savePrefs(supabase: Client, userId: string, prefs: Prefs):
 export interface StrengthWorkoutRecord {
   id: string;
   name: string;
-  format: string;
+  format: FormatSlug;
   date: string;
   duration_min: number;
   intensity: string | null;
@@ -79,7 +79,7 @@ function toRecord(row: Database["public"]["Tables"]["strength_workouts"]["Row"])
   return {
     id: row.id,
     name: row.name,
-    format: row.format,
+    format: row.format as FormatSlug,
     date: row.date,
     duration_min: row.duration_min,
     intensity: row.intensity,
