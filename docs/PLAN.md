@@ -9,5 +9,5 @@
 - [x] 7. Entreno en vivo (/fuerza/entreno/[id])
 - [x] 8. Capa IA opcional (Gemini) + narrativa
 - [x] 9. Servicio Garmin (mapeo, validador de catálogo, dry-run, smoke test, docs/GARMIN.md)
-- [ ] 10. Pulido y entrega (a11y, rendimiento, reduced motion, fallback, capturas, README)
-- [ ] Informe final docs/REPORT.md
+- [x] 10. Pulido y entrega (a11y, rendimiento, reduced motion, fallback, capturas, README)
+- [x] Informe final docs/REPORT.md

@@ -134,7 +134,7 @@ export default async function DashboardPage() {
     <AppShell active="hoy">
       <DashboardSyncEffect />
       <header className="mb-6">
-        <p className="text-sm capitalize text-label-2">{dateLabel}</p>
+        <p className="text-sm text-label-2 first-letter:uppercase">{dateLabel}</p>
         <h1 className="text-3xl font-semibold sm:text-4xl" style={{ letterSpacing: "-0.025em" }}>
           {greeting(new Date().getHours(), profileName)}
         </h1>

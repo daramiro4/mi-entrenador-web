@@ -38,3 +38,10 @@ Ver `.env.local.example`.
 
 Login, onboarding condicional (cuestionario de temporada) y dashboard inicial con el anillo de fatiga.
 El motor de generación del plan de entrenamiento y la integración con Telegram son fases posteriores.
+
+## Diseño "Garmin by Apple" y módulo de fuerza (rama `feat/garmin-apple-fuerza`)
+- Tokens de color en `app/tokens.css` (único sitio donde afinar los tonos); componentes base en `components/ui/`.
+- Fuerza: `lib/strength/` (biblioteca, poses, motor, validador, progresión, TSS, mapeo Garmin), rutas `/fuerza` y `/fuerza/entreno/[id]`, API interna `POST /api/fuerza/generar` y `POST /api/fuerza/garmin` (dry-run por defecto).
+- Documentación de la rama: `docs/` (PLAN, PROGRESS, DECISIONS, BLOCKERS, GARMIN, REPORT). Capturas: `docs/screens/`.
+- Previews con datos de ejemplo (sin BD): `UI_PREVIEW=1 npm run build && UI_PREVIEW=1 npm start` → `/ui`, `/ui/poses`, `/ui/preview/{hoy,fuerza,entreno}`.
+- Tests: `npx vitest run` · Python: `python3 -m unittest scripts.test_garmin_strength` · Catálogo Garmin: `python scripts/validate_garmin_mapping.py`.

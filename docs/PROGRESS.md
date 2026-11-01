@@ -40,3 +40,6 @@ Hecho: `lib/strength/ai.ts` + tests (modelo inyectado). Interruptor `STRENGTH_AI
 
 ## 2026-11-01 — Fase 9 (servicio Garmin)
 Hecho: mapeo TS→JSON de Garmin + tests, API de dry-run, función Python `api/garmin_strength.py`, validador de catálogo (41/41 ejercicios reales), script de prueba manual, `docs/GARMIN.md`. Verificado en Python 3.12 (Docker): validación del catálogo, dry-run del smoke test, tests Python y validación pydantic de los 5 formatos. Pendiente para David: prueba real con el Forerunner y deploy de la función en Vercel.
+
+## 2026-11-01 — Fase 10 (pulido) y entrega
+Lighthouse móvil: rendimiento 100 / accesibilidad 96 en hoy y fuerza (previews). Acento claro oscurecido a #0070b0 para contraste AA. Capturas en `docs/screens/`. Informe: `docs/REPORT.md`.

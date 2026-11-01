@@ -33,8 +33,11 @@ export async function proxy(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const { pathname } = request.nextUrl;
+  // /ui/* (galería y previews con datos de ejemplo) solo es público con UI_PREVIEW=1 (local/capturas).
   const isPublicPath =
-    PUBLIC_PATHS.includes(pathname) || pathname.startsWith("/auth");
+    PUBLIC_PATHS.includes(pathname) ||
+    pathname.startsWith("/auth") ||
+    (process.env.UI_PREVIEW === "1" && pathname.startsWith("/ui"));
 
   if (!user && !isPublicPath) {
     const url = request.nextUrl.clone();
