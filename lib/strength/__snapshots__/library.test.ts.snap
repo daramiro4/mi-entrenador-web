@@ -3,40 +3,40 @@
 exports[`poses (snapshot geométrico) > snapshot de una pose de referencia (peso muerto rumano) 1`] = `
 {
   "ankle": [
-    48.2,
+    50.5,
     158,
   ],
   "elbow": [
-    84.1,
+    86.4,
     107.7,
   ],
   "equipment": {
     "anchor": undefined,
     "at": [
-      84.1,
+      86.4,
       126.7,
     ],
     "kind": "dumbbell",
   },
   "head": [
-    93.5,
+    95.8,
     83.3,
   ],
   "hip": [
-    46.5,
+    48.8,
     100.4,
   ],
   "knee": [
-    50.7,
+    53,
     130.1,
   ],
   "label": "Abajo",
   "shoulder": [
-    84.1,
+    86.4,
     86.7,
   ],
   "wrist": [
-    84.1,
+    86.4,
     126.7,
   ],
 }

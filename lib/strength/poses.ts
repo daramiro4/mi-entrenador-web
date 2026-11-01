@@ -81,7 +81,6 @@ export function buildPosePair(a: PoseSpec, b: PoseSpec): [Pose, Pose] {
   const all = [...points(pa), ...points(pb)];
   const minX = Math.min(...all.map((p) => p[0]));
   const maxX = Math.max(...all.map((p) => p[0]));
-  const minY = Math.min(...all.map((p) => p[1]));
   const maxY = Math.max(...all.map((p) => p[1]));
   const dx = (VIEWBOX.w - (maxX - minX)) / 2 - minX;
   // Alinea al suelo (abajo) con margen para el pie/mancuerna.

@@ -18,7 +18,7 @@ const DOWN = mk("Abajo");
 const START = mk("Inicio");
 const END = mk("Final");
 
-const STAND = [-90, 90, 90] as const;
+const STAND = [-90, 93, 87] as const;
 
 interface Def {
   slug: string;
@@ -72,7 +72,7 @@ export const EXERCISES: Exercise[] = [
   // ---------- Bisagra ----------
   def({ slug: "peso-muerto-rumano", name_es: "Peso muerto rumano con mancuernas", pattern: "hinge", equipment: ["dumbbell", "barbell"], level: 2, leg_load: "heavy", contra: ["low_back"],
     alt: ["buenos-dias-mancuerna", "puente-gluteo"], cues: ["Espalda larga y neutra", "Lleva la cadera atrás como si cerraras un cajón", "Mancuernas pegadas a las piernas"], error: "Redondear la espalda baja al bajar.",
-    garmin: ["DEADLIFT", "ROMANIAN_DEADLIFT"], a: UP(...STAND, 90, 90, { eq: "dumbbell" }), b: DOWN(-20, 82, 95, 90, 90, { eq: "dumbbell" }) }),
+    garmin: ["DEADLIFT", "ROMANIAN_DEADLIFT"], a: UP(...STAND, 104, 94, { eq: "dumbbell" }), b: DOWN(-20, 82, 95, 90, 90, { eq: "dumbbell" }) }),
   def({ slug: "puente-gluteo", name_es: "Puente de glúteo", pattern: "hinge", equipment: ["bodyweight"], leg_load: "light",
     alt: ["hip-thrust", "puente-gluteo-una-pierna"], cues: ["Talones cerca de los glúteos", "Sube empujando con los talones", "Aprieta glúteos arriba, sin arquear la espalda"], error: "Arquear la zona lumbar en vez de extender la cadera.",
     garmin: ["HIP_RAISE", "BARBELL_HIP_THRUST_ON_FLOOR"], a: START(180, -55, 60, 0, 0, { pin: "ankle" }), b: END(163, -12, 72, 0, 0, { pin: "ankle" }) }),
@@ -84,13 +84,13 @@ export const EXERCISES: Exercise[] = [
     garmin: ["HIP_STABILITY", "GOOD_MORNING"], a: UP(...STAND, 70, -140, { eq: "dumbbell" }), b: DOWN(-22, 80, 95, 70, -140, { eq: "dumbbell" }) }),
   def({ slug: "peso-muerto-una-pierna", name_es: "Peso muerto a una pierna", pattern: "hinge", equipment: ["dumbbell", "bodyweight"], level: 3, leg_load: "light", contra: ["low_back"], uni: true,
     alt: ["peso-muerto-rumano", "puente-gluteo-una-pierna"], cues: ["Mira un punto fijo en el suelo", "Cadera cuadrada, sin abrir", "Pierna de apoyo con la rodilla suave"], error: "Rotar la cadera hacia el lado de la pierna libre.",
-    garmin: ["DEADLIFT", "DUMBBELL_SINGLE_LEG_DEADLIFT_TO_ROW"], a: UP(...STAND, 90, 90, { eq: "dumbbell" }), b: DOWN(-8, 84, 95, 90, 90, { eq: "dumbbell" }) }),
+    garmin: ["DEADLIFT", "DUMBBELL_SINGLE_LEG_DEADLIFT_TO_ROW"], a: UP(...STAND, 104, 94, { eq: "dumbbell" }), b: DOWN(-8, 84, 95, 90, 90, { eq: "dumbbell" }) }),
   def({ slug: "peso-muerto-kettlebell", name_es: "Peso muerto con kettlebell", pattern: "hinge", equipment: ["kettlebell", "dumbbell"], leg_load: "heavy", contra: ["low_back"],
     alt: ["peso-muerto-rumano", "puente-gluteo"], cues: ["Pecho alto, hombros atrás", "Empuja el suelo con los pies", "Cadera y hombros suben a la vez"], error: "Tirar con la espalda y los brazos en lugar de empujar con las piernas.",
-    garmin: ["DEADLIFT", "KETTLEBELL_FLOOR_TO_SHELF"], a: UP(...STAND, 90, 90, { eq: "kettlebell" }), b: DOWN(-42, 58, 104, 90, 90, { eq: "kettlebell" }) }),
+    garmin: ["DEADLIFT", "KETTLEBELL_FLOOR_TO_SHELF"], a: UP(...STAND, 104, 94, { eq: "kettlebell" }), b: DOWN(-42, 58, 104, 90, 90, { eq: "kettlebell" }) }),
   def({ slug: "peso-muerto-barra", name_es: "Peso muerto con barra", pattern: "hinge", equipment: ["barbell"], level: 3, leg_load: "heavy", contra: ["low_back"],
     alt: ["peso-muerto-kettlebell", "peso-muerto-rumano"], cues: ["Barra pegada a las espinillas", "Espalda neutra, abdomen firme", "Empuja el suelo y extiende cadera"], error: "Despegar la barra del cuerpo y redondear la espalda.",
-    garmin: ["DEADLIFT", "BARBELL_DEADLIFT"], a: UP(...STAND, 90, 90, { eq: "barbell" }), b: DOWN(-38, 55, 106, 90, 90, { eq: "barbell" }) }),
+    garmin: ["DEADLIFT", "BARBELL_DEADLIFT"], a: UP(...STAND, 104, 94, { eq: "barbell" }), b: DOWN(-38, 55, 106, 90, 90, { eq: "barbell" }) }),
   def({ slug: "puente-gluteo-una-pierna", name_es: "Puente de glúteo a una pierna", pattern: "hinge", equipment: ["bodyweight"], level: 2, leg_load: "light", uni: true,
     alt: ["puente-gluteo"], cues: ["Cadera nivelada", "Empuja con el talón de apoyo", "Sube sin arquear la espalda"], error: "Dejar caer la cadera del lado de la pierna libre.",
     garmin: ["HIP_RAISE", "SINGLE_LEG_BARBELL_GLUTE_BRIDGE"], a: START(180, -55, 60, 0, 0), b: END(163, -12, 72, 0, 0) }),
@@ -101,31 +101,31 @@ export const EXERCISES: Exercise[] = [
     garmin: ["SQUAT", "GOBLET_SQUAT"], a: UP(...STAND, 70, -140, { eq: "dumbbell" }), b: DOWN(-62, 24, 116, 70, -140, { eq: "dumbbell" }) }),
   def({ slug: "sentadilla-peso-corporal", name_es: "Sentadilla con peso corporal", pattern: "squat", equipment: ["bodyweight"], leg_load: "light", contra: ["knee"],
     alt: ["sentadilla-caja", "sentadilla-goblet"], cues: ["Pies al ancho de hombros", "Baja como si te sentaras", "Pecho alto, talones apoyados"], error: "Levantar los talones del suelo.",
-    garmin: ["SQUAT", "BODY_WEIGHT_SQUAT"], a: UP(...STAND, 90, 90), b: DOWN(-62, 24, 116, 0, 0) }),
+    garmin: ["SQUAT", "BODY_WEIGHT_SQUAT"], a: UP(...STAND, 104, 94), b: DOWN(-62, 24, 116, 0, 0) }),
   def({ slug: "sentadilla-caja", name_es: "Sentadilla a la caja", pattern: "squat", equipment: ["bodyweight", "dumbbell"], leg_load: "light", contra: ["knee"],
     alt: ["sentadilla-peso-corporal"], cues: ["Toca la caja con los glúteos sin dejarte caer", "Cadera atrás primero", "Sube empujando el suelo"], error: "Dejarse caer sobre la caja.",
     garmin: ["SQUAT", "BOX_SQUAT"], a: UP(...STAND, 70, -140, { eq: "dumbbell" }), b: DOWN(-58, 12, 98, 70, -140, { eq: "dumbbell" }) }),
   def({ slug: "zancada", name_es: "Zancada", pattern: "squat", equipment: ["bodyweight", "dumbbell"], level: 2, leg_load: "heavy", contra: ["knee"], uni: true,
     alt: ["zancada-atras", "subida-cajon"], cues: ["Paso largo, torso erguido", "Rodilla delantera sobre el tobillo", "Empuja con el talón delantero"], error: "Rodilla delantera que se va hacia dentro o muy adelante del pie.",
-    garmin: ["LUNGE", "DUMBBELL_LUNGE"], a: UP(...STAND, 90, 90, { eq: "dumbbell" }), b: DOWN(-86, 8, 100, 90, 90, { eq: "dumbbell" }) }),
+    garmin: ["LUNGE", "DUMBBELL_LUNGE"], a: UP(...STAND, 104, 94, { eq: "dumbbell" }), b: DOWN(-86, 8, 100, 90, 90, { eq: "dumbbell" }) }),
   def({ slug: "zancada-atras", name_es: "Zancada hacia atrás", pattern: "squat", equipment: ["bodyweight", "dumbbell"], level: 1, leg_load: "heavy", contra: ["knee"], uni: true,
     alt: ["zancada", "subida-cajon"], cues: ["Da el paso atrás con control", "Torso erguido", "Vuelve empujando con la pierna delantera"], error: "Inclinar el torso hacia delante.",
-    garmin: ["LUNGE", "REVERSE_LUNGE"], a: UP(...STAND, 90, 90, { eq: "dumbbell" }), b: DOWN(-88, 18, 96, 90, 90, { eq: "dumbbell" }) }),
+    garmin: ["LUNGE", "REVERSE_LUNGE"], a: UP(...STAND, 104, 94, { eq: "dumbbell" }), b: DOWN(-88, 18, 96, 90, 90, { eq: "dumbbell" }) }),
   def({ slug: "sentadilla-bulgara", name_es: "Sentadilla búlgara", pattern: "squat", equipment: ["dumbbell", "bodyweight"], level: 3, leg_load: "heavy", contra: ["knee"], uni: true,
     alt: ["zancada", "subida-cajon"], cues: ["Pie trasero apoyado en el banco", "Baja vertical, sin adelantar la rodilla", "Peso en el talón delantero"], error: "Apoyar el peso en la pierna de atrás.",
     garmin: ["LUNGE", "DUMBBELL_BULGARIAN_SPLIT_SQUAT"], a: UP(-88, 62, 92, 90, 90, { eq: "dumbbell" }), b: DOWN(-80, 20, 100, 90, 90, { eq: "dumbbell" }) }),
   def({ slug: "subida-cajon", name_es: "Subida al cajón", pattern: "squat", equipment: ["bodyweight", "dumbbell"], leg_load: "heavy", contra: ["knee"], uni: true,
     alt: ["zancada-atras", "sentadilla-caja"], cues: ["Todo el pie sobre el cajón", "Sube con la pierna de arriba, sin impulso", "Baja con control"], error: "Impulsarse con el pie de abajo.",
-    garmin: ["LUNGE", "STEP_UP"], a: START(-84, 14, 92, 90, 90, { eq: "dumbbell" }), b: END(...STAND, 90, 90, { eq: "dumbbell" }) }),
+    garmin: ["LUNGE", "STEP_UP"], a: START(-84, 14, 92, 90, 90, { eq: "dumbbell" }), b: END(...STAND, 104, 94, { eq: "dumbbell" }) }),
   def({ slug: "prensa-piernas", name_es: "Prensa de piernas", pattern: "squat", equipment: ["machine"], leg_load: "heavy", contra: ["knee"],
     alt: ["sentadilla-caja", "sentadilla-goblet"], cues: ["Espalda y cabeza apoyadas", "No bloquees las rodillas arriba", "Baja hasta unos 90° de rodilla"], error: "Despegar la cadera del respaldo al bajar.",
     garmin: ["SQUAT", "LEG_PRESS"], a: START(-140, -28, -28, -20, -60, { pin: "hip" }), b: END(-140, -62, 38, -20, -60, { pin: "hip" }) }),
   def({ slug: "elevacion-talones", name_es: "Elevación de talones", pattern: "squat", equipment: ["bodyweight", "dumbbell"], leg_load: "light",
     alt: ["sentadilla-peso-corporal"], cues: ["Sube lo más alto posible", "Pausa arriba un segundo", "Baja despacio"], error: "Rebotar abajo sin controlar el descenso.",
-    garmin: ["CALF_RAISE", "STANDING_CALF_RAISE"], a: UP(...STAND, 90, 90, { eq: "dumbbell" }), b: DOWN(-90, 90, 98, 90, 90, { eq: "dumbbell", dy: -8 }) }),
+    garmin: ["CALF_RAISE", "STANDING_CALF_RAISE"], a: UP(...STAND, 104, 94, { eq: "dumbbell" }), b: DOWN(-90, 90, 98, 90, 90, { eq: "dumbbell", dy: -8 }) }),
   def({ slug: "sentadilla-isometrica-pared", name_es: "Sentadilla isométrica en la pared", pattern: "squat", equipment: ["bodyweight"], leg_load: "light", contra: ["knee"], mode: "time",
     alt: ["sentadilla-peso-corporal"], cues: ["Espalda plana contra la pared", "Rodillas a unos 90°", "Respira con calma"], error: "Dejar que las rodillas pasen por delante de los pies.",
-    garmin: ["SQUAT", "WALL_SIT"], a: START(...STAND, 90, 90), b: END(-90, 0, 90, 90, 90) }),
+    garmin: ["SQUAT", "WALL_SIT"], a: START(...STAND, 104, 94), b: END(-90, 0, 90, 90, 90) }),
 
   // ---------- Empuje ----------
   def({ slug: "flexiones", name_es: "Flexiones", pattern: "push", equipment: ["bodyweight"], level: 2, contra: ["wrist", "shoulder"],
@@ -162,7 +162,7 @@ export const EXERCISES: Exercise[] = [
     garmin: ["SHOULDER_STABILITY", "FACE_PULL"], a: START(...STAND, 0, 0, { eq: "band", anchor: [52, -4] }), b: END(...STAND, 172, -8, { eq: "band", anchor: [52, -4] }) }),
   def({ slug: "curl-biceps", name_es: "Curl de bíceps con mancuernas", pattern: "pull", equipment: ["dumbbell", "band"], contra: ["elbow", "wrist"],
     alt: ["remo-mancuerna"], cues: ["Codos pegados al cuerpo", "Sube sin balancear", "Baja despacio"], error: "Balancear el cuerpo para subir el peso.",
-    garmin: ["CURL", "STANDING_DUMBBELL_BICEPS_CURL"], a: UP(...STAND, 90, 90, { eq: "dumbbell" }), b: DOWN(...STAND, 90, -112, { eq: "dumbbell" }) }),
+    garmin: ["CURL", "STANDING_DUMBBELL_BICEPS_CURL"], a: UP(...STAND, 104, 94, { eq: "dumbbell" }), b: DOWN(...STAND, 90, -112, { eq: "dumbbell" }) }),
 
   // ---------- Core y acarreo ----------
   def({ slug: "dead-bug", name_es: "Dead bug", pattern: "core", equipment: ["bodyweight"], uni: true,
@@ -182,7 +182,7 @@ export const EXERCISES: Exercise[] = [
     garmin: ["HYPEREXTENSION", "SUPERMAN"], a: START(0, 180, 180, 180, 180, { pin: "hip" }), b: END(-12, 192, 192, 190, 190, { pin: "hip" }) }),
   def({ slug: "paseo-granjero", name_es: "Paseo del granjero", pattern: "carry", equipment: ["dumbbell", "kettlebell"], mode: "time", leg_load: "light",
     alt: ["plancha", "pallof"], cues: ["Camina alto, hombros atrás", "Abdomen firme", "Pasos cortos y controlados"], error: "Inclinarse hacia un lado o encoger los hombros.",
-    garmin: ["CARRY", "FARMERS_CARRY"], a: START(...STAND, 90, 90, { eq: "dumbbell" }), b: END(-90, 70, 108, 90, 90, { eq: "dumbbell" }) }),
+    garmin: ["CARRY", "FARMERS_CARRY"], a: START(...STAND, 104, 94, { eq: "dumbbell" }), b: END(-90, 70, 108, 90, 90, { eq: "dumbbell" }) }),
 
   // ---------- Movilidad (calentamiento y antídoto de conducción) ----------
   def({ slug: "flexor-cadera", name_es: "Estiramiento de flexor de cadera", pattern: "mobility", equipment: ["bodyweight"], mode: "time", uni: true,
@@ -196,7 +196,7 @@ export const EXERCISES: Exercise[] = [
     garmin: ["WARM_UP", "CHEST_STRETCH"], a: START(...STAND, 0, -90), b: END(-80, 84, 90, 0, -90, { pin: "ankle" }) }),
   def({ slug: "retraccion-cervical", name_es: "Retracción cervical (cuello)", pattern: "mobility", equipment: ["bodyweight"], mode: "time", contra: ["neck"],
     alt: ["rotacion-toracica"], cues: ["Mira al frente", "Mete la barbilla como haciendo papada", "Sin inclinar la cabeza"], error: "Bajar la cabeza en vez de retraer el cuello.",
-    garmin: ["WARM_UP", "NECK_ROTATION"], a: START(...STAND, 90, 90, { neck: -62 }), b: END(...STAND, 90, 90, { neck: -90 }) }),
+    garmin: ["WARM_UP", "NECK_ROTATION"], a: START(...STAND, 104, 94, { neck: -62 }), b: END(...STAND, 104, 94, { neck: -90 }) }),
   def({ slug: "gato-camello", name_es: "Gato-camello", pattern: "mobility", equipment: ["bodyweight"], mode: "time", contra: ["wrist"],
     alt: ["rotacion-toracica", "flexor-cadera"], cues: ["Cuatro apoyos", "Redondea y arquea la espalda despacio", "Sigue la respiración"], error: "Moverse rápido, sin segmentar la columna.",
     garmin: ["WARM_UP", "CAT_COW"], a: START(-14, 90, 180, 90, 90, { pin: "wrist", neck: -44 }), b: END(8, 90, 180, 90, 90, { pin: "wrist", neck: 56 }) }),
