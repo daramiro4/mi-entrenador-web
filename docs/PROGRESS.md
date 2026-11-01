@@ -28,3 +28,6 @@ Hecho: migraciones aditivas (`supabase/migrations/20261101100000/100100/100200`)
 
 ## 2026-11-01 — Fase 4 (viñetas)
 Hecho: `components/strength/PoseFigure.tsx` (PoseFigure, PosePair, PoseLoop con bucle de ~3,2 s solo opacity y reduced-motion), `ExerciseCard` (claves, error común, alternativas, cómo se envía al reloj), poses de los 40 ejercicios, galería `/ui/poses`. Revisión visual con contact sheet renderizada en Chrome headless: legibles; los ejercicios unilaterales dibujan una sola pierna (ver D10).
+
+## 2026-11-01 — Fase 5 (generador y validador)
+Hecho: `lib/strength/{engine,validator,progression,history,tss,antidote,service,data}.ts`, API interna `POST /api/fuerza/generar` ({format, save?}), 41 ejercicios (+remo invertido), ~90 tests nuevos (motor, validador, progresión, TSS, historial, seed). Probar: `npx vitest run lib/strength`. La API requiere sesión y las migraciones aplicadas (si no: 503 con mensaje).

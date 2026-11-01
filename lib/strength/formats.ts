@@ -19,25 +19,25 @@ export const FORMATS: FormatDef[] = [
     slug: "amrap",
     name_es: "AMRAP",
     blurb: "Tantas rondas como puedas en un tiempo fijo, a un ritmo que controles.",
-    rules: { cap_min: [12, 20], reps: [6, 10], exercise_rest_s: 0, time_work_s: 30 },
+    rules: { cap_min: [10, 40], reps: [6, 10], exercise_rest_s: 0, time_work_s: 30 },
   },
   {
     slug: "emom",
     name_es: "EMOM",
     blurb: "Cada minuto, un ejercicio: trabaja ~40 s y descansa lo que sobre.",
-    rules: { work_s: 40, minute_s: 60, reps: [6, 10], rounds: [2, 4] },
+    rules: { work_s: 40, minute_s: 60, reps: [6, 10], rounds: [2, 6] },
   },
   {
     slug: "contrarreloj",
     name_es: "Contrarreloj",
     blurb: "Un número fijo de repeticiones por ejercicio; el objetivo es acabar sin perder la técnica.",
-    rules: { reps: [8, 12], exercise_rest_s: 20, rounds: [1, 2], time_work_s: 40 },
+    rules: { reps: [8, 12], exercise_rest_s: 20, rounds: [1, 6], time_work_s: 40 },
   },
   {
     slug: "piramide",
     name_es: "Pirámide",
     blurb: "Las repeticiones suben y bajan por escalones; descansas más en la parte alta.",
-    rules: { steps: [6, 8, 10, 8, 6], exercise_rest_s: 45, time_work_s: 40 },
+    rules: { steps: [6, 8, 10, 8, 6], steps_short: [8, 6], exercise_rest_s: 45, time_work_s: 40 },
   },
 ];
 
