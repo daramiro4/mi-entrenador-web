@@ -22,3 +22,6 @@ Hecho: tokens (`app/tokens.css`), tema Tailwind con alias de nombres antiguos, I
 
 ## 2026-11-01 — Fase 2 (Dashboard Hoy)
 Hecho: saludo, Tu estado (anillo + baldosas), Sesión de hoy, Esta semana (titular, racha, barra TSS, tira con texto de estado, redistribución), Progreso (existente restilizado), Totales y logros, narrativa. Lógica pura en `lib/dashboard-stats.ts` con tests. Probar: `/dashboard`. Pendiente: sparkline SVG propio de FTP (se mantiene la gráfica recharts previa; ver DECISIONS D5).
+
+## 2026-11-01 — Fase 3 (datos de fuerza) + núcleo de Fase 4
+Hecho: migraciones aditivas (`supabase/migrations/20261101100000/100100/100200`), seed idempotente de 40 ejercicios + 5 formatos, tipos TS, comprobaciones RLS (`supabase/rls_checks.sql`, validadas en Postgres local). Biblioteca en `lib/strength/` con poses por cinemática directa y tests geométricos (viewBox, longitudes ±10 %, snapshot). Pendiente de aplicar en Supabase real (ver D9).

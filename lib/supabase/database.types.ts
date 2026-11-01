@@ -391,6 +391,10 @@ export type Database = {
       }
       strength_sessions: {
         Row: {
+          workout_id: string | null
+          exercise_slug: string | null
+          set_index: number | null
+          rpe: number | null
           activity_id: number | null
           created_at: string
           date: string
@@ -404,6 +408,10 @@ export type Database = {
           weight_kg: number | null
         }
         Insert: {
+          workout_id?: string | null
+          exercise_slug?: string | null
+          set_index?: number | null
+          rpe?: number | null
           activity_id?: number | null
           created_at?: string
           date: string
@@ -417,6 +425,10 @@ export type Database = {
           weight_kg?: number | null
         }
         Update: {
+          workout_id?: string | null
+          exercise_slug?: string | null
+          set_index?: number | null
+          rpe?: number | null
           activity_id?: number | null
           created_at?: string
           date?: string
@@ -445,6 +457,198 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      exercises: {
+        Row: {
+          alternatives: string[]
+          common_error_es: string | null
+          contraindications: string[]
+          created_at: string
+          cues_es: string[]
+          equipment: string[]
+          garmin_category: string | null
+          garmin_exercise: string | null
+          id: string
+          leg_load: string
+          level: number
+          name_es: string
+          pattern: string
+          pose_a: Json | null
+          pose_b: Json | null
+          slug: string
+          unilateral: boolean
+        }
+        Insert: {
+          alternatives?: string[]
+          common_error_es?: string | null
+          contraindications?: string[]
+          created_at?: string
+          cues_es?: string[]
+          equipment?: string[]
+          garmin_category?: string | null
+          garmin_exercise?: string | null
+          id?: string
+          leg_load?: string
+          level?: number
+          name_es: string
+          pattern: string
+          pose_a?: Json | null
+          pose_b?: Json | null
+          slug: string
+          unilateral?: boolean
+        }
+        Update: {
+          alternatives?: string[]
+          common_error_es?: string | null
+          contraindications?: string[]
+          created_at?: string
+          cues_es?: string[]
+          equipment?: string[]
+          garmin_category?: string | null
+          garmin_exercise?: string | null
+          id?: string
+          leg_load?: string
+          level?: number
+          name_es?: string
+          pattern?: string
+          pose_a?: Json | null
+          pose_b?: Json | null
+          slug?: string
+          unilateral?: boolean
+        }
+        Relationships: []
+      }
+      garmin_tokens: {
+        Row: {
+          tokens: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          tokens: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          tokens?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      strength_workouts: {
+        Row: {
+          blocks: Json
+          created_at: string
+          date: string
+          discomfort_areas: string[]
+          duration_min: number
+          felt: string | null
+          format: string
+          garmin_workout_id: string | null
+          generation_log: Json | null
+          id: string
+          intensity: string | null
+          name: string
+          planned_session_id: string | null
+          progress: Json | null
+          rpe: number | null
+          status: string
+          strength_tss: number | null
+          user_id: string
+        }
+        Insert: {
+          blocks?: Json
+          created_at?: string
+          date?: string
+          discomfort_areas?: string[]
+          duration_min: number
+          felt?: string | null
+          format: string
+          garmin_workout_id?: string | null
+          generation_log?: Json | null
+          id?: string
+          intensity?: string | null
+          name: string
+          planned_session_id?: string | null
+          progress?: Json | null
+          rpe?: number | null
+          status?: string
+          strength_tss?: number | null
+          user_id: string
+        }
+        Update: {
+          blocks?: Json
+          created_at?: string
+          date?: string
+          discomfort_areas?: string[]
+          duration_min?: number
+          felt?: string | null
+          format?: string
+          garmin_workout_id?: string | null
+          generation_log?: Json | null
+          id?: string
+          intensity?: string | null
+          name?: string
+          planned_session_id?: string | null
+          progress?: Json | null
+          rpe?: number | null
+          status?: string
+          strength_tss?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_strength_prefs: {
+        Row: {
+          days_per_week: number
+          equipment: string[]
+          excluded_areas: string[]
+          level: number
+          limitations: string[]
+          session_minutes: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          days_per_week?: number
+          equipment?: string[]
+          excluded_areas?: string[]
+          level?: number
+          limitations?: string[]
+          session_minutes?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          days_per_week?: number
+          equipment?: string[]
+          excluded_areas?: string[]
+          level?: number
+          limitations?: string[]
+          session_minutes?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      workout_formats: {
+        Row: {
+          name_es: string
+          rules: Json
+          slug: string
+        }
+        Insert: {
+          name_es: string
+          rules?: Json
+          slug: string
+        }
+        Update: {
+          name_es?: string
+          rules?: Json
+          slug?: string
+        }
+        Relationships: []
       }
       telegram_link_codes: {
         Row: {

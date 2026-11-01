@@ -1,0 +1,43 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`poses (snapshot geométrico) > snapshot de una pose de referencia (peso muerto rumano) 1`] = `
+{
+  "ankle": [
+    48.2,
+    158,
+  ],
+  "elbow": [
+    84.1,
+    107.7,
+  ],
+  "equipment": {
+    "anchor": undefined,
+    "at": [
+      84.1,
+      126.7,
+    ],
+    "kind": "dumbbell",
+  },
+  "head": [
+    93.5,
+    83.3,
+  ],
+  "hip": [
+    46.5,
+    100.4,
+  ],
+  "knee": [
+    50.7,
+    130.1,
+  ],
+  "label": "Abajo",
+  "shoulder": [
+    84.1,
+    86.7,
+  ],
+  "wrist": [
+    84.1,
+    126.7,
+  ],
+}
+`;

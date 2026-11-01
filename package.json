@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "typecheck": "next typegen && tsc --noEmit",
-    "test": "vitest"
+    "test": "vitest",
+    "seed:strength": "UPDATE_SEED=1 vitest run lib/strength/seed.test.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.5",
