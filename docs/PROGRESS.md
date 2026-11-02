@@ -24,7 +24,7 @@ Hecho: tokens (`app/tokens.css`), tema Tailwind con alias de nombres antiguos, I
 Hecho: saludo, Tu estado (anillo + baldosas), Sesión de hoy, Esta semana (titular, racha, barra TSS, tira con texto de estado, redistribución), Progreso (existente restilizado), Totales y logros, narrativa. Lógica pura en `lib/dashboard-stats.ts` con tests. Probar: `/dashboard`. Pendiente: sparkline SVG propio de FTP (se mantiene la gráfica recharts previa; ver DECISIONS D5).
 
 ## 2026-11-01 — Fase 3 (datos de fuerza) + núcleo de Fase 4
-Hecho: migraciones aditivas (`supabase/migrations/20261101100000/100100/100200`), seed idempotente de 40 ejercicios + 5 formatos, tipos TS, comprobaciones RLS (`supabase/rls_checks.sql`, validadas en Postgres local). Biblioteca en `lib/strength/` con poses por cinemática directa y tests geométricos (viewBox, longitudes ±10 %, snapshot). Pendiente de aplicar en Supabase real (ver D9).
+Hecho: migraciones aditivas (`supabase/migrations/20261102202722/…723/…859` (renombradas al sincronizar el historial)), seed idempotente de 40 ejercicios + 5 formatos, tipos TS, comprobaciones RLS (`supabase/rls_checks.sql`, validadas en Postgres local). Biblioteca en `lib/strength/` con poses por cinemática directa y tests geométricos (viewBox, longitudes ±10 %, snapshot). Pendiente de aplicar en Supabase real (ver D9).
 
 ## 2026-11-01 — Fase 4 (viñetas)
 Hecho: `components/strength/PoseFigure.tsx` (PoseFigure, PosePair, PoseLoop con bucle de ~3,2 s solo opacity y reduced-motion), `ExerciseCard` (claves, error común, alternativas, cómo se envía al reloj), poses de los 40 ejercicios, galería `/ui/poses`. Revisión visual con contact sheet renderizada en Chrome headless: legibles; los ejercicios unilaterales dibujan una sola pierna (ver D10).

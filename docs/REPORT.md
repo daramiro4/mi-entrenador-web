@@ -24,7 +24,7 @@ Pendiente: récords de potencia 5/20/60 (fase opcional, fila oculta); sparkline 
 1. D9 migraciones sin aplicar · 2. D14 servicio Garmin en el repo web + Python 3.12 en Vercel sin probar · 3. D2 alias de tokens antiguos (identidad nueva) · 4. D11 motor (cargas iniciales vacías, TSS de fuerza no entra aún en la fatiga del bot) · 5. D1 se commitearon los cambios previos sin commitear de David · 6. D12 zonas con molestia excluidas hasta limpiarlas · 7. D13 IA · 8. D5/D6/D7 gráficas, botón Garmin de bici funcional, racha 85 %.
 
 ## Migraciones (escritas; revertir con el rollback comentado en cada archivo)
-`20261101100000_strength_library` · `20261101100100_strength_user_tables` (incluye `garmin_tokens`) · `20261101100200_seed_strength_library`. Comprobación RLS: `supabase/rls_checks.sql`.
+`20261102202722_strength_library` · `20261102202723_strength_user_tables` (incluye `garmin_tokens`) · `20261102202859_seed_strength_library`. Comprobación RLS: `supabase/rls_checks.sql`.
 
 ## Qué debe hacer David a mano
 - `supabase db push` (o aplicar las 3 migraciones) y regenerar tipos.

@@ -40,7 +40,7 @@ Los pesos van en gramos con unidad kilogramo, como espera Garmin. Las rutinas de
 | `SUPABASE_SERVICE_ROLE_KEY` | Escribir/leer la tabla privada `garmin_tokens` (tipo Secret) |
 | `GARMIN_STRENGTH_SERVICE_URL` | Opcional: URL completa de `/api/garmin_strength` (por defecto `https://$VERCEL_URL/api/garmin_strength`) |
 `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` ya existen y la función las reutiliza para validar la sesión del usuario.
-**Aplica antes las migraciones** (`garmin_tokens` está en `20261101100100_strength_user_tables.sql`).
+**Aplica antes las migraciones** (`garmin_tokens` está en `20261102202723_strength_user_tables.sql`).
 
 ## Probar en dry-run (sin tocar Garmin)
 - API: `POST /api/fuerza/garmin {"workoutId": "<id>", "dry_run": true}` → devuelve el JSON que se enviaría + notas.
