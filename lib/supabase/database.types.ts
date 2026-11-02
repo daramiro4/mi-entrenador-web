@@ -456,6 +456,13 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "strength_sessions_workout_id_fkey"
+            columns: ["workout_id"]
+            isOneToOne: false
+            referencedRelation: "strength_workouts"
+            referencedColumns: ["id"]
+          },
         ]
       }
       exercises: {
@@ -534,7 +541,15 @@ export type Database = {
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "garmin_tokens_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       strength_workouts: {
         Row: {
@@ -597,7 +612,22 @@ export type Database = {
           strength_tss?: number | null
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "strength_workouts_planned_session_id_fkey"
+            columns: ["planned_session_id"]
+            isOneToOne: false
+            referencedRelation: "planned_sessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "strength_workouts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_strength_prefs: {
         Row: {
@@ -630,7 +660,15 @@ export type Database = {
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "user_strength_prefs_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       workout_formats: {
         Row: {
