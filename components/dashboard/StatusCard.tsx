@@ -1,20 +1,31 @@
 import { FatigueRing } from "@/components/fatigue-ring/FatigueRing";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { Tile } from "@/components/ui/Tile";
+import { summarizeHealthMetrics, type HealthMetricKey } from "@/lib/health-metrics";
 import type { DailyMetricsRow, FatigueIndexRow, FatigueRecommendation } from "@/lib/types";
 
-function fmt(v: number | null | undefined, suffix = ""): string {
-  return v != null ? `${Math.round(v)}${suffix}` : "—";
-}
+const TILES: { key: HealthMetricKey; dot: string }[] = [
+  { key: "sleep", dot: "var(--m-sleep)" },
+  { key: "hrv", dot: "var(--m-hrv)" },
+  { key: "bodyBattery", dot: "var(--m-battery)" },
+  { key: "stress", dot: "var(--m-stress)" },
+];
 
-/** Tu estado: anillo de fatiga + baldosas Sueño, VFC, Body Battery, Estrés (última fila disponible). */
+/**
+ * Tu estado: anillo de fatiga + baldosas Sueño, VFC, Body Battery, Estrés. Cada baldosa muestra
+ * el último valor disponible y, si no es de hoy, su antigüedad ("ayer"), igual que "Salud de hoy".
+ */
 export function StatusCard({
   fatigueIndex,
-  latestMetrics,
+  history,
+  today,
 }: {
   fatigueIndex: FatigueIndexRow | null;
-  latestMetrics: DailyMetricsRow | null;
+  history: DailyMetricsRow[];
+  today: string;
 }) {
+  const summary = summarizeHealthMetrics(history, today);
+  const hasAny = summary.some((m) => m.text !== null);
   return (
     <GlassCard aria-labelledby="estado-title">
       <h2 id="estado-title" className="text-lg font-semibold">Tu estado</h2>
@@ -25,21 +36,18 @@ export function StatusCard({
           notes={fatigueIndex?.notes ?? null}
         />
         <div className="grid w-full flex-1 grid-cols-2 gap-3">
-          <Tile label="Sueño" dotColor="var(--m-sleep)">
-            <p className="metric mt-1 text-2xl font-semibold">{fmt(latestMetrics?.sleep_score)}</p>
-          </Tile>
-          <Tile label="VFC" dotColor="var(--m-hrv)">
-            <p className="metric mt-1 text-2xl font-semibold">{fmt(latestMetrics?.hrv_ms, " ms")}</p>
-          </Tile>
-          <Tile label="Body Battery" dotColor="var(--m-battery)">
-            <p className="metric mt-1 text-2xl font-semibold">{fmt(latestMetrics?.body_battery_max)}</p>
-          </Tile>
-          <Tile label="Estrés" dotColor="var(--m-stress)">
-            <p className="metric mt-1 text-2xl font-semibold">{fmt(latestMetrics?.stress_avg)}</p>
-          </Tile>
+          {TILES.map(({ key, dot }) => {
+            const m = summary.find((x) => x.key === key)!;
+            return (
+              <Tile key={key} label={m.label} dotColor={dot}>
+                <p className="metric mt-1 text-2xl font-semibold">{m.text ?? "—"}</p>
+                {m.ageLabel && <p className="mt-0.5 text-xs text-label-2">{m.ageLabel}</p>}
+              </Tile>
+            );
+          })}
         </div>
       </div>
-      {!latestMetrics && (
+      {!hasAny && (
         <p className="mt-4 text-sm text-label-2">Aún no hay datos de salud sincronizados.</p>
       )}
     </GlassCard>

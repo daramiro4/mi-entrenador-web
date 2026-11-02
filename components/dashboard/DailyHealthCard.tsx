@@ -1,54 +1,8 @@
 import type { DailyMetricsRow } from "@/lib/types";
+import { summarizeHealthMetrics } from "@/lib/health-metrics";
 import { MetricSparkline } from "./MetricSparkline";
 
-interface HealthMetric {
-  key: string;
-  label: string;
-  value: string;
-  series: number[];
-}
-
-function buildMetrics(history: DailyMetricsRow[], today: DailyMetricsRow | undefined): HealthMetric[] {
-  const seriesOf = (pick: (row: DailyMetricsRow) => number | null): number[] =>
-    history.map(pick).filter((v): v is number => v != null);
-
-  return [
-    {
-      key: "sleep",
-      label: "Sueño",
-      value: today?.sleep_score != null ? `${Math.round(today.sleep_score)}` : "—",
-      series: seriesOf((r) => r.sleep_score),
-    },
-    {
-      key: "stress",
-      label: "Estrés",
-      value: today?.stress_avg != null ? `${Math.round(today.stress_avg)}` : "—",
-      series: seriesOf((r) => r.stress_avg),
-    },
-    {
-      key: "hrv",
-      label: "VFC",
-      value: today?.hrv_ms != null ? `${Math.round(today.hrv_ms)} ms` : "—",
-      series: seriesOf((r) => r.hrv_ms),
-    },
-    {
-      key: "rhr",
-      label: "FC reposo",
-      value: today?.resting_hr != null ? `${Math.round(today.resting_hr)} ppm` : "—",
-      series: seriesOf((r) => r.resting_hr),
-    },
-    {
-      key: "bodyBattery",
-      label: "Body Battery",
-      value:
-        today?.body_battery_min != null && today?.body_battery_max != null
-          ? `${Math.round(today.body_battery_min)}–${Math.round(today.body_battery_max)}`
-          : "—",
-      series: seriesOf((r) => r.body_battery_max),
-    },
-  ];
-}
-
+/** Salud de hoy: último valor disponible de cada métrica (con su antigüedad si no es de hoy) y tendencia de 7 días. */
 export function DailyHealthCard({
   history,
   today,
@@ -56,10 +10,9 @@ export function DailyHealthCard({
   history: DailyMetricsRow[];
   today: string;
 }) {
-  const todayRow = history.find((r) => r.date === today);
-  const metrics = buildMetrics(history, todayRow);
-
-  const hasToday = metrics.some((m) => m.value !== "—");
+  const metrics = summarizeHealthMetrics(history, today);
+  const hasAny = metrics.some((m) => m.text !== null);
+  const hasToday = metrics.some((m) => m.isToday);
 
   return (
     <div className="data-surface p-5 self-start">
@@ -70,17 +23,18 @@ export function DailyHealthCard({
           <div key={metric.key} className="flex items-center justify-between gap-2">
             <div className="min-w-0">
               <p className="text-[10px] text-fog truncate">{metric.label}</p>
-              <p className="metric text-xl text-paper leading-none mt-1">{metric.value}</p>
+              <p className="metric text-xl text-paper leading-none mt-1">{metric.text ?? "—"}</p>
+              {metric.ageLabel && <p className="text-[10px] text-fog mt-1">{metric.ageLabel}</p>}
             </div>
-            {/* Sin dato de hoy no se pinta la tendencia: un trazo junto a "—" confunde. */}
-            {metric.value !== "—" && (
+            {metric.text !== null && (
               <MetricSparkline values={metric.series} label={`Tendencia de ${metric.label}, últimos 7 días`} />
             )}
           </div>
         ))}
       </div>
-      {!hasToday && (
-        <p className="mt-4 text-xs text-fog">Garmin aún no ha sincronizado los datos de hoy.</p>
+      {!hasAny && <p className="mt-4 text-xs text-fog">Aún no hay datos de salud sincronizados.</p>}
+      {hasAny && !hasToday && (
+        <p className="mt-4 text-xs text-fog">Garmin aún no ha sincronizado los datos de hoy; se muestra el último valor disponible.</p>
       )}
     </div>
   );

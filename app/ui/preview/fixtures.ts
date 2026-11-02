@@ -19,7 +19,7 @@ export const sessions: PlannedSession[] = types.map((t, i) => ({
 })) as PlannedSession[];
 
 export const fatigue = { acwr_ratio: 1.08, recommendation: "normal", notes: null } as FatigueIndexRow;
-export const metrics = { sleep_score: 82, hrv_ms: 54, body_battery_max: 76, stress_avg: 28 } as DailyMetricsRow;
+export const metrics = { date: today, sleep_score: 82, hrv_ms: 54, body_battery_min: 24, body_battery_max: 76, stress_avg: 28 } as DailyMetricsRow;
 export const season = {
   id: 1, name: "Temporada otoño", goal_type: "ftp_improvement", focus_areas: ["general_health"],
   target_ftp: 240, target_date: addDays(today, 70),

@@ -22,7 +22,7 @@ export default function PreviewHoy() {
         <h1 className="text-3xl font-semibold sm:text-4xl" style={{ letterSpacing: "-0.025em" }}>{greeting(9, "David")}</h1>
       </header>
       <div className="grid gap-6 lg:grid-cols-2">
-        <StatusCard fatigueIndex={fx.fatigue} latestMetrics={fx.metrics} />
+        <StatusCard fatigueIndex={fx.fatigue} history={[fx.metrics]} today={fx.today} />
         <HeroStatus todaySession={fx.sessions.find((s) => s.date === fx.today) ?? fx.sessions[6]} />
         <div className="lg:col-span-2">
           <WeeklyStrip sessions={fx.sessions} activities={[]} strengthSessions={[]} today={fx.today} weekStartDate={fx.monday}

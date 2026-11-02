@@ -125,7 +125,6 @@ export default async function DashboardPage() {
   );
   const totals = computeTotals(strengthSinceMonth, activities84, today);
   const badges = computeBadges({ streak, totals, activityCount: activities84.length });
-  const latestMetrics = dailyMetricsHistory[dailyMetricsHistory.length - 1] ?? null;
   const dateLabel = new Intl.DateTimeFormat("es-ES", { weekday: "long", day: "numeric", month: "long" }).format(
     new Date(`${today}T12:00:00`)
   );
@@ -140,7 +139,7 @@ export default async function DashboardPage() {
         </h1>
       </header>
       <div className="grid gap-6 lg:grid-cols-2">
-        <StatusCard fatigueIndex={fatigueIndex} latestMetrics={latestMetrics} />
+        <StatusCard fatigueIndex={fatigueIndex} history={dailyMetricsHistory} today={today} />
         <HeroStatus todaySession={weeklySessions.find((s) => s.date === today) ?? null} />
         <div className="lg:col-span-2">
           <WeeklyStrip
