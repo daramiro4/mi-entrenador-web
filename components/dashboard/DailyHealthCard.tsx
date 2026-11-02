@@ -1,8 +1,6 @@
 import type { DailyMetricsRow } from "@/lib/types";
 import { MetricSparkline } from "./MetricSparkline";
 
-const VOLT_HEX = "#34C6F4";
-
 interface HealthMetric {
   key: string;
   label: string;
@@ -61,8 +59,10 @@ export function DailyHealthCard({
   const todayRow = history.find((r) => r.date === today);
   const metrics = buildMetrics(history, todayRow);
 
+  const hasToday = metrics.some((m) => m.value !== "—");
+
   return (
-    <div className="data-surface p-5">
+    <div className="data-surface p-5 self-start">
       <div className="h-0.5 w-10 rounded-full bg-volt mb-3" />
       <p className="font-display text-base text-paper mb-4">Salud de hoy</p>
       <div className="grid grid-cols-2 gap-x-4 gap-y-4">
@@ -72,10 +72,16 @@ export function DailyHealthCard({
               <p className="text-[10px] text-fog truncate">{metric.label}</p>
               <p className="metric text-xl text-paper leading-none mt-1">{metric.value}</p>
             </div>
-            <MetricSparkline values={metric.series} colorHex={VOLT_HEX} />
+            {/* Sin dato de hoy no se pinta la tendencia: un trazo junto a "—" confunde. */}
+            {metric.value !== "—" && (
+              <MetricSparkline values={metric.series} label={`Tendencia de ${metric.label}, últimos 7 días`} />
+            )}
           </div>
         ))}
       </div>
+      {!hasToday && (
+        <p className="mt-4 text-xs text-fog">Garmin aún no ha sincronizado los datos de hoy.</p>
+      )}
     </div>
   );
 }
