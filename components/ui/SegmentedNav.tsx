@@ -2,7 +2,7 @@ import Link from "next/link";
 import { NAV_ITEMS, type NavKey } from "./nav-items";
 
 /** Control segmentado superior (escritorio). */
-export function SegmentedNav({ active }: { active: NavKey }) {
+export function SegmentedNav({ active }: { active: NavKey | null }) {
   return (
     <nav aria-label="Secciones" className="hidden sm:flex rounded-full bg-fill p-1">
       {NAV_ITEMS.map((it) => (

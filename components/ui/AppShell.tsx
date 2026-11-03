@@ -4,7 +4,7 @@ import { TabBar } from "./TabBar";
 import type { NavKey } from "./nav-items";
 
 /** Barra superior sticky de vidrio + contenedor 1200px + tab bar móvil. */
-export function AppShell({ active, children }: { active: NavKey; children: ReactNode }) {
+export function AppShell({ active, children }: { active: NavKey | null; children: ReactNode }) {
   return (
     <>
       <header className="glass-bar sticky top-0 z-20 border-b-[0.5px] border-separator">

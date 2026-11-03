@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getActiveSeason } from "@/lib/seasons";
@@ -179,8 +180,11 @@ export default async function DashboardPage() {
           pageSize={ACTIVITY_FEED_PAGE_SIZE}
         />
       </div>
-      <div className="mt-6">
+      <div className="mt-6 flex flex-wrap items-center gap-4">
         <ChangeGoalButton />
+        <Link href="/ajustes" className="text-sm text-label-2 hover:text-label">
+          Ajustes de cuenta
+        </Link>
       </div>
     </AppShell>
   );

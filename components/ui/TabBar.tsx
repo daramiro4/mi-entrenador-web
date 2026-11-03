@@ -5,7 +5,7 @@ import { NAV_ITEMS, type NavKey } from "./nav-items";
 const ICONS = { hoy: Activity, plan: CalendarDays, fuerza: Dumbbell, progreso: LineChart } as const;
 
 /** Tab bar inferior de vidrio (móvil). */
-export function TabBar({ active }: { active: NavKey }) {
+export function TabBar({ active }: { active: NavKey | null }) {
   return (
     <nav
       aria-label="Secciones"
