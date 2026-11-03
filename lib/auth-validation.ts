@@ -54,3 +54,10 @@ export function safeNextPath(next: string | null | undefined, fallback = "/"): s
   if (!next || !next.startsWith("/") || next.startsWith("//") || next.includes("\\")) return fallback;
   return next;
 }
+
+/** Marca en user_metadata que la cuenta ya tiene contraseña (Supabase no expone ese dato al cliente). */
+export const HAS_PASSWORD_KEY = "has_password";
+
+export function userHasPassword(user: { user_metadata?: Record<string, unknown> | null }): boolean {
+  return user.user_metadata?.[HAS_PASSWORD_KEY] === true;
+}

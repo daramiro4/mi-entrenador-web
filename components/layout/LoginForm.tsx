@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/Button";
 import { TextInput } from "@/components/ui/TextInput";
-import { translateAuthError, validateLogin, isValidEmail } from "@/lib/auth-validation";
+import { HAS_PASSWORD_KEY, translateAuthError, validateLogin, isValidEmail } from "@/lib/auth-validation";
 
 type Mode = "password" | "magic" | "reset";
 type Status = "idle" | "sending" | "sent";
@@ -59,6 +59,8 @@ export function LoginForm({ initialError }: { initialError?: string }) {
         setErrorMessage(translateAuthError(error.message));
         return;
       }
+      // Si entra con contraseña, la tiene: se anota para no mostrar el aviso de /ajustes (best effort).
+      await supabase.auth.updateUser({ data: { [HAS_PASSWORD_KEY]: true } }).catch(() => {});
       router.replace("/");
       router.refresh();
       return;

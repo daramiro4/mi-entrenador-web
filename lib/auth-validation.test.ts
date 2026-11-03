@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   MIN_PASSWORD_LENGTH,
   safeNextPath,
+  userHasPassword,
   translateAuthError,
   validateLogin,
   validateNewPassword,
@@ -47,5 +48,15 @@ describe("safeNextPath", () => {
     expect(safeNextPath("//evil.com")).toBe("/");
     expect(safeNextPath("https://evil.com")).toBe("/");
     expect(safeNextPath(null)).toBe("/");
+  });
+});
+
+describe("userHasPassword", () => {
+  it("solo true si la marca es exactamente true", () => {
+    expect(userHasPassword({ user_metadata: { has_password: true } })).toBe(true);
+    expect(userHasPassword({ user_metadata: {} })).toBe(false);
+    expect(userHasPassword({ user_metadata: { has_password: "true" } })).toBe(false);
+    expect(userHasPassword({ user_metadata: null })).toBe(false);
+    expect(userHasPassword({})).toBe(false);
   });
 });

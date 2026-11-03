@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { userHasPassword } from "@/lib/auth-validation";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getActiveSeason } from "@/lib/seasons";
@@ -133,6 +134,14 @@ export default async function DashboardPage() {
   return (
     <AppShell active="hoy">
       <DashboardSyncEffect />
+      {!userHasPassword(user) && (
+        <Link
+          href="/ajustes"
+          className="mb-4 block rounded-2xl bg-fill px-4 py-3 text-sm text-label hover:brightness-95"
+        >
+          Aún no tienes contraseña. <span className="text-accent font-semibold">Fíjala en Ajustes</span> para entrar sin depender del correo.
+        </Link>
+      )}
       <header className="mb-6">
         <p className="text-sm text-label-2 first-letter:uppercase">{dateLabel}</p>
         <h1 className="text-3xl font-semibold sm:text-4xl" style={{ letterSpacing: "-0.025em" }}>

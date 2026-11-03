@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/Button";
 import { TextInput } from "@/components/ui/TextInput";
-import { translateAuthError, validateNewPassword } from "@/lib/auth-validation";
+import { HAS_PASSWORD_KEY, translateAuthError, validateNewPassword } from "@/lib/auth-validation";
 
 /** Fija una contraseña nueva (usuario con sesión). `redirectTo`: ruta tras guardar (reset); sin ella, solo confirma. */
 export function PasswordForm({ redirectTo, submitLabel = "Guardar contraseña" }: { redirectTo?: string; submitLabel?: string }) {
@@ -26,7 +26,7 @@ export function PasswordForm({ redirectTo, submitLabel = "Guardar contraseña" }
       return;
     }
     setSaving(true);
-    const { error: updateError } = await createClient().auth.updateUser({ password });
+    const { error: updateError } = await createClient().auth.updateUser({ password, data: { [HAS_PASSWORD_KEY]: true } });
     setSaving(false);
     if (updateError) {
       setError(translateAuthError(updateError.message));
