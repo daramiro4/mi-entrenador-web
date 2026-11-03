@@ -26,7 +26,7 @@ describe("tarjetas de salud: misma regla (último valor disponible)", () => {
     expect(html).toContain("ayer");
     expect(html).toContain("hace 2 días"); // el sueño es del 31 oct
     expect(html).toContain("Garmin aún no ha sincronizado los datos de hoy");
-    expect(html).toContain("Tendencia de FC reposo");
+    expect(html).not.toContain("<svg"); // solo 2 puntos: sin tendencia
   });
 
   it("Tu estado y Salud de hoy muestran el mismo Body Battery", () => {
@@ -42,6 +42,13 @@ describe("tarjetas de salud: misma regla (último valor disponible)", () => {
     expect(html).toContain("20–80");
     expect(html).not.toContain("aún no ha sincronizado");
     expect(html).not.toContain("ayer");
+  });
+
+  it("pinta la tendencia solo con 4 o más puntos", () => {
+    const days = ["2026-10-29", "2026-10-30", "2026-10-31", "2026-11-01"];
+    const mk = (n: number) => days.slice(-n).map((d, i) => row(d, { resting_hr: 45 + i }));
+    expect(renderToStaticMarkup(<DailyHealthCard history={mk(3)} today="2026-11-02" />)).not.toContain("<svg");
+    expect(renderToStaticMarkup(<DailyHealthCard history={mk(4)} today="2026-11-02" />)).toContain("Tendencia de FC reposo");
   });
 
   it("sin ningún dato: mensaje vacío y sin tendencias", () => {
