@@ -1,5 +1,6 @@
 "use client";
 
+import { SESSION_MINUTE_OPTIONS } from "@/lib/strength/prefs-limits";
 import { useState, useTransition } from "react";
 import { Button } from "@/components/ui/Button";
 import { MultiChoice, SingleChoice } from "@/components/ui/Choice";
@@ -41,7 +42,7 @@ export function PrefsForm({ initial, onDone }: { initial: Prefs; onDone?: () => 
       <fieldset className="grid gap-2">
         <legend className="mb-1 text-sm font-medium">Minutos por sesión</legend>
         <SingleChoice name="Minutos por sesión" value={prefs.session_minutes} onChange={(v) => setPrefs({ ...prefs, session_minutes: v })}
-          options={[20, 30, 45, 60].map((n) => ({ value: n, label: `${n} min` }))} />
+          options={SESSION_MINUTE_OPTIONS.map((n) => ({ value: n, label: `${n} min` }))} />
       </fieldset>
       <fieldset className="grid gap-2">
         <legend className="mb-1 text-sm font-medium">Equipamiento disponible</legend>

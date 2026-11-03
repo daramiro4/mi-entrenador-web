@@ -42,7 +42,13 @@ export async function generateForUser(
   };
   const result = aiEnabled() ? await generateWithAi(genInput, callGemini) : generateWorkout(genInput);
   if (!result.workout) {
-    return { ok: false, reason: "no_valid_workout", message: "No se pudo generar una rutina válida con tus preferencias.", log: result.attempts };
+    const why = result.attempts[result.attempts.length - 1]?.errors[0];
+    return {
+      ok: false,
+      reason: "no_valid_workout",
+      message: `No se pudo generar una rutina válida con tus preferencias.${why ? ` Motivo: ${why}` : ""}`,
+      log: result.attempts,
+    };
   }
   const saved = opts.save
     ? await insertWorkout(supabase, userId, result.workout, {

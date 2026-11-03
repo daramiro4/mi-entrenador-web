@@ -1,3 +1,4 @@
+import { clampSessionMinutes } from "./prefs-limits";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database, Json } from "@/lib/supabase/database.types";
 import { addDays } from "@/lib/week";
@@ -30,7 +31,8 @@ export async function getPrefs(supabase: Client, userId: string): Promise<{ pref
     missing: false,
     prefs: {
       days_per_week: data.days_per_week,
-      session_minutes: data.session_minutes,
+      // Valores guardados antes del límite de 45 min (p. ej. 60) se leen ya reducidos; no se reescribe la base.
+      session_minutes: clampSessionMinutes(data.session_minutes),
       equipment: data.equipment as Equipment[],
       level: data.level as 1 | 2 | 3,
       limitations: data.limitations as Contraindication[],

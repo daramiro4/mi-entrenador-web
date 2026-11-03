@@ -1,5 +1,6 @@
 "use server";
 
+import { clampSessionMinutes } from "@/lib/strength/prefs-limits";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { generateForUser, type GenerateOutcome } from "@/lib/strength/service";
@@ -27,7 +28,7 @@ function sanitizePrefs(input: Prefs): Prefs {
   const equipment = input.equipment.filter((e) => EQUIPMENT.includes(e));
   return {
     days_per_week: clamp(input.days_per_week, 1, 5),
-    session_minutes: clamp(input.session_minutes, 15, 60),
+    session_minutes: clampSessionMinutes(input.session_minutes),
     equipment: equipment.includes("bodyweight") ? equipment : ["bodyweight", ...equipment],
     level: clamp(input.level, 1, 3) as 1 | 2 | 3,
     limitations: input.limitations.filter((a) => AREAS.includes(a)),
