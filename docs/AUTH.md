@@ -13,7 +13,8 @@ Site URL: `https://mi-entrenador-web.vercel.app`
 
 Redirect URLs:
 - `https://mi-entrenador-web.vercel.app/auth/callback`
-- `https://mi-entrenador-web-*-entrenamiento-garmin.vercel.app/auth/callback` (previews de Vercel; el comodín `*` no cruza `/`)
+- `https://mi-entrenador-*-entrenamiento-garmin.vercel.app/auth/callback` (previews de Vercel; el proyecto en Vercel se llama `mi-entrenador`)
+- `https://mi-entrenador-git-feat-garmin-apple-fuerza-entrenamiento-garmin.vercel.app/auth/callback` (alias estable de la rama; se puede omitir si ya cubre el comodín)
 - `http://localhost:3000/auth/callback` (desarrollo)
 
 Entrar con contraseña NO usa redirect URLs: funciona igual en producción y en cualquier preview. Solo hacen falta para el enlace mágico y el reset.
@@ -21,3 +22,7 @@ Entrar con contraseña NO usa redirect URLs: funciona igual en producción y en 
 ## Cerrar el registro público
 
 Supabase → Authentication → Sign In / Providers → desactivar **Allow new users to sign up**. Hacerlo solo después de confirmar que se entra con contraseña. Con el registro cerrado el enlace mágico solo funciona para cuentas existentes (el código ya lo pide con `shouldCreateUser: false`).
+
+## Previews de Vercel
+
+Los previews están detrás de Vercel Authentication: para abrirlos hay que haber iniciado sesión en Vercel en ese navegador (en el móvil también). Es independiente del login de la app.
