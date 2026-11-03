@@ -14,7 +14,7 @@ export default async function LoginPage({
           <p className="font-display text-4xl text-paper">
             Mi Entrenador
           </p>
-          <p className="text-fog text-sm">Acceso sin contraseña, por email.</p>
+          <p className="text-fog text-sm">Entra con tu email y contraseña.</p>
         </div>
         <LoginForm initialError={error} />
       </div>
