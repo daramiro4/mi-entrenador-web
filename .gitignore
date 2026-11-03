@@ -46,3 +46,6 @@ __pycache__/
 
 # Supabase CLI
 supabase/.temp/
+
+# Capturas de revisión (pueden contener datos reales)
+docs/screens/
