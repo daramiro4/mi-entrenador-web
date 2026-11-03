@@ -14,7 +14,6 @@ Site URL: `https://mi-entrenador-web.vercel.app`
 Redirect URLs:
 - `https://mi-entrenador-web.vercel.app/auth/callback`
 - `https://mi-entrenador-*-entrenamiento-garmin.vercel.app/auth/callback` (previews de Vercel; el proyecto en Vercel se llama `mi-entrenador`)
-- `https://mi-entrenador-git-feat-garmin-apple-fuerza-entrenamiento-garmin.vercel.app/auth/callback` (alias estable de la rama; se puede omitir si ya cubre el comodín)
 - `http://localhost:3000/auth/callback` (desarrollo)
 
 Entrar con contraseña NO usa redirect URLs: funciona igual en producción y en cualquier preview. Solo hacen falta para el enlace mágico y el reset.
