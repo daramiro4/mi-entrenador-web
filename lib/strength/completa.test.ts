@@ -97,13 +97,13 @@ describe("Fuerza completa", () => {
     expect(steps.some((s) => s.kind === "rest" && (s.rest_s ?? 0) >= 60)).toBe(true);
   });
 
-  it("Garmin: una serie por paso, con su descanso", () => {
+  it("Garmin: un bloque de 3 series (ejercicio + descanso) por ejercicio", () => {
     const w = generateWorkout(input()).workout!;
     const exs = mainExercises(w.blocks);
     const built = buildGarminWorkout({ ...w, name: w.name, guidance: null });
-    const flat = JSON.stringify(built.payload.workoutSegments[0].workoutSteps);
-    const mainSteps = (flat.match(/"stepType":\{"stepTypeId":3/g) ?? []).length; // interval
-    expect(mainSteps).toBeGreaterThanOrEqual(exs.length * 3);
+    const groups = built.payload.workoutSegments[0].workoutSteps.filter((s) => s.type === "RepeatGroupDTO");
+    expect(groups).toHaveLength(exs.length);
+    expect(groups.every((g) => g.numberOfIterations === 3)).toBe(true);
   });
 
   it("describe '3 × 8 reps'", () => {

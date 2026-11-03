@@ -28,6 +28,12 @@ pairs = {(row["category"], row["exercise"]) for row in catalog.EXERCISES}
 categories = {c for c, _ in pairs}
 
 rows = re.findall(r'slug: "([^"]+)".*?garmin: \["([A-Z_0-9]+)", "([A-Z_0-9]*)"\]', SRC, flags=re.S)
+# Correcciones aplicadas al construir el entreno (lib/strength/garmin-overrides.ts): se validan también.
+OVERRIDES = Path(__file__).resolve().parent.parent / "lib" / "strength" / "garmin-overrides.ts"
+override_rows = re.findall(r'"([a-z0-9-]+)":\s*\["([A-Z_0-9]+)",\s*"([A-Z_0-9]+)"\]', OVERRIDES.read_text(encoding="utf-8")) if OVERRIDES.exists() else []
+override_slugs = {slug for slug, _, _ in override_rows}
+rows = [r for r in rows if r[0] not in override_slugs] + override_rows
+
 bad = 0
 for slug, category, exercise in rows:
     if (category, exercise) in pairs:

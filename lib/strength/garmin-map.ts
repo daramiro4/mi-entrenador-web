@@ -1,6 +1,7 @@
 import { EXERCISE_BY_SLUG } from "./library";
 import { FORMAT_BY_SLUG } from "./formats";
 import { VALIDATION } from "./validator";
+import { GARMIN_OVERRIDES } from "./garmin-overrides";
 import type { FormatSlug } from "./types";
 import type { BlockExercise, GeneratedWorkout, WorkoutBlock } from "./workout-types";
 
@@ -12,6 +13,7 @@ import type { BlockExercise, GeneratedWorkout, WorkoutBlock } from "./workout-ty
  *
  * Qué se puede y qué no (ver docs/GARMIN.md):
  *  - circuito / contrarreloj: grupo de repetición por rondas ✔
+ *  - fuerza completa: un grupo de repetición por ejercicio (N series + descanso), el bloque nativo de Garmin ✔
  *  - pirámide: pasos planos, uno por escalón (las repeticiones cambian) ✔
  *  - EMOM: pasos por TIEMPO de 60 s (el reloj no sabe "reps al inicio del minuto"); las reps van en la descripción ✔ parcial
  *  - AMRAP: el reloj no tiene "hasta el tiempo límite": se manda un grupo con rondas estimadas
@@ -56,7 +58,8 @@ class Counter {
 
 function exerciseStep(order: Counter, e: BlockExercise, mode: { reps?: number; seconds?: number }, desc: string, unmapped: string[]): GarminStep {
   const ex = EXERCISE_BY_SLUG[e.slug];
-  const mapped = !!ex?.garmin_category;
+  const garmin = GARMIN_OVERRIDES[e.slug] ?? (ex?.garmin_category ? ([ex.garmin_category, ex.garmin_exercise] as const) : null);
+  const mapped = !!garmin;
   if (!mapped) unmapped.push(e.name);
   const step: GarminStep = {
     type: "ExecutableStepDTO",
@@ -66,8 +69,8 @@ function exerciseStep(order: Counter, e: BlockExercise, mode: { reps?: number; s
     endConditionValue: mode.seconds ?? mode.reps ?? 10,
     targetType: NO_TARGET,
     // Paso genérico si no está en el catálogo: la categoría "TOTAL_BODY" y el nombre en la descripción.
-    category: mapped ? ex.garmin_category : "TOTAL_BODY",
-    exerciseName: mapped ? ex.garmin_exercise : "",
+    category: garmin ? garmin[0] : "TOTAL_BODY",
+    exerciseName: garmin ? garmin[1] : "",
     description: desc.slice(0, 80),
   };
   if (e.weight_kg != null && e.weight_kg > 0) {
@@ -103,12 +106,14 @@ function blockSteps(format: FormatSlug, b: WorkoutBlock, order: Counter, unmappe
     // Calentamiento: pasos por tiempo, planos.
     return exs.flatMap((e) => lineSteps(e, order));
   }
-  if (format === "piramide" || format === "completa") {
-    // Pirámide: un paso por escalón. Fuerza completa: `sets` series idénticas por ejercicio (cada una con su descanso).
+  if (format === "completa") {
+    // Bloque nativo "N series" del editor de Garmin: un grupo de repetición por ejercicio con
+    // [ejercicio, descanso] (igual que `create_strength_set` de garminconnect). El reloj muestra "Serie 2 de 3".
+    return exs.map((e) => repeatGroup(order, Math.max(1, e.sets), () => lineSteps(e, order)));
+  }
+  if (format === "piramide") {
     return exs.flatMap((e) =>
-      e.rep_scheme
-        ? e.rep_scheme.flatMap((r) => lineSteps({ ...e, mode: "reps" }, order, r))
-        : Array.from({ length: Math.max(1, e.sets) }).flatMap(() => lineSteps(e, order))
+      e.rep_scheme ? e.rep_scheme.flatMap((r) => lineSteps({ ...e, mode: "reps" }, order, r)) : lineSteps(e, order)
     );
   }
   if (format === "emom") {

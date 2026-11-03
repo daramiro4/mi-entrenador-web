@@ -18,14 +18,16 @@ Versión de la librería comprobada en el código fuente: **garminconnect 0.3.20
 `create_strength_set`, `create_strength_timed_set`; catálogo `garminconnect.exercises` (1527 ejercicios, 47 categorías).
 
 ## Mapeo de ejercicios
-Los 41 ejercicios de la biblioteca coinciden con el catálogo real (`python scripts/validate_garmin_mapping.py` → `41/41`).
-Aproximaciones (no hay entrada exacta en el catálogo): Pallof → `CORE/CABLE_CORE_PRESS`, bird dog → `HIP_STABILITY/QUADRUPED_WITH_LEG_LIFT`,
+Los 41 ejercicios de la biblioteca coinciden con el catálogo real (`python scripts/validate_garmin_mapping.py` → `41/41`, incluye las correcciones). Con Python < 3.12 se puede validar el catálogo extrayendo `garminconnect/exercises.py` de la rueda a un paquete vacío y apuntando `PYTHONPATH` a él.
+Correcciones aplicadas al enviar (`lib/strength/garmin-overrides.ts`, la siembra de la base no cambia): peso muerto con kettlebell → `DEADLIFT/KETTLEBELL_DEADLIFT`, peso muerto a una pierna → `DEADLIFT/SINGLE_LEG_ROMANIAN_DEADLIFT_WITH_DUMBBELL`, remo con banda → `BANDED_EXERCISES/ROW`.
+Aproximaciones (no hay entrada exacta en el catálogo; hip thrust con mancuerna usa la variante con barra): Pallof → `CORE/CABLE_CORE_PRESS`, bird dog → `HIP_STABILITY/QUADRUPED_WITH_LEG_LIFT`,
 retracción cervical → `WARM_UP/STRETCH_NECK`, sentadilla a la caja → `SQUAT/SQUAT`. El nombre en español viaja siempre en la descripción del paso.
 Si algún ejercicio no existiera, se envía como paso genérico (`TOTAL_BODY`, nombre en la descripción) y la vista previa lo avisa.
 
 ## Formatos: qué se pudo y qué no
 | Formato | En el reloj |
 |---|---|
+| **Fuerza completa** (el único que se genera hoy) | Un bloque nativo "3 series" por ejercicio (grupo de repetición con ejercicio + descanso, igual que `create_strength_set` de garminconnect): el reloj muestra "Serie 2 de 3". Calentamiento por tiempo antes. ✔ |
 | Circuito, Contrarreloj | Grupo de repetición por rondas (ejercicio + descanso) ✔ |
 | Pirámide | Un paso por escalón con sus repeticiones ✔ |
 | EMOM | Pasos de 60 s; las repeticiones van en la descripción (el reloj no puede "empezar el minuto con N reps") — parcial |

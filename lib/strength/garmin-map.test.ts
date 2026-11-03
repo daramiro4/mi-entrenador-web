@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { buildGarminWorkout, countSteps, type GarminStep } from "./garmin-map";
 import { generateWorkout } from "./engine";
 import { EXERCISES } from "./library";
+import { GARMIN_OVERRIDES } from "./garmin-overrides";
 import type { GenerateInput } from "./workout-types";
 
 const input = (format: GenerateInput["format"], history: GenerateInput["history"] = []): GenerateInput => ({
@@ -18,7 +19,7 @@ describe("mapeo a Garmin (dry-run)", () => {
     for (const e of EXERCISES) expect(e.garmin_category + "/" + e.garmin_exercise).toMatch(/^[A-Z_0-9]+\/[A-Z_0-9]+$/);
   });
   it("genera un payload de fuerza válido para todos los formatos", () => {
-    for (const f of ["circuito", "amrap", "emom", "contrarreloj", "piramide"] as const) {
+    for (const f of ["completa", "circuito", "amrap", "emom", "contrarreloj", "piramide"] as const) {
       const w = generateWorkout(input(f)).workout!;
       const { payload, unmapped } = buildGarminWorkout(w);
       expect(payload.sportType.sportTypeKey).toBe("strength_training");
@@ -33,6 +34,37 @@ describe("mapeo a Garmin (dry-run)", () => {
         expect(typeof s.endConditionValue).toBe("number");
       }
     }
+  });
+  it("fuerza completa: un grupo 'N series' por ejercicio (ejercicio + descanso), como el editor de Garmin", () => {
+    const w = generateWorkout({ ...input("completa"), prefs: { ...input("completa").prefs, session_minutes: 60 } }).workout!;
+    const { payload } = buildGarminWorkout(w);
+    const top = payload.workoutSegments[0].workoutSteps;
+    const groups = top.filter((s) => s.type === "RepeatGroupDTO");
+    const main = w.blocks[1].exercises;
+    expect(groups).toHaveLength(main.length);
+    for (const g of groups) {
+      expect(g.numberOfIterations).toBe(3);
+      expect((g.endCondition as { conditionTypeKey: string }).conditionTypeKey).toBe("iterations");
+      const inner = g.workoutSteps as GarminStep[];
+      expect(inner).toHaveLength(2);
+      expect((inner[0].stepType as { stepTypeKey: string }).stepTypeKey).toBe("interval");
+      expect((inner[1].stepType as { stepTypeKey: string }).stepTypeKey).toBe("rest");
+      expect(inner[1].endConditionValue as number).toBeGreaterThanOrEqual(60);
+    }
+    // calentamiento (3 pasos por tiempo) antes de los bloques de series
+    expect(top.slice(0, 3).every((s) => s.type === "ExecutableStepDTO")).toBe(true);
+    // pasos totales mucho menores que con series planas
+    expect(top.length).toBeLessThanOrEqual(3 * 2 + main.length);
+  });
+  it("las correcciones del catálogo existen en el formato esperado y se aplican", () => {
+    for (const [slug, [cat, ex]] of Object.entries(GARMIN_OVERRIDES)) {
+      expect(EXERCISES.some((e) => e.slug === slug), slug).toBe(true);
+      expect(`${cat}/${ex}`).toMatch(/^[A-Z_0-9]+\/[A-Z_0-9]+$/);
+    }
+    const w = generateWorkout(input("circuito")).workout!;
+    w.blocks[1].exercises[0] = { ...w.blocks[1].exercises[0], slug: "peso-muerto-kettlebell", name: "Peso muerto con kettlebell" };
+    const step = flat(buildGarminWorkout(w).payload.workoutSegments[0].workoutSteps).find((s) => s.exerciseName === "KETTLEBELL_DEADLIFT");
+    expect(step?.category).toBe("DEADLIFT");
   });
   it("circuito: un grupo de repetición con las rondas de la rutina", () => {
     const w = generateWorkout(input("circuito")).workout!;

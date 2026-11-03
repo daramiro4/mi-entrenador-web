@@ -5,8 +5,9 @@ import type { Contraindication, Equipment, Exercise, LegLoad, Mode, Pattern } fr
  * Biblioteca inicial de ejercicios (fuente de verdad en código; la tabla
  * `exercises` se siembra desde aquí con scripts/gen-strength-seed.mts).
  * Poses esquemáticas por cinemática directa (ver poses.ts y DECISIONS D10).
- * Los nombres garmin_* son los del catálogo FIT y están SIN VERIFICAR contra
- * Garmin: los comprueba scripts/validate_garmin_mapping.py.
+ * Los nombres garmin_* están validados contra el catálogo de garminconnect 0.3.20
+ * (scripts/validate_garmin_mapping.py, 41/41); las correcciones de emparejamiento
+ * viven en garmin-overrides.ts porque este fichero está sembrado en la base.
  */
 
 type S = (torso: number, thigh: number, shin: number, arm: number, forearm: number, extra?: Partial<PoseSpec>) => PoseSpec;
