@@ -19,7 +19,7 @@ export interface Step {
 
 /**
  * Aplana una rutina en la secuencia de pasos del entreno en vivo.
- * circuito/contrarreloj/EMOM: por rondas; pirámide: por ejercicio y escalón;
+ * circuito/contrarreloj/EMOM: por rondas; pirámide y fuerza completa: por ejercicio y serie;
  * AMRAP: rondas repetidas hasta el límite de tiempo (con holgura).
  */
 export function buildSteps(w: Pick<GeneratedWorkout, "format" | "blocks">): Step[] {
@@ -35,7 +35,7 @@ export function buildSteps(w: Pick<GeneratedWorkout, "format" | "blocks">): Step
       });
       if (e.rest_s > 0) steps.push({ ...steps[steps.length - 1], kind: "rest" });
     };
-    if (b.kind === "main" && w.format === "piramide") {
+    if (b.kind === "main" && (w.format === "piramide" || w.format === "completa")) {
       exs.forEach((e, ei) => {
         const scheme = e.rep_scheme ?? Array.from({ length: e.sets }, () => e.reps ?? 10);
         scheme.forEach((r, si) => push(e, ei, 1, 1, si + 1, scheme.length, r));

@@ -20,7 +20,14 @@ export const ENGINE = {
   MAX_ATTEMPTS: 3,
   /** Orden de prioridad de patrones (pull ≥ push siempre; bisagra y core siempre). */
   PATTERN_ORDER: ["hinge", "pull", "push", "core", "squat", "pull", "carry"] as Pattern[],
-  BASE_REPS: { circuito: 10, amrap: 8, emom: 8, contrarreloj: 10, piramide: 8 } as Record<FormatSlug, number>,
+  /** Fuerza completa: 5 a 7 ejercicios (hinge, pierna, tirón, empuje, core, tirón extra, acarreo). */
+  COMPLETA_MIN_EXERCISES: 5,
+  COMPLETA_MAX_EXERCISES: 7,
+  COMPLETA_SETS: 3,
+  COMPLETA_PATTERN_ORDER: ["hinge", "squat", "pull", "push", "core", "pull", "carry"] as Pattern[],
+  /** Ejercicios de poco valor como trabajo principal de fuerza: solo si no hay otro del patrón. */
+  COMPLETA_LOW_VALUE: ["elevacion-talones", "sentadilla-isometrica-pared", "sentadilla-peso-corporal", "curl-biceps", "buenos-dias-mancuerna", "puente-gluteo", "puente-gluteo-una-pierna", "superman", "flexiones-inclinadas"],
+  BASE_REPS: { completa: 8, circuito: 10, amrap: 8, emom: 8, contrarreloj: 10, piramide: 8 } as Record<FormatSlug, number>,
 };
 
 const WEIGHTED: Equipment[] = ["dumbbell", "barbell", "kettlebell", "machine", "cable"];
@@ -53,7 +60,7 @@ function usesWeight(ex: Exercise, input: GenerateInput): boolean {
 function pickExercises(input: GenerateInput, n: number, rand: () => number, conservative: boolean): Exercise[] {
   const chosen: Exercise[] = [];
   const pool = EXERCISES.filter((e) => isEligible(e, input, conservative));
-  const slots = ENGINE.PATTERN_ORDER.slice(0, n);
+  const slots = (input.format === "completa" ? ENGINE.COMPLETA_PATTERN_ORDER : ENGINE.PATTERN_ORDER).slice(0, n);
   const hasPull = pool.some((e) => e.pattern === "pull");
   for (const pattern of slots) {
     // Sin ningún tirón disponible, tampoco se programa empuje (equilibrio empuje:tirón).
@@ -68,7 +75,8 @@ function pickExercises(input: GenerateInput, n: number, rand: () => number, cons
         rand() +
         (input.recentSlugs.includes(e.slug) ? 1.5 : 0) +
         Math.abs(input.prefs.level - e.level) * 0.3 +
-        (conservative && e.equipment.includes("bodyweight") ? -0.5 : 0),
+        (conservative && e.equipment.includes("bodyweight") ? -0.5 : 0) +
+        (input.format === "completa" ? (ENGINE.COMPLETA_LOW_VALUE.includes(e.slug) ? 1 : 0) + (usesWeight(e, input) ? -0.4 : 0) : 0),
     }));
     scored.sort((a, b) => a.score - b.score);
     chosen.push(scored[0].e);
@@ -119,9 +127,9 @@ export function estimateMinutes(w: Pick<GeneratedWorkout, "format" | "blocks">):
       seconds += (b.cap_min ?? 15) * 60;
     } else if (w.format === "emom") {
       seconds += (b.rounds ?? 1) * b.exercises.length * 60;
-    } else if (w.format === "piramide") {
+    } else if (w.format === "piramide" || w.format === "completa") {
       seconds += b.exercises.reduce(
-        (a, e) => a + (e.rep_scheme ?? [e.reps ?? 10]).reduce((s, r) => s + exSeconds(e, r) + e.rest_s, 0),
+        (a, e) => a + (e.rep_scheme ?? Array.from({ length: e.sets }, () => e.reps ?? 10)).reduce((s, r) => s + exSeconds(e, r) + e.rest_s, 0),
         0
       );
     } else {
@@ -137,6 +145,18 @@ function buildMain(format: FormatSlug, exercises: Exercise[], input: GenerateInp
   const rules = FORMAT_BY_SLUG[format].rules as Record<string, number | number[]>;
   const make = (rest: number) => exercises.map((e) => exerciseLine(e, input, format, rest));
 
+  if (format === "completa") {
+    // 3 series por ejercicio; el descanso (60/90/120 s) se elige para que la duración encaje.
+    let best: WorkoutBlock | null = null;
+    let bestDiff = Infinity;
+    for (const rest of rules.rest_s as number[]) {
+      const lines = make(rest).map((l) => ({ ...l, sets: ENGINE.COMPLETA_SETS }));
+      const block: WorkoutBlock = { kind: "main", title: "Fuerza", exercises: lines };
+      const d = Math.abs(estimateMinutes({ format, blocks: [block] }) - targetMainMin);
+      if (d < bestDiff) { best = block; bestDiff = d; }
+    }
+    return best!;
+  }
   if (format === "amrap") {
     const lines = make(0);
     const [lo, hi] = rules.cap_min as number[];
@@ -198,6 +218,7 @@ function buildWarmup(main: Exercise[], input: GenerateInput): WorkoutBlock {
 
 function intensityFor(input: GenerateInput): Intensity {
   if (input.prefs.level === 1 || input.prefs.limitations.length > 0) return "suave";
+  if (input.format === "completa") return "moderada";
   if (input.format === "amrap" || input.format === "contrarreloj" || input.prefs.level === 3) return "intensa";
   return "moderada";
 }
@@ -232,9 +253,11 @@ export function generateOnce(input: GenerateInput, attempt: number): GeneratedWo
   const target = input.prefs.session_minutes;
   let best: GeneratedWorkout | null = null;
   let bestDiff = Infinity;
-  const nMax = conservative ? ENGINE.MIN_EXERCISES : ENGINE.MAX_EXERCISES;
+  const completa = input.format === "completa";
+  const nMin = completa ? ENGINE.COMPLETA_MIN_EXERCISES : ENGINE.MIN_EXERCISES;
+  const nMax = conservative ? nMin : completa ? ENGINE.COMPLETA_MAX_EXERCISES : ENGINE.MAX_EXERCISES;
   const picks = new Map<number, Exercise[]>();
-  for (let n = ENGINE.MIN_EXERCISES; n <= nMax; n++) picks.set(n, pickExercises(input, n, rng(input.seed + attempt * 7919 + n), conservative));
+  for (let n = nMin; n <= nMax; n++) picks.set(n, pickExercises(input, n, rng(input.seed + attempt * 7919 + n), conservative));
 
   for (const [, exs] of picks) {
     if (exs.length < 3) continue;

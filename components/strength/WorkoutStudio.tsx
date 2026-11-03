@@ -9,7 +9,7 @@ import { GlassCard } from "@/components/ui/GlassCard";
 import { SingleChoice } from "@/components/ui/Choice";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { generateWorkoutAction } from "@/app/fuerza/actions";
-import { FORMATS } from "@/lib/strength/formats";
+import { SELECTABLE_FORMATS } from "@/lib/strength/formats";
 import { FORMAT_LABEL } from "@/lib/strength/labels";
 import { mainExercises } from "@/lib/strength/describe";
 import type { StrengthWorkoutRecord } from "@/lib/strength/data";
@@ -32,16 +32,22 @@ export function WorkoutStudio({ workout, defaultFormat, garminEnabled }: { worko
     });
   }
 
-  const blurb = FORMATS.find((f) => f.slug === format)?.blurb;
+  const blurb = SELECTABLE_FORMATS.find((f) => f.slug === format)?.blurb;
   const n = workout ? mainExercises(workout.blocks).length : 0;
 
   return (
     <GlassCard aria-labelledby="studio-title">
       <h2 id="studio-title" className="text-lg font-semibold">Estudio de fuerza</h2>
       <div className="mt-4 grid gap-2">
-        <p className="text-sm font-medium">Formato</p>
-        <SingleChoice<FormatSlug> name="Formato" value={format} onChange={setFormat}
-          options={FORMATS.map((f) => ({ value: f.slug, label: FORMAT_LABEL[f.slug] }))} />
+        {SELECTABLE_FORMATS.length > 1 ? (
+          <>
+            <p className="text-sm font-medium">Formato</p>
+            <SingleChoice<FormatSlug> name="Formato" value={format} onChange={setFormat}
+              options={SELECTABLE_FORMATS.map((f) => ({ value: f.slug, label: FORMAT_LABEL[f.slug] }))} />
+          </>
+        ) : (
+          <p className="text-sm font-medium">{FORMAT_LABEL[format]}</p>
+        )}
         <p className="text-sm text-label-2">{blurb}</p>
       </div>
 
@@ -74,7 +80,7 @@ export function WorkoutStudio({ workout, defaultFormat, garminEnabled }: { worko
             </div>
           </>
         ) : (
-          <EmptyState icon={Dumbbell} text="Aún no tienes ninguna rutina. Elige un formato y genera la primera.">
+          <EmptyState icon={Dumbbell} text="Aún no tienes ninguna rutina. Genera la primera.">
             <Button onClick={generate} disabled={pending}>
               <Send size={18} strokeWidth={1.75} aria-hidden="true" className="mr-2" />
               {pending ? "Generando…" : "Generar rutina"}

@@ -10,6 +10,12 @@ export interface FormatDef {
 /** Reglas por formato. Todas las cifras son constantes ajustables. */
 export const FORMATS: FormatDef[] = [
   {
+    slug: "completa",
+    name_es: "Fuerza completa",
+    blurb: "Cuerpo completo: 5-7 ejercicios de 3 series con descanso largo. Cada día cambian los ejercicios de cada grupo muscular.",
+    rules: { sets: 3, reps: [8, 10], rest_s: [60, 90, 120], time_work_s: 40 },
+  },
+  {
     slug: "circuito",
     name_es: "Circuito",
     blurb: "Varias rondas de los mismos ejercicios, con pausas cortas entre ellos.",
@@ -44,3 +50,9 @@ export const FORMATS: FormatDef[] = [
 export const FORMAT_BY_SLUG: Record<FormatSlug, FormatDef> = Object.fromEntries(
   FORMATS.map((f) => [f.slug, f])
 ) as Record<FormatSlug, FormatDef>;
+
+/**
+ * Formatos que se ofrecen al generar. Los demás (circuito, AMRAP, EMOM, contrarreloj, pirámide)
+ * siguen en el código para leer entrenos ya guardados y por si se recuperan, pero no se generan.
+ */
+export const SELECTABLE_FORMATS: FormatDef[] = FORMATS.filter((f) => f.slug === "completa");

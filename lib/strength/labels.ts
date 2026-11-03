@@ -33,6 +33,7 @@ export const AREA_LABEL: Record<Contraindication, string> = {
 export const LEVEL_LABEL = { 1: "Nivel 1 · iniciación", 2: "Nivel 2 · intermedio", 3: "Nivel 3 · avanzado" } as const;
 
 export const FORMAT_LABEL: Record<FormatSlug, string> = {
+  completa: "Fuerza completa",
   circuito: "Circuito",
   amrap: "AMRAP",
   emom: "EMOM",

@@ -15,7 +15,9 @@ export function buildSeedSql(): string {
         json({ ...e.pose_a, labels: e.pose_labels }), json({ ...e.pose_b, labels: e.pose_labels }), e.unilateral,
       ].join(", ")})`
   ).join(",\n");
-  const fm = FORMATS.map((f) => `  (${q(f.slug)}, ${q(f.name_es)}, ${json(f.rules)})`).join(",\n");
+  // La tabla workout_formats no la lee la app (FORMATS vive en código) y la siembra aplicada no se reescribe:
+  // "completa" no se refleja aquí; un cambio de base sería una migración nueva aparte.
+  const fm = FORMATS.filter((f) => f.slug !== "completa").map((f) => `  (${q(f.slug)}, ${q(f.name_es)}, ${json(f.rules)})`).join(",\n");
   return `-- GENERADO por lib/strength/seed.ts (npm run seed:strength). No editar a mano.
 -- Siembra idempotente de la biblioteca de fuerza. Solo inserta/actualiza filas de las tablas nuevas.
 -- Rollback: delete from public.exercises where slug in (select slug from public.exercises); delete from public.workout_formats;

@@ -14,7 +14,6 @@ import { PrefsPanel } from "@/components/strength/PrefsPanel";
 import { DEFAULT_PREFS, getPrefs, getRecentWorkouts } from "@/lib/strength/data";
 import { addDays, todayISODate } from "@/lib/week";
 import { garminSendEnabled } from "@/lib/strength/garmin-send";
-import type { FormatSlug } from "@/lib/strength/types";
 
 export default async function FuerzaPage() {
   const supabase = await createClient();
@@ -64,7 +63,7 @@ export default async function FuerzaPage() {
       ) : (
         <div className="grid gap-6 lg:grid-cols-[1.4fr_1fr]">
           <div className="grid content-start gap-6">
-            <WorkoutStudio workout={todays} defaultFormat={(todays?.format as FormatSlug) ?? "circuito"} garminEnabled={garminSendEnabled()} />
+            <WorkoutStudio workout={todays} defaultFormat="completa" garminEnabled={garminSendEnabled()} />
             {todays && <ExerciseList blocks={todays.blocks} />}
           </div>
           <div className="grid content-start gap-6">

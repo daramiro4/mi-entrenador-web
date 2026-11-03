@@ -6,7 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { generateForUser, type GenerateOutcome } from "@/lib/strength/service";
 import { drivingAntidote } from "@/lib/strength/antidote";
 import { getPrefs, getWorkoutById, insertWorkout, savePrefs, DEFAULT_PREFS } from "@/lib/strength/data";
-import { FORMATS } from "@/lib/strength/formats";
+import { SELECTABLE_FORMATS } from "@/lib/strength/formats";
 import type { Contraindication, Equipment, FormatSlug } from "@/lib/strength/types";
 import type { Prefs } from "@/lib/strength/workout-types";
 import { todayISODate } from "@/lib/week";
@@ -49,7 +49,7 @@ export async function savePrefsAction(input: Prefs): Promise<{ ok: boolean; erro
 
 export async function generateWorkoutAction(format: FormatSlug): Promise<GenerateOutcome> {
   const { supabase, user } = await requireUser();
-  if (!FORMATS.some((f) => f.slug === format)) {
+  if (!SELECTABLE_FORMATS.some((f) => f.slug === format)) {
     return { ok: false, reason: "no_valid_workout", message: "Formato inválido." };
   }
   const outcome = await generateForUser(supabase, user.id, format, { save: true });

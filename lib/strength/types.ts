@@ -3,7 +3,7 @@ export type Equipment = "bodyweight" | "dumbbell" | "barbell" | "machine" | "cab
 export type LegLoad = "none" | "light" | "heavy";
 export type Contraindication = "low_back" | "knee" | "shoulder" | "neck" | "wrist" | "hip" | "elbow";
 export type Mode = "reps" | "time";
-export type FormatSlug = "circuito" | "amrap" | "emom" | "contrarreloj" | "piramide";
+export type FormatSlug = "completa" | "circuito" | "amrap" | "emom" | "contrarreloj" | "piramide";
 
 export type Point = [number, number];
 export type GlyphKind = "dumbbell" | "barbell" | "band" | "kettlebell" | "none";

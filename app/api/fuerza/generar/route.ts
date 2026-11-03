@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { generateForUser } from "@/lib/strength/service";
-import { FORMATS } from "@/lib/strength/formats";
+import { SELECTABLE_FORMATS } from "@/lib/strength/formats";
 import type { FormatSlug } from "@/lib/strength/types";
 
 /**
@@ -15,7 +15,7 @@ export async function POST(request: Request) {
   if (!user) return Response.json({ error: "No autenticado" }, { status: 401 });
 
   const body = (await request.json().catch(() => ({}))) as { format?: string; save?: boolean };
-  const format = FORMATS.find((f) => f.slug === body.format)?.slug as FormatSlug | undefined;
+  const format = SELECTABLE_FORMATS.find((f) => f.slug === body.format)?.slug as FormatSlug | undefined;
   if (!format) return Response.json({ error: "Formato inválido" }, { status: 400 });
 
   const outcome = await generateForUser(supabase, user.id, format, { save: body.save !== false });

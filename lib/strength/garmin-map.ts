@@ -103,9 +103,12 @@ function blockSteps(format: FormatSlug, b: WorkoutBlock, order: Counter, unmappe
     // Calentamiento: pasos por tiempo, planos.
     return exs.flatMap((e) => lineSteps(e, order));
   }
-  if (format === "piramide") {
+  if (format === "piramide" || format === "completa") {
+    // Pirámide: un paso por escalón. Fuerza completa: `sets` series idénticas por ejercicio (cada una con su descanso).
     return exs.flatMap((e) =>
-      e.rep_scheme ? e.rep_scheme.flatMap((r) => lineSteps({ ...e, mode: "reps" }, order, r)) : lineSteps(e, order)
+      e.rep_scheme
+        ? e.rep_scheme.flatMap((r) => lineSteps({ ...e, mode: "reps" }, order, r))
+        : Array.from({ length: Math.max(1, e.sets) }).flatMap(() => lineSteps(e, order))
     );
   }
   if (format === "emom") {

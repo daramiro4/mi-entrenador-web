@@ -3,8 +3,8 @@ import type { BlockExercise, WorkoutBlock } from "./workout-types";
 export function describeLine(e: BlockExercise, block?: Pick<WorkoutBlock, "rounds" | "cap_min">): string {
   const parts: string[] = [];
   if (e.rep_scheme) parts.push(e.rep_scheme.join("-") + " reps");
-  else if (e.mode === "time") parts.push(`${e.seconds ?? 40} s`);
-  else parts.push(`${e.reps ?? 10} reps`);
+  else if (e.mode === "time") parts.push(`${e.sets > 1 ? `${e.sets} × ` : ""}${e.seconds ?? 40} s`);
+  else parts.push(`${e.sets > 1 ? `${e.sets} × ` : ""}${e.reps ?? 10} reps`);
   if (e.weight_kg != null) parts.push(`${e.weight_kg} kg`);
   else if (e.mode === "reps") parts.push("carga a elegir");
   if (block?.rounds && !e.rep_scheme) parts.push(`× ${block.rounds} rondas`);

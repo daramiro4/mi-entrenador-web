@@ -19,7 +19,7 @@ describe("motor de reglas", () => {
   it("genera rutinas válidas para todos los formatos, niveles y duraciones habituales", () => {
     for (const f of FORMATS) {
       for (const level of [1, 2, 3] as const) {
-        for (const minutes of [20, 30, 45]) {
+        for (const minutes of f.slug === "completa" ? [30, 45, 60] : [20, 30, 45]) {
           const r = generateWorkout(input({ format: f.slug, prefs: prefs({ level, session_minutes: minutes }) }));
           expect(r.workout, `${f.slug} L${level} ${minutes}min: ${JSON.stringify(r.attempts)}`).not.toBeNull();
           const w = r.workout!;

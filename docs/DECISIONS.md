@@ -63,3 +63,14 @@ La biblioteca (40 ejercicios) vive en `lib/strength/library.ts` (el motor de reg
 - **Python 3.12**: garminconnect ≥ 0.3 lo exige; `.python-version` y `requirements.txt` en la raíz. **No he podido probar el despliegue de la función en Vercel** (sin deploy permitido): verificarlo en el preview. Riesgo conocido: que Vercel tome `api/__init__.py` por función (el prefijo `_` debería ignorarlo).
 - Interruptor `GARMIN_SEND_ENABLED` (apagado): la UI muestra "Próximamente"; la API `POST /api/fuerza/garmin` sigue sirviendo el dry-run.
 - Una cuenta de Garmin por despliegue (variables de entorno); los tokens se cachean por `user_id` de Supabase.
+
+
+## Fuerza: un solo formato, "Fuerza completa" (2026-11-04)
+Pedido del usuario: en vez de circuito/AMRAP/EMOM/contrarreloj/pirámide, una sesión clásica de varios ejercicios con 3 series, cuerpo completo y ejercicios distintos cada día. Perfil: hombre de 40 años, ~100 kg, fuerte, ciclista de carretera, muchas horas en coche.
+- `completa` es el único formato que se ofrece (`SELECTABLE_FORMATS`). Los cinco antiguos siguen en el código (leer entrenos ya guardados, recuperarlos si hace falta) pero no se generan.
+- 5-7 ejercicios por sesión, 3 series, 8 reps (doble progresión 8-12 ya existente), descanso 60/90/120 s elegido para ajustar la duración. Orden de grupos: bisagra, pierna, tirón, empuje, core, tirón extra, acarreo; tirón ≥ empuje (corrige postura de conducir). Calentamiento con movilidad de cadera y torácica.
+- Duración 30-60 min (la de 20 min no cabe con 3 series y todos los grupos). Un valor guardado fuera de rango se lee ajustado, sin reescribir la base.
+- Variación entre días: penalización de los ejercicios de las últimas sesiones (mecanismo previo) → rotación A/B/C con 3 días/semana.
+- Ejercicios de poco valor como trabajo principal (elevación de talones, curl, buenos días, etc.) solo salen si no hay otra opción del patrón.
+- Mismas reglas de seguridad: sin pierna pesada si mañana hay bici de calidad, subida de carga ≤ 10 %.
+- La siembra SQL de `workout_formats` (aplicada en remoto) no incluye `completa`: la app no lee esa tabla y la migración aplicada no se reescribe.
