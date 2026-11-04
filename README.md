@@ -44,4 +44,4 @@ El motor de generación del plan de entrenamiento y la integración con Telegram
 - Fuerza: `lib/strength/` (biblioteca, poses, motor, validador, progresión, TSS, mapeo Garmin), rutas `/fuerza` y `/fuerza/entreno/[id]`, API interna `POST /api/fuerza/generar` y `POST /api/fuerza/garmin` (dry-run por defecto).
 - Documentación de la rama: `docs/` (PLAN, PROGRESS, DECISIONS, BLOCKERS, GARMIN, REPORT). Capturas: `docs/screens/`.
 - Previews con datos de ejemplo (sin BD): `UI_PREVIEW=1 npm run build && UI_PREVIEW=1 npm start` → `/ui`, `/ui/poses`, `/ui/preview/{hoy,fuerza,entreno}`.
-- Tests: `npx vitest run` · Python: `python3 -m unittest scripts.test_garmin_strength` · Catálogo Garmin: `python scripts/validate_garmin_mapping.py`.
+- Tests: `npx vitest run` · Catálogo Garmin: `python scripts/validate_garmin_mapping.py`.

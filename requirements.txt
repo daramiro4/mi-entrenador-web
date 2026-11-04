@@ -1,3 +1,0 @@
-# Dependencias de la función Python api/garmin_strength.py (envío de fuerza al Forerunner).
-# garminconnect >= 0.3.20 requiere Python >= 3.12 (ver .python-version).
-garminconnect>=0.3.20

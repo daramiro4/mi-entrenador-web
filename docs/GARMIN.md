@@ -1,21 +1,24 @@
 # Envío de rutinas de fuerza al Forerunner
 
-Estado: **implementado y probado en dry-run; envío real DESACTIVADO por defecto** (`GARMIN_SEND_ENABLED=false`).
-La prueba real la haces tú con `scripts/garmin_smoke_test.py` (abajo).
+Estado: **implementado y probado de punta a punta con un Garmin simulado; el envío real está DESACTIVADO por defecto**
+(`GARMIN_SEND_ENABLED` sin definir). Falta la primera prueba real con tu reloj (abajo).
 
-## Qué hay
+## Cómo funciona
+La web construye el entreno en el formato de Garmin y lo manda al servicio del **bot** (`mi-entrenador-garmin`, función
+`api/send_strength.py`), que ya tiene las credenciales de Garmin y el mismo login/`upload_workout` que usa el envío de bici.
+Autenticación entre repos: el mismo secreto compartido que ya protege `send_workout` (`GARMIN_SEND_SECRET`). No hay credenciales
+de Garmin en el proyecto web.
+
 | Pieza | Dónde |
 |---|---|
-| Traducción rutina → JSON de Garmin (dry-run) | `lib/strength/garmin-map.ts` (tests: `garmin-map.test.ts`) |
-| Orquestación + interruptor | `lib/strength/garmin-send.ts`, acción `app/fuerza/garmin-actions.ts`, API `POST /api/fuerza/garmin` |
-| Servicio de envío (Python, serverless) | `api/garmin_strength.py` (+ `requirements.txt`, `.python-version`) |
+| Traducción rutina → JSON de Garmin (dry-run) | `lib/strength/garmin-map.ts` (+ correcciones del catálogo en `garmin-overrides.ts`) |
+| Orquestación + interruptor + llamada al bot | `lib/strength/garmin-send.ts`, acción `app/fuerza/garmin-actions.ts`, API `POST /api/fuerza/garmin` |
+| Servicio de envío (Python, serverless) | repo `mi-entrenador-garmin`: `api/send_strength.py` (+ `api/strength_payload.py`) |
 | Validación contra el catálogo de Garmin | `scripts/validate_garmin_mapping.py` |
-| Prueba manual | `scripts/garmin_smoke_test.py` |
+| Prueba manual alternativa (script directo) | `scripts/garmin_smoke_test.py` |
 
-Versión de la librería comprobada en el código fuente: **garminconnect 0.3.20** (Python ≥ 3.12). Métodos reales usados:
-`Garmin(email, password).login(tokenstore=<json|ruta>)`, `client.dumps()`, `upload_workout(dict)`,
-`schedule_workout(workout_id, "YYYY-MM-DD")`, `delete_workout(id)`; modelos tipados `garminconnect.workout.StrengthWorkout`,
-`create_strength_set`, `create_strength_timed_set`; catálogo `garminconnect.exercises` (1527 ejercicios, 47 categorías).
+Versión de la librería comprobada en el código fuente: **garminconnect 0.3.20**. Métodos usados por el bot:
+`Garmin(email, password).login()`, `upload_workout(dict)`, `schedule_workout(workout_id, "YYYY-MM-DD")`.
 
 ## Mapeo de ejercicios
 Los 41 ejercicios de la biblioteca coinciden con el catálogo real (`python scripts/validate_garmin_mapping.py` → `41/41`, incluye las correcciones). Con Python < 3.12 se puede validar el catálogo extrayendo `garminconnect/exercises.py` de la rueda a un paquete vacío y apuntando `PYTHONPATH` a él.
@@ -34,33 +37,32 @@ Si algún ejercicio no existiera, se envía como paso genérico (`TOTAL_BODY`, n
 | AMRAP | No existe "hasta el tiempo límite": se envían 4 rondas y el límite va en la descripción — parcial |
 Los pesos van en gramos con unidad kilogramo, como espera Garmin. Las rutinas de movilidad/antídoto se envían como pasos por tiempo.
 
-## Variables de entorno (solo servidor; nunca en el repo)
+## Variables de entorno
+En el proyecto **web** (Production):
 | Variable | Para qué |
 |---|---|
-| `GARMIN_SEND_ENABLED` | `true` para permitir el envío real (por defecto apagado: la UI muestra "Próximamente") |
-| `GARMIN_EMAIL`, `GARMIN_PASSWORD` | Cuenta de Garmin Connect (solo la función Python) |
-| `SUPABASE_SERVICE_ROLE_KEY` | Escribir/leer la tabla privada `garmin_tokens` (tipo Secret) |
-| `GARMIN_STRENGTH_SERVICE_URL` | Opcional: URL completa de `/api/garmin_strength` (por defecto `https://$VERCEL_URL/api/garmin_strength`) |
-`NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` ya existen y la función las reutiliza para validar la sesión del usuario.
-**Aplica antes las migraciones** (`garmin_tokens` está en `20261102202723_strength_user_tables.sql`).
+| `GARMIN_SEND_ENABLED` | `true` para permitir el envío real (por defecto apagado: la UI muestra "Próximamente"). Es lo único que falta por activar |
+| `GARMIN_SEND_SERVICE_URL` | Ya existe (envío de bici). La de fuerza se deriva sola: `…/api/send_workout` → `…/api/send_strength` |
+| `GARMIN_SEND_SECRET` | Ya existe. Mismo valor que en el proyecto del bot |
+| `GARMIN_STRENGTH_SERVICE_URL` | Opcional: URL completa de `send_strength` si la derivada no sirve |
+En el proyecto **bot**: `GARMIN_EMAIL`, `GARMIN_PASSWORD`, `GARMIN_SEND_SECRET` (ya existen). La función de fuerza no necesita Supabase.
 
 ## Probar en dry-run (sin tocar Garmin)
 - API: `POST /api/fuerza/garmin {"workoutId": "<id>", "dry_run": true}` → devuelve el JSON que se enviaría + notas.
-- Script: `python scripts/garmin_smoke_test.py --dry-run`.
-- Tests: `npx vitest run lib/strength/garmin-map.test.ts` y `python3 -m unittest scripts.test_garmin_strength`.
-- Los payloads de los 5 formatos se validaron con el modelo pydantic `StrengthWorkout` de garminconnect 0.3.20.
+- Con el interruptor apagado, el botón también devuelve solo la vista previa.
+- Tests: web `npx vitest run lib/strength/garmin-map.test.ts lib/strength/garmin-send.test.ts`; bot `python3 -m unittest discover -s tests` (incluye el endpoint completo con un Garmin simulado).
 
-## Prueba real (la haces tú)
-1. En tu terminal (nunca dentro de Claude Code): `export GARMIN_EMAIL=… GARMIN_PASSWORD=…`
-2. `pip install "garminconnect>=0.3.20"` (Python ≥ 3.12) y `python scripts/garmin_smoke_test.py`.
-   Sube **PRUEBA Mi Entrenador** (4 ejercicios) y la programa para mañana; imprime su ID (no imprime credenciales).
-3. Abre Garmin Connect → Entrenamientos y comprueba que aparece; sincroniza el Forerunner.
-4. En el reloj: *Fuerza → Entrenamientos → PRUEBA Mi Entrenador*. Comprueba que muestra los nombres de ejercicio, las series, el descanso y la plancha por tiempo.
-5. Bórrala: `python scripts/garmin_smoke_test.py --delete <ID>` (o desde Garmin Connect → ⋯ → Eliminar).
-Solo hace **un** intento de login: si falla, no reintentes en bucle (riesgo de bloqueo de cuenta); espera unos minutos.
+## Prueba real (la haces tú, desde la propia app)
+1. Con el bot desplegado y `GARMIN_SEND_ENABLED=true` en la web (y redespliegue), abre Fuerza → "Enviar al Forerunner".
+2. Revisa la vista previa, elige **Mañana** (para no mezclarlo con lo de hoy) y confirma.
+3. Abre Garmin Connect → Entrenamientos y comprueba que aparece, con los nombres de ejercicio, las 3 series y el descanso. Sincroniza el Forerunner.
+4. En el reloj: *Fuerza → Entrenamientos*. Comprueba que muestra "Serie 1 de 3", el peso (si lo hay) y la plancha por tiempo.
+5. Bórralo desde Garmin Connect (⋯ → Eliminar) si era una prueba.
+El servicio hace **un** intento de login y limita a un envío cada 20 s. Si falla el login, no reintentes en bucle (riesgo de bloqueo de cuenta).
 
 ## Seguridad y límites
-- El servicio exige sesión de Supabase válida, solo acepta entrenos `strength_training`, ≤ 200 KB y ≤ 200 pasos, y limita a 1 envío / 20 s por usuario.
-- Fallo de autenticación o 429 de Garmin → cortacircuito de 15 min en la instancia, sin reintentos.
-- Tokens de Garmin cacheados en `garmin_tokens` (RLS activado **sin políticas**: solo `service_role`).
+- El servicio exige el secreto compartido (`Authorization: Bearer`), solo acepta entrenos `strength_training`, cuerpo ≤ 200 KB, ≤ 200 pasos de primer nivel (≤ 400 contando los de dentro de los grupos) y fecha `YYYY-MM-DD`.
+- Un envío cada 20 s por instancia; un solo intento de login, sin reintentos.
+- Interruptor global `GARMIN_SEND_ENABLED` en la web.
 - El Edge 1040 no se usa para fuerza y no se integra.
+- La tabla `garmin_tokens` (RLS sin políticas) y la función `api/garmin_strength.py` del diseño anterior ya no se usan: el login se hace en el bot, como el envío de bici.

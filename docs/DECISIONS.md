@@ -74,3 +74,7 @@ Pedido del usuario: en vez de circuito/AMRAP/EMOM/contrarreloj/pirámide, una se
 - Ejercicios de poco valor como trabajo principal (elevación de talones, curl, buenos días, etc.) solo salen si no hay otra opción del patrón.
 - Mismas reglas de seguridad: sin pierna pesada si mañana hay bici de calidad, subida de carga ≤ 10 %.
 - La siembra SQL de `workout_formats` (aplicada en remoto) no incluye `completa`: la app no lee esa tabla y la migración aplicada no se reescribe.
+
+
+## Envío de fuerza a Garmin vía el bot (2026-11-04)
+Se sustituye la función `api/garmin_strength.py` del repo web por `api/send_strength.py` del repo del bot. Motivos: el bot ya tiene las credenciales de Garmin y su login/`upload_workout` están verificados con la cuenta real (envío de bici); evita duplicar la contraseña de Garmin y el `SUPABASE_SERVICE_ROLE_KEY` en el proyecto web, la dependencia nueva (garminconnect ≥ 0.3.20 sobre Python 3.12, nunca desplegada) y el filtro `proxy.ts`, que redirigía a `/login` cualquier llamada sin cookies a esa ruta. La web sigue construyendo el JSON de Garmin; el bot solo valida y sube. Autenticación: el secreto compartido existente. Se eliminan `api/garmin_strength.py`, `requirements.txt`, `.python-version` y su test.
