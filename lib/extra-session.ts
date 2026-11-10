@@ -3,9 +3,11 @@ import { addDays, daysBetween } from "./week";
 
 /**
  * Sesión extra de bici en el gimnasio: voluntaria, por pulso (Forerunner,
- * zonas de Garmin), fuera del plan. No es una fila de `planned_sessions` ni
- * suma al TSS semanal ni a la señal de progreso — la fatiga ya la recoge el
- * ACWR vía `training_load` de Garmin. Nunca es una sesión dura: los días
+ * zonas de Garmin), fuera del plan. No es una fila de `planned_sessions`, pero
+ * SÍ suma al TSS semanal "cumplido" (lib/dashboard-stats.ts: sumTss estima el
+ * TSS desde las zonas de pulso, porque sin potenciómetro Garmin no lo da). No
+ * entra en la señal de progreso (decisión 8), que solo mira sesiones del plan.
+ * La fatiga la recoge el ACWR vía `training_load` de Garmin. Nunca es una sesión dura: los días
  * fuertes (`quality`) se reservan para la bici.
  *
  * La estructura (zonas/duraciones) la construye

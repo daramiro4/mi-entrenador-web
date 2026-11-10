@@ -1,5 +1,6 @@
 import type { ActivityRow, PlannedSession, StrengthSessionRow } from "./types";
 import { addDays, getWeekdayIndex } from "./week";
+import { estimateHrTss } from "./hr-zones";
 
 /** Provisional (configurable): % del TSS planificado para contar una semana en la racha. */
 export const STREAK_MIN_PCT = 85;
@@ -10,9 +11,14 @@ const WEEKDAY_NAME = ["lunes", "martes", "miércoles", "jueves", "viernes", "sá
  * TSS total de actividades. Evita doble conteo: si el mismo día hay una actividad de
  * fuerza de Garmin con TSS y otra escrita por la app (`source = mi-entrenador-web`),
  * solo cuenta la de Garmin.
+ *
+ * Bici sin potenciómetro (p. ej. la sesión extra del gimnasio por pulso): Garmin no da TSS, así que se
+ * estima desde los minutos por zona de pulso (`estimateHrTss`) para que también sume a la semana.
  */
 export function sumTss(
-  activities: Array<Pick<ActivityRow, "tss"> & Partial<Pick<ActivityRow, "date" | "activity_type" | "source">>>
+  activities: Array<
+    Pick<ActivityRow, "tss"> & Partial<Pick<ActivityRow, "date" | "activity_type" | "source" | "hr_zone_seconds">>
+  >
 ): number {
   const garminStrengthDays = new Set(
     activities
@@ -23,7 +29,10 @@ export function sumTss(
     activities.reduce((acc, a) => {
       const duplicate =
         a.source === "mi-entrenador-web" && a.activity_type === "strength" && garminStrengthDays.has(a.date);
-      return duplicate ? acc : acc + (a.tss ?? 0);
+      if (duplicate) return acc;
+      const hasTss = a.tss != null && a.tss > 0;
+      const estimated = a.activity_type === "cycling" && !hasTss ? estimateHrTss(a.hr_zone_seconds) : null;
+      return acc + (hasTss ? a.tss! : (estimated ?? 0));
     }, 0)
   );
 }

@@ -49,3 +49,17 @@ describe("dashboard-stats", () => {
     expect(greeting(8, null)).toBe("Buenos días");
   });
 });
+
+describe("sumTss: bici por pulso", () => {
+  const zones = { z1: 0, z2: 1800, z3: 0, z4: 0, z5: 0 }; // 30 min Z2 = 25
+  it("estima el TSS de una bici sin potencia a partir de las zonas de pulso", () => {
+    expect(sumTss([{ tss: null, activity_type: "cycling", hr_zone_seconds: zones }])).toBe(25);
+  });
+  it("si Garmin ya da TSS, no lo sustituye", () => {
+    expect(sumTss([{ tss: 50, activity_type: "cycling", hr_zone_seconds: zones }])).toBe(50);
+  });
+  it("no estima para fuerza ni sin zonas", () => {
+    expect(sumTss([{ tss: null, activity_type: "strength", hr_zone_seconds: zones }])).toBe(0);
+    expect(sumTss([{ tss: null, activity_type: "cycling", hr_zone_seconds: null }])).toBe(0);
+  });
+});
