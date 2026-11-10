@@ -64,9 +64,10 @@ export async function triggerGarminSync(): Promise<SyncGarminResult> {
         : null,
     };
   } catch (e) {
+    console.error("[garmin-sync] fallo de red al contactar con el servicio:", e instanceof Error ? e.message : e);
     return {
       ok: false,
-      error: e instanceof Error ? e.message : "Error de red al contactar con Garmin.",
+      error: "Error de red al contactar con Garmin.",
       date: null,
       activitiesSynced: null,
       fatigue: null,

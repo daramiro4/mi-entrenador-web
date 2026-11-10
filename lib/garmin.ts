@@ -114,7 +114,9 @@ async function postToGarminService(
 
     return { ok: true, preview: payload.preview ?? null };
   } catch (e) {
-    return { ok: false, error: e instanceof Error ? e.message : "Error de red al contactar con Garmin." };
+    // Detalle solo en el log del servidor: el mensaje de red puede revelar hosts o rutas internas.
+    console.error("[garmin] fallo de red al contactar con el servicio:", e instanceof Error ? e.message : e);
+    return { ok: false, error: "Error de red al contactar con Garmin." };
   }
 }
 
