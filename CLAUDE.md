@@ -103,7 +103,7 @@ Variante `volt` nueva en `components/ui/Button.tsx` (outline, mismo patrón que 
 
 ### Post-Fase-D: sesión extra de bici en el gimnasio, por pulso ("¿Hago bici extra?")
 Pedido por el usuario: spinning en el gimnasio con el Forerunner (sin potenciómetro), dirigido por las zonas de pulso predefinidas de Garmin (Z1-Z5, se envía el número de zona, nunca bpm). **Voluntaria, fuera del plan** — decisiones cerradas con el usuario:
-- **No es una fila de `planned_sessions`**, ni hay `session_type` nuevo ni cambio de esquema. Por eso no suma al TSS semanal ni a la señal de progreso (decisión 8); la fatiga ya la recoge el ACWR vía `training_load` de Garmin, que sale del pulso. Tampoco rompe el supuesto de "una sesión por día" de `lib/postpone.ts`/`lib/redistribute.ts`/la capa adaptativa.
+- **No es una fila de `planned_sessions`**, ni hay `session_type` nuevo ni cambio de esquema. No entra en el objetivo semanal ni en la señal de progreso (decisión 8), pero **sí suma al TSS semanal cumplido** (cambio posterior, a petición del usuario): `lib/dashboard-stats.ts: sumTss` estima su TSS desde los minutos por zona de pulso (`lib/hr-zones.ts: estimateHrTss`, TSS/h por zona ajustable) cuando Garmin no da TSS por no haber potenciómetro. La fatiga ya la recoge el ACWR vía `training_load` de Garmin, que sale del pulso. Tampoco rompe el supuesto de "una sesión por día" de `lib/postpone.ts`/`lib/redistribute.ts`/la capa adaptativa.
 - **Nunca dura**: los días fuertes (`quality`) se reservan para la bici. Intervalos **largos** (3×3' Z4), no de 1' — el pulso tarda 60-90 s en subir.
 - Botón en `HeroStatus.tsx` **cualquier día**.
 
