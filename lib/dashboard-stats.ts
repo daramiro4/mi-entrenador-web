@@ -1,6 +1,6 @@
 import type { ActivityRow, PlannedSession, StrengthSessionRow } from "./types";
 import { addDays, getWeekdayIndex } from "./week";
-import { estimateHrTss } from "./hr-zones";
+import { estimateHrTss, HR_TSS_PER_HOUR } from "./hr-zones";
 
 /** Provisional (configurable): % del TSS planificado para contar una semana en la racha. */
 export const STREAK_MIN_PCT = 85;
@@ -37,8 +37,29 @@ export function sumTss(
   );
 }
 
-export function sumPlannedTss(sessions: Pick<PlannedSession, "planned_tss">[]): number {
-  return Math.round(sessions.reduce((acc, s) => acc + (s.planned_tss ?? 0), 0));
+type PlannedTssInput = Pick<PlannedSession, "planned_tss"> & Partial<Pick<PlannedSession, "session_type" | "notes">>;
+
+/**
+ * TSS objetivo de una sesión. Las z2 de la ventana de reaclimatación no llevan `planned_tss` (decisión 5)
+ * pero sí `notes.duration_minutes`: se estiman con el TSS/h de Z2 para que la semana tenga un objetivo
+ * visible. El test de rampa (quality sin TSS) no se estima. Devuelve `estimated: true` en ese caso.
+ */
+export function sessionTargetTss(session: PlannedTssInput): { tss: number; estimated: boolean } {
+  if (session.planned_tss != null) return { tss: session.planned_tss, estimated: false };
+  const minutes = (session.notes as { duration_minutes?: unknown } | null | undefined)?.duration_minutes;
+  if (session.session_type === "z2" && typeof minutes === "number" && minutes > 0) {
+    return { tss: (minutes / 60) * HR_TSS_PER_HOUR.z2, estimated: true };
+  }
+  return { tss: 0, estimated: false };
+}
+
+export function sumPlannedTss(sessions: PlannedTssInput[]): number {
+  return Math.round(sessions.reduce((acc, s) => acc + sessionTargetTss(s).tss, 0));
+}
+
+/** true si el objetivo de la semana incluye sesiones estimadas por duración (sin `planned_tss`). */
+export function plannedTssIsEstimated(sessions: PlannedTssInput[]): boolean {
+  return sessions.some((s) => sessionTargetTss(s).estimated);
 }
 
 /** Titular humano de la semana según % del TSS objetivo. */

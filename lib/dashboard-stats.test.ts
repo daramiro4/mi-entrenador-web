@@ -63,3 +63,23 @@ describe("sumTss: bici por pulso", () => {
     expect(sumTss([{ tss: null, activity_type: "cycling", hr_zone_seconds: null }])).toBe(0);
   });
 });
+
+import { sessionTargetTss, plannedTssIsEstimated, sumPlannedTss } from "./dashboard-stats";
+
+describe("objetivo semanal con reaclimatación", () => {
+  const z2 = { planned_tss: null, session_type: "z2" as const, notes: { duration_minutes: 60 } };
+  it("estima una z2 de reaclimatación por su duración", () => {
+    expect(sessionTargetTss(z2)).toEqual({ tss: 50, estimated: true });
+  });
+  it("usa planned_tss cuando existe", () => {
+    expect(sessionTargetTss({ planned_tss: 70, session_type: "z2", notes: null })).toEqual({ tss: 70, estimated: false });
+  });
+  it("no estima el test de rampa (quality sin TSS)", () => {
+    expect(sessionTargetTss({ planned_tss: null, session_type: "quality", notes: { kind: "ramp_test" } }).tss).toBe(0);
+  });
+  it("suma 4 z2 de 60 min = 200 y avisa de que es estimado", () => {
+    expect(sumPlannedTss([z2, z2, z2, z2])).toBe(200);
+    expect(plannedTssIsEstimated([z2])).toBe(true);
+    expect(plannedTssIsEstimated([{ planned_tss: 50 }])).toBe(false);
+  });
+});

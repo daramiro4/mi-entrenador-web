@@ -29,7 +29,7 @@ import { getProfileName } from "@/lib/profile";
 import { getActivitiesBetween } from "@/lib/activities";
 import { getStrengthSessionsSince } from "@/lib/strength-sessions";
 import {
-  computeBadges, computeStreak, computeTotals, greeting, redistributionLine, sumPlannedTss, sumTss,
+  computeBadges, computeStreak, computeTotals, greeting, plannedTssIsEstimated, redistributionLine, sumPlannedTss, sumTss,
 } from "@/lib/dashboard-stats";
 import { HeroStatus } from "@/components/dashboard/HeroStatus";
 import { SeasonSummaryCard } from "@/components/dashboard/SeasonSummaryCard";
@@ -115,6 +115,7 @@ export default async function DashboardPage() {
     const end = addDays(start, 6);
     return {
       plannedTss: sumPlannedTss(plannedSince84.filter((s) => s.date >= start && s.date <= end)),
+      plannedIsEstimate: plannedTssIsEstimated(plannedSince84.filter((s) => s.date >= start && s.date <= end)),
       completedTss: sumTss(activities84.filter((a) => a.date >= start && a.date <= end)),
     };
   });
@@ -162,6 +163,7 @@ export default async function DashboardPage() {
               <WeekHeader
                 completedTss={currentWeek.completedTss}
                 targetTss={currentWeek.plannedTss}
+                targetIsEstimate={currentWeek.plannedIsEstimate}
                 streak={streak}
                 redistribution={redistributionLine(weeklySessions)}
               />

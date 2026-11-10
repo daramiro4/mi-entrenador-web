@@ -7,11 +7,14 @@ import { weekHeadline } from "@/lib/dashboard-stats";
 export function WeekHeader({
   completedTss,
   targetTss,
+  targetIsEstimate = false,
   streak,
   redistribution,
 }: {
   completedTss: number;
   targetTss: number;
+  /** El objetivo se estimó por duración (semana de reaclimatación, sin TSS planificado). */
+  targetIsEstimate?: boolean;
   streak: number;
   redistribution: string | null;
 }) {
@@ -33,11 +36,16 @@ export function WeekHeader({
         <div className="mb-1.5 flex items-baseline justify-between text-sm">
           <span className="text-label-2">TSS completado</span>
           <span className="metric font-medium">
-            {completedTss} / {targetTss}
+            {completedTss} / {targetIsEstimate ? "≈" : ""}{targetTss}
           </span>
         </div>
         <ProgressBar value={completedTss} max={targetTss} label="TSS completado de la semana" />
       </div>
+      {targetIsEstimate && (
+        <p className="mt-1.5 text-xs text-label-2">
+          Objetivo estimado: semana de reaclimatación, en Z2 suave (sin contar el test de rampa).
+        </p>
+      )}
       {redistribution && <p className="mt-2 text-xs text-label-2">{redistribution}</p>}
     </div>
   );
