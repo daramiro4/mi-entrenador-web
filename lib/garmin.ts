@@ -1,5 +1,6 @@
 import type { ExtraSessionVariant } from "./extra-session";
 import type { PlannedSession } from "./types";
+import { hrAdjustedFtp } from "./hr-adjustment";
 
 export interface SendToGarminResult {
   ok: boolean;
@@ -36,7 +37,8 @@ type GarminPayloadResult =
 
 function buildGarminPayload(
   session: PlannedSession,
-  ftpWatts: number | null
+  ftpWatts: number | null,
+  hrDiscountPct = 0
 ): GarminPayloadResult {
   if (!GARMIN_SUPPORTED_SESSION_TYPES.has(session.session_type)) {
     return { ok: false, error: "Este tipo de sesión no se puede enviar a Garmin." };
@@ -60,12 +62,18 @@ function buildGarminPayload(
     return { ok: false, error: "No hay un FTP registrado para calcular las zonas de potencia." };
   }
 
+  // Ajuste por pulso (lib/hr-adjustment.ts): solo Z2, encima del FTP efectivo (que ya trae la reaclimatación).
+  const ftpForZones =
+    session.session_type === "z2" && hrDiscountPct > 0
+      ? hrAdjustedFtp(effectiveFtpWatts, hrDiscountPct)
+      : effectiveFtpWatts;
+
   return {
     ok: true,
     payload: {
       date: session.date,
       session_type: session.session_type,
-      ftp_watts: effectiveFtpWatts,
+      ftp_watts: ftpForZones,
       ...(session.planned_tss != null
         ? { planned_tss: session.planned_tss }
         : { duration_minutes: durationMinutes }),
@@ -136,18 +144,20 @@ async function sendGarminPayload(payload: Record<string, unknown>): Promise<Send
 
 export async function previewPlannedSessionForGarmin(
   session: PlannedSession,
-  ftpWatts: number | null
+  ftpWatts: number | null,
+  hrDiscountPct = 0
 ): Promise<PreviewGarminResult> {
-  const built = buildGarminPayload(session, ftpWatts);
+  const built = buildGarminPayload(session, ftpWatts, hrDiscountPct);
   if (!built.ok) return { ok: false, error: built.error, preview: null };
   return previewGarminPayload(built.payload);
 }
 
 export async function sendPlannedSessionToGarmin(
   session: PlannedSession,
-  ftpWatts: number | null
+  ftpWatts: number | null,
+  hrDiscountPct = 0
 ): Promise<SendToGarminResult> {
-  const built = buildGarminPayload(session, ftpWatts);
+  const built = buildGarminPayload(session, ftpWatts, hrDiscountPct);
   if (!built.ok) return { ok: false, error: built.error };
   return sendGarminPayload(built.payload);
 }

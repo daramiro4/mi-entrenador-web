@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getPlannedSessionById } from "@/lib/planned-sessions";
 import { getLatestFtp } from "@/lib/metrics";
+import { getActiveSeason } from "@/lib/seasons";
 import {
   previewPlannedSessionForGarmin,
   sendPlannedSessionToGarmin,
@@ -29,8 +30,9 @@ export async function previewPlannedSessionToGarminAction(
   }
 
   const latestFtp = await getLatestFtp(supabase, user.id);
+  const season = await getActiveSeason(supabase, user.id);
 
-  return previewPlannedSessionForGarmin(session, latestFtp?.ftp_watts ?? null);
+  return previewPlannedSessionForGarmin(session, latestFtp?.ftp_watts ?? null, season?.notes?.hr_discount_pct ?? 0);
 }
 
 export async function sendPlannedSessionToGarminAction(
@@ -51,6 +53,7 @@ export async function sendPlannedSessionToGarminAction(
   }
 
   const latestFtp = await getLatestFtp(supabase, user.id);
+  const season = await getActiveSeason(supabase, user.id);
 
-  return sendPlannedSessionToGarmin(session, latestFtp?.ftp_watts ?? null);
+  return sendPlannedSessionToGarmin(session, latestFtp?.ftp_watts ?? null, season?.notes?.hr_discount_pct ?? 0);
 }

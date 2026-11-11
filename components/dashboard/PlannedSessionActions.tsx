@@ -12,6 +12,7 @@ import type { ActivityRow, HrZoneSeconds, PlannedSession, StrengthSessionRow } f
 import { getValidPostponeDates } from "@/lib/postpone";
 import { getValidRedistributionDates } from "@/lib/redistribute";
 import { formatHrZoneMinutes } from "@/lib/hr-zones";
+import { describeHrAdjustment } from "@/lib/hr-adjustment";
 
 function activityStats(
   session: PlannedSession,
@@ -108,6 +109,7 @@ export function PlannedSessionActions({
         : undefined;
     const stats = activityStats(session, linkedActivity);
     const hrZones = hrZoneSummary(linkedActivity);
+    const hrAdjustmentNote = describeHrAdjustment(session.notes?.hr_adjustment);
     const exercises =
       session.session_type === "strength" && linkedActivity
         ? strengthSessions.filter((s) => s.activity_id === linkedActivity.id)
@@ -148,6 +150,7 @@ export function PlannedSessionActions({
           </div>
         )}
         {hrZones && <p className="text-xs text-fog">{hrZones}</p>}
+        {hrAdjustmentNote && <p className="text-xs text-ember">{hrAdjustmentNote}</p>}
         {exercises.length > 0 && (
           <ul className="space-y-1">
             {exercises.map((exercise) => (
