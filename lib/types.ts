@@ -25,6 +25,8 @@ export type PlannedSessionStatus =
 import type { HrAdjustmentRecord } from "./hr-adjustment";
 
 export interface SeasonNotes {
+  /** FTP provisional del usuario (p. ej. la estimación de Garmin) hasta que haya un test de rampa (lib/ftp-base.ts). */
+  provisional_ftp_watts?: number;
   /** Descuento (%) vigente sobre los vatios de Z2 por discrepancia vatios/pulso (lib/hr-adjustment.ts). */
   hr_discount_pct?: number;
   event_type?: string;

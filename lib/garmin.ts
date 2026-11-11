@@ -1,6 +1,7 @@
 import type { ExtraSessionVariant } from "./extra-session";
 import type { PlannedSession } from "./types";
 import { hrAdjustedFtp } from "./hr-adjustment";
+import { resolveBaseFtp } from "./ftp-base";
 
 export interface SendToGarminResult {
   ok: boolean;
@@ -35,11 +36,14 @@ type GarminPayloadResult =
   | { ok: true; payload: Record<string, unknown> }
   | { ok: false; error: string };
 
-function buildGarminPayload(
-  session: PlannedSession,
-  ftpWatts: number | null,
-  hrDiscountPct = 0
-): GarminPayloadResult {
+/** Contexto de FTP de la cuenta para calcular zonas: medido, provisional y descuento por pulso vigente. */
+export interface FtpContext {
+  measured: number | null;
+  provisional: number | null;
+  hrDiscountPct: number;
+}
+
+function buildGarminPayload(session: PlannedSession, ftp: FtpContext): GarminPayloadResult {
   if (!GARMIN_SUPPORTED_SESSION_TYPES.has(session.session_type)) {
     return { ok: false, error: "Este tipo de sesión no se puede enviar a Garmin." };
   }
@@ -53,19 +57,26 @@ function buildGarminPayload(
     return { ok: false, error: "La sesión no tiene un TSS planificado." };
   }
 
-  // Si aún no hay ningún ftp_history medido, se usa el FTP efectivo ya
-  // descontado que el generador guardó en notes (solo aplica a la ventana
-  // de reaclimatización).
-  const effectiveFtpWatts = ftpWatts ?? session.notes?.effective_ftp_watts ?? null;
+  // FTP base por fiabilidad (lib/ftp-base.ts): medido > provisional del usuario > legado del objetivo.
+  const base = resolveBaseFtp({
+    measured: ftp.measured,
+    provisional: ftp.provisional,
+    sessionType: session.session_type,
+    notes: session.notes,
+  });
 
-  if (effectiveFtpWatts == null) {
-    return { ok: false, error: "No hay un FTP registrado para calcular las zonas de potencia." };
+  if (base == null) {
+    return {
+      ok: false,
+      error: "No hay un FTP para calcular las zonas. Indica tu FTP provisional en Ajustes (sirve el que estima Garmin Connect).",
+    };
   }
+  const effectiveFtpWatts = base.watts;
 
   // Ajuste por pulso (lib/hr-adjustment.ts): solo Z2, encima del FTP efectivo (que ya trae la reaclimatación).
   const ftpForZones =
-    session.session_type === "z2" && hrDiscountPct > 0
-      ? hrAdjustedFtp(effectiveFtpWatts, hrDiscountPct)
+    session.session_type === "z2" && ftp.hrDiscountPct > 0
+      ? hrAdjustedFtp(effectiveFtpWatts, ftp.hrDiscountPct)
       : effectiveFtpWatts;
 
   return {
@@ -144,20 +155,18 @@ async function sendGarminPayload(payload: Record<string, unknown>): Promise<Send
 
 export async function previewPlannedSessionForGarmin(
   session: PlannedSession,
-  ftpWatts: number | null,
-  hrDiscountPct = 0
+  ftp: FtpContext
 ): Promise<PreviewGarminResult> {
-  const built = buildGarminPayload(session, ftpWatts, hrDiscountPct);
+  const built = buildGarminPayload(session, ftp);
   if (!built.ok) return { ok: false, error: built.error, preview: null };
   return previewGarminPayload(built.payload);
 }
 
 export async function sendPlannedSessionToGarmin(
   session: PlannedSession,
-  ftpWatts: number | null,
-  hrDiscountPct = 0
+  ftp: FtpContext
 ): Promise<SendToGarminResult> {
-  const built = buildGarminPayload(session, ftpWatts, hrDiscountPct);
+  const built = buildGarminPayload(session, ftp);
   if (!built.ok) return { ok: false, error: built.error };
   return sendGarminPayload(built.payload);
 }

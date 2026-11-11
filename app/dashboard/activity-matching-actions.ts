@@ -13,6 +13,7 @@ import { getLatestFtp } from "@/lib/metrics";
 import { setSeasonHrDiscount } from "@/lib/seasons";
 import { assessZ2, hrAdjustedFtp, type HrAdjustmentRecord } from "@/lib/hr-adjustment";
 import { addDays } from "@/lib/week";
+import { resolveBaseFtp } from "@/lib/ftp-base";
 import { findMatchingActivity } from "@/lib/activity-matching";
 import { getMondayOfWeek, todayISODate } from "@/lib/week";
 import type { ActivityRow, PlannedSession, Season } from "@/lib/types";
@@ -107,8 +108,13 @@ async function assessDoneZ2Sessions(
 
   const activity = activities.find((a) => a.id === latest.actual_activity_id);
   const measuredFtp = (await getLatestFtp(supabase, userId))?.ftp_watts ?? null;
-  const baseFtp = measuredFtp ?? latest.notes?.effective_ftp_watts ?? null;
-  const ftpUsed = baseFtp != null ? hrAdjustedFtp(baseFtp, pctBefore) : null;
+  const baseFtp = resolveBaseFtp({
+    measured: measuredFtp,
+    provisional: season.notes?.provisional_ftp_watts ?? null,
+    sessionType: latest.session_type,
+    notes: latest.notes,
+  });
+  const ftpUsed = baseFtp != null ? hrAdjustedFtp(baseFtp.watts, pctBefore) : null;
 
   const [metricsRes, baselineRes] = await Promise.all([
     supabase.from("daily_metrics").select("sleep_duration_minutes, resting_hr").eq("user_id", userId).eq("date", latest.date).maybeSingle(),

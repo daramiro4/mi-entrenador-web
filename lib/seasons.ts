@@ -78,3 +78,15 @@ export async function setSeasonHrDiscount(
   const { error } = await supabase.from("seasons").update({ notes }).eq("id", season.id).eq("user_id", userId);
   if (error) throw new Error(`No se pudo guardar el ajuste por pulso: ${error.message}`);
 }
+
+/** Guarda el FTP provisional en `seasons.notes` (mezcla con el resto de notas). */
+export async function setSeasonProvisionalFtp(
+  supabase: TypedSupabaseClient,
+  userId: string,
+  season: Season,
+  watts: number
+): Promise<void> {
+  const notes = { ...(season.notes ?? {}), provisional_ftp_watts: watts } as Json;
+  const { error } = await supabase.from("seasons").update({ notes }).eq("id", season.id).eq("user_id", userId);
+  if (error) throw new Error(`No se pudo guardar el FTP provisional: ${error.message}`);
+}

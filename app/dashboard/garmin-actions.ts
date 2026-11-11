@@ -32,7 +32,11 @@ export async function previewPlannedSessionToGarminAction(
   const latestFtp = await getLatestFtp(supabase, user.id);
   const season = await getActiveSeason(supabase, user.id);
 
-  return previewPlannedSessionForGarmin(session, latestFtp?.ftp_watts ?? null, season?.notes?.hr_discount_pct ?? 0);
+  return previewPlannedSessionForGarmin(session, {
+    measured: latestFtp?.ftp_watts ?? null,
+    provisional: season?.notes?.provisional_ftp_watts ?? null,
+    hrDiscountPct: season?.notes?.hr_discount_pct ?? 0,
+  });
 }
 
 export async function sendPlannedSessionToGarminAction(
@@ -55,5 +59,9 @@ export async function sendPlannedSessionToGarminAction(
   const latestFtp = await getLatestFtp(supabase, user.id);
   const season = await getActiveSeason(supabase, user.id);
 
-  return sendPlannedSessionToGarmin(session, latestFtp?.ftp_watts ?? null, season?.notes?.hr_discount_pct ?? 0);
+  return sendPlannedSessionToGarmin(session, {
+    measured: latestFtp?.ftp_watts ?? null,
+    provisional: season?.notes?.provisional_ftp_watts ?? null,
+    hrDiscountPct: season?.notes?.hr_discount_pct ?? 0,
+  });
 }
