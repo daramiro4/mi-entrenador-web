@@ -66,3 +66,15 @@ export async function createSeason(
 
   return { data: data as Season, error: null };
 }
+
+/** Guarda el descuento por pulso vigente en `seasons.notes` (mezcla con el resto de notas). */
+export async function setSeasonHrDiscount(
+  supabase: TypedSupabaseClient,
+  userId: string,
+  season: Season,
+  pct: number
+): Promise<void> {
+  const notes = { ...(season.notes ?? {}), hr_discount_pct: pct } as Json;
+  const { error } = await supabase.from("seasons").update({ notes }).eq("id", season.id).eq("user_id", userId);
+  if (error) throw new Error(`No se pudo guardar el ajuste por pulso: ${error.message}`);
+}

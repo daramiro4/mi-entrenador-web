@@ -228,3 +228,15 @@ export async function insertPlannedSessions(
 
   return data as PlannedSession[];
 }
+
+/** Mezcla `patch` en `notes` de una sesión planificada sin perder el resto de claves. */
+export async function mergePlannedSessionNotes(
+  supabase: TypedSupabaseClient,
+  userId: string,
+  session: PlannedSession,
+  patch: Record<string, unknown>
+): Promise<void> {
+  const notes = { ...(session.notes ?? {}), ...patch } as Json;
+  const { error } = await supabase.from("planned_sessions").update({ notes }).eq("id", session.id).eq("user_id", userId);
+  if (error) throw new Error(`No se pudieron guardar las notas de la sesión: ${error.message}`);
+}

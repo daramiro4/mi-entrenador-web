@@ -22,7 +22,11 @@ export type PlannedSessionStatus =
   | "postponed"
   | "degraded";
 
+import type { HrAdjustmentRecord } from "./hr-adjustment";
+
 export interface SeasonNotes {
+  /** Descuento (%) vigente sobre los vatios de Z2 por discrepancia vatios/pulso (lib/hr-adjustment.ts). */
+  hr_discount_pct?: number;
   event_type?: string;
   free_text?: string;
   weight_goal_capped?: boolean;
@@ -36,6 +40,8 @@ export interface PlannedSessionNotes {
   /** Duración objetivo en minutos para sesiones z2 de reaclimatación (decisión 5) — sin `planned_tss`, así que el envío a Garmin no puede derivar la duración desde el TSS. */
   duration_minutes?: number;
   /** Presente cuando saltar esta sesión movió su TSS a otra — bloquea "deshacer". */
+  /** Evaluación por pulso de esta Z2 una vez hecha (lib/hr-adjustment.ts); su presencia evita reevaluar. */
+  hr_adjustment?: HrAdjustmentRecord;
   redistributed_to_session_id?: string;
   redistributed_tss?: number;
   [key: string]: unknown;
