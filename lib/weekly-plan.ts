@@ -1,10 +1,10 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "./supabase/database.types";
 import type { PlannedSession, Season } from "./types";
-import { getLastCyclingActivityDate, getLatestFtp } from "./metrics";
+import { countCyclingActivitiesSince, getLastCyclingActivityDate, getLatestFtp } from "./metrics";
 import { generateWeeklyPlan } from "./plan-generator";
 import { insertPlannedSessions } from "./planned-sessions";
-import { todayISODate } from "./week";
+import { addDays, todayISODate } from "./week";
 
 type TypedSupabaseClient = SupabaseClient<Database>;
 
@@ -15,9 +15,11 @@ export async function generateAndSaveWeeklyPlan(
   season: Season,
   weekStartDate: string
 ): Promise<PlannedSession[]> {
-  const [latestFtp, lastCyclingActivityDate] = await Promise.all([
+  const today = todayISODate();
+  const [latestFtp, lastCyclingActivityDate, recentCyclingRides14d] = await Promise.all([
     getLatestFtp(supabase, userId),
     getLastCyclingActivityDate(supabase, userId),
+    countCyclingActivitiesSince(supabase, userId, addDays(today, -14)),
   ]);
 
   const drafts = generateWeeklyPlan({
@@ -27,9 +29,9 @@ export async function generateAndSaveWeeklyPlan(
     hoursPerWeek: season.hours_per_week,
     strengthDaysPerWeek: season.strength_days_per_week,
     currentFtpWatts: latestFtp?.ftp_watts ?? null,
-    targetFtpWatts: season.target_ftp,
+    recentCyclingRides14d,
     lastCyclingActivityDate,
-    today: todayISODate(),
+    today,
   });
 
   return insertPlannedSessions(supabase, userId, season.id, drafts);

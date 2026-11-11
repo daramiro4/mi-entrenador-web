@@ -60,7 +60,7 @@ describe("generateWeeklyPlan", () => {
       hoursPerWeek: 8,
       strengthDaysPerWeek: 2,
       currentFtpWatts: 250,
-      targetFtpWatts: 250,
+      recentCyclingRides14d: 5,
       lastCyclingActivityDate: "2026-09-01",
       today: "2026-09-07",
     });
@@ -86,7 +86,7 @@ describe("generateWeeklyPlan", () => {
       hoursPerWeek: null,
       strengthDaysPerWeek: null,
       currentFtpWatts: null,
-      targetFtpWatts: null,
+      recentCyclingRides14d: 1,
       lastCyclingActivityDate: "2026-09-05",
       today: "2026-09-07",
     });
@@ -104,17 +104,17 @@ describe("generateWeeklyPlan", () => {
       hoursPerWeek: 8,
       strengthDaysPerWeek: 2,
       currentFtpWatts: 250,
-      targetFtpWatts: 250,
+      recentCyclingRides14d: 0,
       lastCyclingActivityDate: "2026-08-08", // 30 días antes
       today: "2026-09-07",
     });
 
-    expect(week.filter((d) => d.session_type === "z2")).toHaveLength(4);
-    expect(week.filter((d) => d.session_type === "rest")).toHaveLength(2);
-
-    const rampTest = week.find((d) => d.notes?.kind === "ramp_test");
-    expect(rampTest?.session_type).toBe("quality");
-    expect(rampTest?.notes?.reacclimatization_discount_pct).toBe(-0.1);
+    // Tres Z2 con un día de descanso entre ellas (lunes, miércoles, viernes) y sin test de rampa todavía.
+    const z2Days = week.map((d, i) => (d.session_type === "z2" ? i : -1)).filter((i) => i >= 0);
+    expect(z2Days).toEqual([0, 2, 4]);
+    expect(week.filter((d) => d.session_type === "rest")).toHaveLength(4);
+    expect(week.find((d) => d.notes?.kind === "ramp_test")).toBeUndefined();
+    expect(week.filter((d) => d.session_type === "z2").every((d) => d.notes?.reacclimatization_discount_pct === -0.1)).toBe(true);
 
     // Ninguna sesión de la ventana lleva TSS objetivo.
     expect(week.every((d) => d.planned_tss === null)).toBe(true);
@@ -134,21 +134,20 @@ describe("generateWeeklyPlan", () => {
       hoursPerWeek: 5,
       strengthDaysPerWeek: 0,
       currentFtpWatts: null,
-      targetFtpWatts: null,
+      recentCyclingRides14d: 0,
       lastCyclingActivityDate: null,
       today: "2026-09-07",
     });
 
-    const rampTest = week.find((d) => d.notes?.kind === "ramp_test");
-    expect(rampTest?.notes?.reacclimatization_discount_pct).toBe(-0.15);
+    expect(week.filter((d) => d.session_type === "z2").every((d) => d.notes?.reacclimatization_discount_pct === -0.15)).toBe(true);
 
-    // Sin FTP medido ni objetivo, no hay base para calcular un FTP efectivo.
+    // Sin FTP medido no hay base para un FTP efectivo en las notas (se usa el provisional al enviar).
     const z2Sessions = week.filter((d) => d.session_type === "z2");
     expect(z2Sessions.every((d) => d.notes?.effective_ftp_watts === undefined)).toBe(true);
     expect(z2Sessions.every((d) => d.notes?.duration_minutes === 60)).toBe(true);
   });
 
-  it("sin FTP medido pero con FTP objetivo de temporada: lo usa como base del descuento", () => {
+  it("sin FTP medido, el FTP objetivo de la temporada ya NO es la base: no hay FTP efectivo en las notas", () => {
     const week = generateWeeklyPlan({
       weekStartDate: "2026-09-07",
       goalType: "maintenance",
@@ -156,13 +155,37 @@ describe("generateWeeklyPlan", () => {
       hoursPerWeek: 5,
       strengthDaysPerWeek: 0,
       currentFtpWatts: null,
-      targetFtpWatts: 250,
+      recentCyclingRides14d: 0,
       lastCyclingActivityDate: null,
       today: "2026-09-07",
     });
-
     const z2Sessions = week.filter((d) => d.session_type === "z2");
-    // -15% de tope, sobre el FTP objetivo: round(250 * 0.85) = 213.
-    expect(z2Sessions.every((d) => d.notes?.effective_ftp_watts === 213)).toBe(true);
+    expect(z2Sessions.every((d) => d.notes?.effective_ftp_watts === undefined)).toBe(true);
+  });
+
+  const normalWeek = (o: { currentFtpWatts: number | null; recentCyclingRides14d: number }) =>
+    generateWeeklyPlan({
+      weekStartDate: "2026-09-14",
+      goalType: "ftp_improvement",
+      focusAreas: ["vo2max"],
+      hoursPerWeek: 6,
+      strengthDaysPerWeek: 2,
+      lastCyclingActivityDate: "2026-09-12",
+      today: "2026-09-14",
+      ...o,
+    });
+
+  it("test de rampa: semana normal sin FTP medido y con >=3 salidas recientes → la primera calidad es el test", () => {
+    const week = normalWeek({ currentFtpWatts: null, recentCyclingRides14d: 3 });
+    const tests = week.filter((d) => d.notes?.kind === "ramp_test");
+    expect(tests).toHaveLength(1);
+    expect(tests[0].session_type).toBe("quality");
+    expect(tests[0].planned_tss).toBeNull();
+    expect(week.find((d) => d.session_type === "quality")).toBe(tests[0]);
+  });
+
+  it("no programa el test con menos de 3 salidas o si ya hay FTP medido", () => {
+    expect(normalWeek({ currentFtpWatts: null, recentCyclingRides14d: 2 }).some((d) => d.notes?.kind === "ramp_test")).toBe(false);
+    expect(normalWeek({ currentFtpWatts: 220, recentCyclingRides14d: 6 }).some((d) => d.notes?.kind === "ramp_test")).toBe(false);
   });
 });

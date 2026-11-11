@@ -79,6 +79,25 @@ export async function getLastCyclingActivityDate(
   return data?.date ?? null;
 }
 
+/** Número de salidas de ciclismo registradas desde `fromDate` (incluida). */
+export async function countCyclingActivitiesSince(
+  supabase: TypedSupabaseClient,
+  userId: string,
+  fromDate: string
+): Promise<number> {
+  const { count, error } = await supabase
+    .from("activities")
+    .select("id", { count: "exact", head: true })
+    .eq("user_id", userId)
+    .eq("activity_type", "cycling")
+    .gte("date", fromDate);
+
+  if (error) {
+    throw new Error(`No se pudo contar las salidas de ciclismo: ${error.message}`);
+  }
+  return count ?? 0;
+}
+
 /** Fila exacta de `fatigue_index` para `date` (no "la más reciente") — para no adaptar el día de hoy con una lectura de ayer. */
 export async function getFatigueIndexForDate(
   supabase: TypedSupabaseClient,

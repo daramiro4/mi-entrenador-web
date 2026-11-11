@@ -14,9 +14,10 @@ export interface GenerateWeeklyPlanInput {
   focusAreas: FocusArea[];
   hoursPerWeek: number | null;
   strengthDaysPerWeek: number | null;
+  /** Último FTP MEDIDO (`ftp_history`), o null. El FTP objetivo de la temporada ya no se usa como base: no mide la forma actual. */
   currentFtpWatts: number | null;
-  /** FTP objetivo de la temporada (`seasons.target_ftp`) — se usa como base para el descuento de reaclimatización solo cuando no hay ningún `ftp_history` medido todavía (usuario nuevo, aún sin ramp test). */
-  targetFtpWatts: number | null;
+  /** Salidas de ciclismo registradas en los últimos 14 días: el test de rampa solo se programa con una base mínima de salidas reales. */
+  recentCyclingRides14d: number;
   /** Fecha de la última actividad `cycling` en `activities`, o null si nunca ha registrado una. */
   lastCyclingActivityDate: string | null;
   /** Inyectada (no `new Date()`) para que la función sea determinista y testeable. */
@@ -35,7 +36,11 @@ const REST_DAY_INDEX = 6; // domingo, dentro de una semana lunes=0..domingo=6
 
 // --- Constantes de la ventana de reaclimatación (decisión 5) ---
 const REACCLIMATIZATION_THRESHOLD_DAYS = 14; // ">2-3 semanas" sin actividad de ciclismo
-const REACCLIMATIZATION_Z2_DAYS = 4;
+// Días de la semana (lunes=0) con Z2 en la ventana de reaclimatación: tres, con un día de descanso entre
+// ellas. Cuatro seguidas disparaban la carga aguda de golpe (ACWR 1,9 tras la primera sesión de vuelta).
+const REACCLIMATIZATION_Z2_INDICES = [0, 2, 4];
+/** Salidas mínimas en los últimos 14 días para programar el test de rampa (sin FTP medido). */
+const RAMP_TEST_MIN_RIDES = 3;
 // Las z2 de reaclimatación no llevan TSS (decisión 5), así que necesitan una
 // duración fija para poder enviarse a Garmin. Ajustable.
 const REACCLIMATIZATION_Z2_DURATION_MINUTES = 60;
@@ -95,27 +100,21 @@ function pickSpacedIndices(candidates: number[], count: number): number[] {
 function buildReacclimatizationWeek(
   weekStartDate: string,
   discountPct: number,
-  currentFtpWatts: number | null,
-  targetFtpWatts: number | null
+  currentFtpWatts: number | null
 ): PlannedSessionDraft[] {
   const days: SessionType[] = new Array(7).fill("rest");
-  for (let i = 0; i < REACCLIMATIZATION_Z2_DAYS; i++) {
-    days[i] = "z2";
-  }
-  days[REACCLIMATIZATION_Z2_DAYS] = "quality"; // ramp test, día 4-5 de la ventana
+  for (const index of REACCLIMATIZATION_Z2_INDICES) days[index] = "z2";
 
-  // Si nunca se ha medido el FTP (usuario nuevo, sin ftp_history todavía), se
-  // usa el FTP objetivo de la temporada como base del descuento en vez de
-  // dejar las z2 sin ninguna potencia calculable.
-  const baseFtpWatts = currentFtpWatts ?? targetFtpWatts;
+  // Sin test de rampa en esta ventana: aún no hay salidas reales que lo sostengan. Se programa en la
+  // primera semana normal en la que haya >= RAMP_TEST_MIN_RIDES salidas y ningún FTP medido.
+  // Solo hay FTP efectivo en las notas si hay un FTP MEDIDO; sin él, las zonas se calculan al enviar con
+  // el FTP provisional del usuario (lib/ftp-base.ts).
   const effectiveFtpWatts =
-    baseFtpWatts != null ? Math.round(baseFtpWatts * (1 + discountPct)) : undefined;
+    currentFtpWatts != null ? Math.round(currentFtpWatts * (1 + discountPct)) : undefined;
 
   return days.map((sessionType, index) => {
     let notes: PlannedSessionNotes | null = null;
-    if (sessionType === "quality") {
-      notes = { kind: "ramp_test", reacclimatization_discount_pct: discountPct };
-    } else if (sessionType === "z2") {
+    if (sessionType === "z2") {
       notes = {
         reacclimatization_discount_pct: discountPct,
         duration_minutes: REACCLIMATIZATION_Z2_DURATION_MINUTES,
@@ -136,7 +135,8 @@ function buildNormalWeek(
   weekStartDate: string,
   weeklyTssTarget: number,
   qualityDays: number,
-  strengthDays: number
+  strengthDays: number,
+  scheduleRampTest: boolean
 ): PlannedSessionDraft[] {
   const days: SessionType[] = new Array(7).fill("z2");
   days[REST_DAY_INDEX] = "rest";
@@ -171,16 +171,20 @@ function buildNormalWeek(
   const qualityTss = roundToNearest5(perUnitTss * QUALITY_TSS_WEIGHT);
   const z2Tss = roundToNearest5(perUnitTss);
 
+  // Test de rampa: la primera sesión de calidad de la semana (sin TSS planificado, como en la ventana de reaclimatación).
+  const rampTestIndex = scheduleRampTest ? days.indexOf("quality") : -1;
+
   return days.map((sessionType, index) => {
     let planned_tss: number | null = null;
     if (sessionType === "quality") planned_tss = qualityTss;
     else if (sessionType === "z2") planned_tss = z2Tss;
+    const isRampTest = index === rampTestIndex;
 
     return {
       date: addDays(weekStartDate, index),
       session_type: sessionType,
-      planned_tss,
-      notes: null,
+      planned_tss: isRampTest ? null : planned_tss,
+      notes: isRampTest ? { kind: "ramp_test" as const } : null,
     };
   });
 }
@@ -197,17 +201,13 @@ export function generateWeeklyPlan(
 
   if (daysSince >= REACCLIMATIZATION_THRESHOLD_DAYS) {
     const discountPct = getReacclimatizationDiscountPct(daysSince);
-    return buildReacclimatizationWeek(
-      input.weekStartDate,
-      discountPct,
-      input.currentFtpWatts,
-      input.targetFtpWatts
-    );
+    return buildReacclimatizationWeek(input.weekStartDate, discountPct, input.currentFtpWatts);
   }
 
   const weeklyTssTarget = computeWeeklyTssTarget(input.hoursPerWeek);
   const qualityDays = computeQualityDaysPerWeek(input.goalType, input.focusAreas);
   const strengthDays = input.strengthDaysPerWeek ?? 0;
 
-  return buildNormalWeek(input.weekStartDate, weeklyTssTarget, qualityDays, strengthDays);
+  const scheduleRampTest = input.currentFtpWatts == null && input.recentCyclingRides14d >= RAMP_TEST_MIN_RIDES;
+  return buildNormalWeek(input.weekStartDate, weeklyTssTarget, qualityDays, strengthDays, scheduleRampTest);
 }
