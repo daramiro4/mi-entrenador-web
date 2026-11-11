@@ -143,7 +143,7 @@ export default async function DashboardPage() {
           Aún no tienes contraseña. <span className="text-accent font-semibold">Fíjala en Ajustes</span> para entrar sin depender del correo.
         </Link>
       )}
-      {!latestFtp && season && season.notes?.provisional_ftp_watts == null && (
+      {!latestFtp && season && season.notes?.provisional_ftp_watts == null && season.notes?.garmin_ftp_watts == null && (
         <Link
           href="/ajustes"
           className="mb-4 block rounded-2xl bg-fill px-4 py-3 text-sm text-label hover:brightness-95"

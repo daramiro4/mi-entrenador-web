@@ -23,6 +23,11 @@ describe("resolveBaseFtp", () => {
   it("el provisional va sin descuento y gana al valor legado del objetivo", () => {
     expect(resolveBaseFtp({ measured: null, provisional: 208, sessionType: "z2", notes: z2Notes })).toEqual({ watts: 208, source: "provisional" });
   });
+  it("el FTP de Garmin se usa sin descuento, pero el provisional del usuario lo supera", () => {
+    expect(resolveBaseFtp({ measured: null, provisional: null, garmin: 208, sessionType: "z2", notes: z2Notes })).toEqual({ watts: 208, source: "garmin" });
+    expect(resolveBaseFtp({ measured: null, provisional: 200, garmin: 208, sessionType: "z2", notes: z2Notes })?.watts).toBe(200);
+    expect(resolveBaseFtp({ measured: 190, provisional: 200, garmin: 208, sessionType: "z2", notes: null })?.source).toBe("measured");
+  });
   it("sin nada mejor usa el legado y lo marca como estimación del objetivo", () => {
     expect(resolveBaseFtp({ measured: null, provisional: null, sessionType: "z2", notes: z2Notes })).toEqual({ watts: 213, source: "goal_estimate" });
     expect(resolveBaseFtp({ measured: null, provisional: null, sessionType: "z2", notes: null })).toBeNull();

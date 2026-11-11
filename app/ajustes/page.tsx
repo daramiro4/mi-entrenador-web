@@ -26,8 +26,14 @@ export default async function AjustesPage() {
             <p className="mb-4 text-sm text-label-2">
               {latestFtp
                 ? `Tu FTP medido es ${latestFtp.ftp_watts} W (test de rampa) y es el que se usa para las zonas.`
-                : "Aún no tienes un FTP medido. Mientras tanto las zonas usan este valor provisional: puedes poner el que estima Garmin Connect. Se sustituye solo cuando hagas el test de rampa."}
+                : "Aún no tienes un FTP medido. Mientras tanto las zonas usan el FTP que Garmin Connect tiene registrado o, si lo prefieres, el provisional que escribas aquí (tiene prioridad). Se sustituye solo cuando hagas el test de rampa."}
             </p>
+            {!latestFtp && season.notes?.garmin_ftp_watts != null && (
+              <p className="mb-4 text-sm text-label-2">
+                Garmin Connect tiene registrado un FTP de <strong>{season.notes.garmin_ftp_watts} W</strong>
+                {season.notes.garmin_ftp_date ? ` (leído el ${season.notes.garmin_ftp_date})` : ""}. Se usa solo si no escribes uno propio.
+              </p>
+            )}
             {!latestFtp && <ProvisionalFtpForm initialWatts={season.notes?.provisional_ftp_watts ?? null} />}
           </GlassCard>
         )}

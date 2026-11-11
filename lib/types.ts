@@ -27,6 +27,9 @@ import type { HrAdjustmentRecord } from "./hr-adjustment";
 export interface SeasonNotes {
   /** FTP provisional del usuario (p. ej. la estimación de Garmin) hasta que haya un test de rampa (lib/ftp-base.ts). */
   provisional_ftp_watts?: number;
+  /** FTP de ciclismo que Garmin Connect tiene registrado; lo escribe el bot en cada sync (api/garmin_ftp.py). */
+  garmin_ftp_watts?: number;
+  garmin_ftp_date?: string;
   /** Descuento (%) vigente sobre los vatios de Z2 por discrepancia vatios/pulso (lib/hr-adjustment.ts). */
   hr_discount_pct?: number;
   event_type?: string;

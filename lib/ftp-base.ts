@@ -15,7 +15,7 @@ export function validateProvisionalFtp(raw: unknown): ProvisionalFtpResult {
   return { ok: true, value };
 }
 
-export type FtpSource = "measured" | "provisional" | "goal_estimate";
+export type FtpSource = "measured" | "provisional" | "garmin" | "goal_estimate";
 
 export interface BaseFtp {
   watts: number;
@@ -25,13 +25,15 @@ export interface BaseFtp {
 /**
  * FTP base con el que se calculan las zonas de una sesión, por orden de fiabilidad:
  *  1. FTP medido (test de rampa). En una z2 de reaclimatación lleva su descuento (`notes.reacclimatization_discount_pct`).
- *  2. FTP provisional del usuario. Es una estimación actual (p. ej. la de Garmin), así que NO lleva descuento de reaclimatación.
- *  3. Legado: `notes.effective_ftp_watts`, calculado en su día a partir del FTP OBJETIVO de la temporada. Solo
+ *  2. FTP provisional escrito por el usuario. Es una estimación actual, así que NO lleva descuento de reaclimatación.
+ *  3. FTP que Garmin Connect tiene registrado (lo guarda el bot en cada sync). Mismo trato que el provisional.
+ *  4. Legado: `notes.effective_ftp_watts`, calculado en su día a partir del FTP OBJETIVO de la temporada. Solo
  *     se usa si no hay nada mejor: el objetivo no mide la forma actual.
  */
 export function resolveBaseFtp(input: {
   measured: number | null;
   provisional: number | null;
+  garmin?: number | null;
   sessionType?: string;
   notes?: PlannedSessionNotes | null;
 }): BaseFtp | null {
@@ -40,6 +42,7 @@ export function resolveBaseFtp(input: {
     return { watts: Math.round(input.measured * (1 + Math.min(0, discount))), source: "measured" };
   }
   if (input.provisional != null) return { watts: input.provisional, source: "provisional" };
+  if (input.garmin != null) return { watts: input.garmin, source: "garmin" };
   const legacy = input.notes?.effective_ftp_watts;
   return legacy != null ? { watts: legacy, source: "goal_estimate" } : null;
 }

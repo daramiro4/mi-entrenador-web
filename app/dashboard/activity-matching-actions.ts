@@ -111,6 +111,7 @@ async function assessDoneZ2Sessions(
   const baseFtp = resolveBaseFtp({
     measured: measuredFtp,
     provisional: season.notes?.provisional_ftp_watts ?? null,
+    garmin: season.notes?.garmin_ftp_watts ?? null,
     sessionType: latest.session_type,
     notes: latest.notes,
   });

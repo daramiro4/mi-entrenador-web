@@ -40,6 +40,7 @@ type GarminPayloadResult =
 export interface FtpContext {
   measured: number | null;
   provisional: number | null;
+  garmin: number | null;
   hrDiscountPct: number;
 }
 
@@ -61,6 +62,7 @@ function buildGarminPayload(session: PlannedSession, ftp: FtpContext): GarminPay
   const base = resolveBaseFtp({
     measured: ftp.measured,
     provisional: ftp.provisional,
+    garmin: ftp.garmin,
     sessionType: session.session_type,
     notes: session.notes,
   });

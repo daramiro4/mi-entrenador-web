@@ -35,6 +35,7 @@ export async function previewPlannedSessionToGarminAction(
   return previewPlannedSessionForGarmin(session, {
     measured: latestFtp?.ftp_watts ?? null,
     provisional: season?.notes?.provisional_ftp_watts ?? null,
+    garmin: season?.notes?.garmin_ftp_watts ?? null,
     hrDiscountPct: season?.notes?.hr_discount_pct ?? 0,
   });
 }
@@ -62,6 +63,7 @@ export async function sendPlannedSessionToGarminAction(
   return sendPlannedSessionToGarmin(session, {
     measured: latestFtp?.ftp_watts ?? null,
     provisional: season?.notes?.provisional_ftp_watts ?? null,
+    garmin: season?.notes?.garmin_ftp_watts ?? null,
     hrDiscountPct: season?.notes?.hr_discount_pct ?? 0,
   });
 }
