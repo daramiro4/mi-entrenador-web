@@ -62,9 +62,14 @@ describe("findMatchingActivity", () => {
     expect(findMatchingActivity(mkSession("rest", "planned", "e"), [cycling])).toBeNull();
   });
 
-  it("nunca toca sesiones skipped o ya done", () => {
+  it("nunca toca sesiones skipped ni done ya enlazadas a una actividad", () => {
     expect(findMatchingActivity(mkSession("z2", "skipped", "f"), [cycling])).toBeNull();
-    expect(findMatchingActivity(mkSession("z2", "done", "g"), [cycling])).toBeNull();
+    expect(findMatchingActivity({ ...mkSession("z2", "done", "g"), actual_activity_id: 99 }, [cycling])).toBeNull();
+  });
+
+  it("una sesión done marcada a mano (sin actividad enlazada) sí se enlaza con la del día", () => {
+    expect(findMatchingActivity(mkSession("z2", "done", "g2"), [cycling])).toBe(cycling);
+    expect(findMatchingActivity(mkSession("strength", "done", "g3"), [cycling])).toBeNull();
   });
 
   it("sin actividades ese día, no hay coincidencia", () => {
