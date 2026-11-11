@@ -143,6 +143,14 @@ export default async function DashboardPage() {
           Aún no tienes contraseña. <span className="text-accent font-semibold">Fíjala en Ajustes</span> para entrar sin depender del correo.
         </Link>
       )}
+      {!latestFtp && season && season.notes?.provisional_ftp_watts == null && (
+        <Link
+          href="/ajustes"
+          className="mb-4 block rounded-2xl bg-fill px-4 py-3 text-sm text-label hover:brightness-95"
+        >
+          Aún no tienes un FTP. <span className="text-accent font-semibold">Indica uno provisional en Ajustes</span> (sirve el que estima Garmin) para calcular bien las zonas.
+        </Link>
+      )}
       <header className="mb-6">
         <p className="text-sm text-label-2 first-letter:uppercase">{dateLabel}</p>
         <h1 className="text-3xl font-semibold sm:text-4xl" style={{ letterSpacing: "-0.025em" }}>
