@@ -11,9 +11,9 @@ export function SegmentedNav({ active }: { active: NavKey | null }) {
           href={it.href}
           aria-current={it.key === active ? "page" : undefined}
           className={`min-h-11 inline-flex items-center rounded-full px-5 text-sm font-medium ${
-            it.key === active ? "bg-glass text-label shadow-sm" : "text-label-2 hover:text-label"
+            it.key === active ? "bg-surface-2 text-label" : "text-label-2 hover:text-label"
           }`}
-          style={it.key === active ? { background: "var(--glass)" } : undefined}
+         
         >
           {it.label}
         </Link>
