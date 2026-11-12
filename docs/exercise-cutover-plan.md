@@ -29,6 +29,11 @@ Es la fuente de verdad real del módulo de fuerza. **No cambia con el corte.**
 | `strength_sessions` | `exercise` (nombre), `exercise_slug` | `app/fuerza/entreno/actions.ts` (ambas) y el bot `save_strength_exercises` (solo `exercise`, nombre en español de Garmin) | Las 46 filas actuales tienen `exercise_slug` NULL. Sin FK: el corte no las toca. |
 | `strength_workouts` | JSON de bloques con `slug` de ejercicio | `lib/strength/service.ts` | Los slugs son los de `library.ts`, que siguen existiendo (`legacy_slug` en la tabla nueva los conserva). |
 
+### Código NUEVO que lee el esquema nuevo (Fase 4)
+Solo funciona cuando la migración está aplicada; antes, `/ejercicios` muestra «El catálogo de ejercicios no está disponible todavía» (no se rompe), pero **no debe desplegarse antes del corte**.
+`app/ejercicios/page.tsx`, `app/ejercicios/[id]/page.tsx` y `lib/exercises/data.ts` (`exercises`, `exercise_categories`; paginado por el límite de 1.000 filas); enlace en `app/fuerza/page.tsx`.
+`ExercisePicker` está exportado pero sin conectar al módulo de fuerza. `/ui/preview/ejercicios` y `/dev/rigs` no usan la base de datos y dan 404 en producción.
+
 ## 2. Por qué el corte es de bajo riesgo
 Como **ningún código de producción lee la tabla**, la migración puede aplicarse **antes** de desplegar el código nuevo sin romper
 nada en ningún momento (el código viejo ni la menciona). Y si el despliegue nuevo falla, basta promover el anterior en Vercel:
@@ -46,9 +51,9 @@ la base de datos es compatible con ambos. Solo el paso de deshacer la base de da
 **Corte**
 7. Aplicar `supabase/migrations/20261112120000_exercise_catalog.sql` (transaccional: o se aplica entera o nada).
 8. Comprobar (SQL): `exercises`=1.553 · `exercise_categories`=47 · `exercises_legacy`=41 · `plan_eligible`=41 · `fit_sdk_known=false`=59 · RLS activa en las 3 tablas nuevas.
-9. Regenerar `lib/supabase/database.types.ts`.
+9. Regenerar `lib/supabase/database.types.ts` y **tipar** las consultas de `lib/exercises/data.ts` (hoy usan un cliente sin tipos y validan cada fila a mano).
 10. Desplegar la web (fusión a `main`).
-11. Humo: `/ejercicios` carga, el buscador responde, las fichas se abren, el módulo de fuerza genera y envía una rutina.
+11. Humo: `/ejercicios` carga las 1.553 filas, el buscador responde, una ficha con animación (p. ej. rotación torácica) y una sin ella se abren, `/ejercicios/<id>` funciona, el módulo de fuerza genera y envía una rutina.
 
 **Si algo falla**
 - Solo el código → promover el despliegue anterior en Vercel. La base de datos no hace falta tocarla.

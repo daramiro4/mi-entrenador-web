@@ -1,7 +1,7 @@
 # Biblioteca de ejercicios (catálogo de Garmin)
 
 Catálogo de los ejercicios que el reloj acepta en un entreno de fuerza (categoría + nombre de ejercicio), con metadatos
-para el módulo de fuerza y, más adelante, ficha animada. **Estado: Fase 1 (datos) y Fase 2 (motor de animación) hechas; Fase 3 (contenido) en la PARADA 3.** La UI (fase 4) no está hecha. La migración está probada en local e **sin aplicar** en producción: ver `docs/exercise-cutover-plan.md`.
+para el módulo de fuerza y, más adelante, ficha animada. **Estado: las 4 fases están hechas.** La migración sigue SIN aplicar en producción y la UI nueva no se despliega hasta el corte (ver `docs/exercise-cutover-plan.md`). La migración está probada en local e **sin aplicar** en producción: ver `docs/exercise-cutover-plan.md`.
 
 ## Cifras reales (2026-11-12)
 
@@ -112,3 +112,20 @@ Cada ejercicio trae: nombre en español, nivel (1-3), arquetipo de animación pr
 - **Arquetipo (`archetype`)**: tipo de animación previsto. Solo 3 de los 17 tienen rig (`squat`, `hip_hinge`, `quadruped_rotation`); el resto está `pending`. Asignar arquetipo NO crea la animación:
   las entradas ejecutables siguen siendo `lib/exercises/animation-map.ts` (hoy 6 ejercicios).
 - Los músculos de estos 80 son los de Exercises.json (`muscles_source = exercises_json`); no se han tocado.
+
+## Interfaz (Fase 4)
+
+- **`/ejercicios`** (`app/ejercicios/page.tsx`): lista buscable de todo el catálogo. Búsqueda en español e inglés (sin acentos; también por la clave de Garmin y la categoría),
+  filtros por categoría, músculo, material, nivel, «con animación» y «solo revisados», recuentos por opción. Lista **virtualizada sin librerías** (solo se pintan ~20 de las 1.553 filas),
+  accesible como `listbox` (flechas, Inicio/Fin, Intro). La miniatura es la pose más exigente del rig si el ejercicio tiene animación; si no, un icono neutro. Al tocar una fila se abre la **ficha en una hoja**
+  (panel lateral en escritorio, hoja inferior en móvil); la URL guarda `?e=<id>` para poder compartirla.
+- **`/ejercicios/[id]`**: la misma ficha en página completa (enlace directo).
+- **Ficha** (`ExerciseDetailView`): escenario animado con el subtítulo de la fase arriba; línea de metadatos (categoría · nivel · material); título en Barlow 40 px; dosis con anillo
+  (por tiempo: cuenta atrás con Iniciar/Pausa; por repeticiones: el número); «Cómo hacerlo» numerado y sincronizado con la fase (si el rig trae pasos; si no, las claves del ejercicio);
+  «Error común» y «Alternativas» plegados (`<details>`); y al pie la clave del reloj («En el reloj: warm up · thoracic rotation»). Un borrador lo indica; un ejercicio sin animación muestra su ficha de datos.
+- **`ExercisePicker`** (`components/exercises/ExercisePicker.tsx`, también en `components/exercises/index.ts`): selector para el módulo de fuerza con la misma búsqueda y lista. Recibe `rows`/`categories` (p. ej. de `fetchCatalogList`)
+  y llama a `onPick`. **Todavía no está conectado** al módulo de fuerza: solo se exporta.
+- **Datos** (`lib/exercises/data.ts`): lee las tablas NUEVAS (`exercises`, `exercise_categories`) paginando de 1.000 en 1.000 (límite de PostgREST). Usa un cliente sin tipos porque `database.types.ts` aún es el del esquema antiguo.
+- **Sin base de datos, para desarrollo:** `/ui/preview/ejercicios` (solo con `UI_PREVIEW=1`; 404 en producción) usa `data/garmin-exercises.json`. `?e=CATEGORÍA/EJERCICIO` abre una ficha.
+- Los rigs se cargan **bajo demanda** (import dinámico por arquetipo, con caché); nada de ellos entra en el bundle principal. Lógica pura con tests: `search.ts`, `virtual-window.ts`, `dose.ts`, `watch-key.ts`, `labels.ts`.
+- Enlace «Biblioteca de ejercicios» en `/fuerza`.
