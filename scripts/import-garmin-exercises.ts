@@ -61,6 +61,20 @@ export function fitNameToKey(name: string): string {
   return name.replace(/([a-z0-9])([A-Z])/g, "$1_$2").toUpperCase();
 }
 
+/** Clave canónica para comparar entre fuentes (sin guiones bajos: L_SIT = LSIT, AT_90 = AT90). */
+const canonical = (k: string): string => k.replace(/_/g, "");
+
+/**
+ * Claves del catálogo (unión de garminconnect y Exercises.json) que el FIT SDK no lista: Garmin Connect las acepta pero el
+ * SDK 21.x es anterior. Se guarda SOLO la lista de claves nuestras que faltan (nada del contenido del SDK).
+ */
+export function computeFitUnknown(official: { category: string; exercise: string }[], fit: Record<string, string[]>): string[] {
+  const known = new Set(Object.entries(fit).flatMap(([c, names]) => names.map((n) => `${c}/${canonical(n)}`)));
+  const unknown = new Set<string>();
+  for (const k of official) if (!known.has(`${k.category}/${canonical(k.exercise)}`)) unknown.add(`${k.category}/${k.exercise}`);
+  return [...unknown].sort();
+}
+
 async function download(url: string): Promise<Buffer> {
   const res = await fetch(url, { headers: { "User-Agent": "mi-entrenador-web/exercise-import" } });
   if (!res.ok) throw new Error(`${url} → HTTP ${res.status}`);
@@ -128,6 +142,18 @@ async function importFitSdk(): Promise<void> {
   mkdirSync(".cache", { recursive: true });
   writeFileSync(".cache/fit-exercise-keys.json", JSON.stringify({ source: `@garmin/fitsdk ${version}`, categories }, null, 1) + "\n");
   const total = Object.values(categories).reduce((a, c) => a + c.length, 0);
+  const gc = JSON.parse(readFileSync("data/sources/garminconnect-exercises.json", "utf8")) as { rows: RawRow[] };
+  const mu = JSON.parse(readFileSync("data/sources/connect-exercise-muscles.json", "utf8")) as MuscleSource;
+  const official = [
+    ...gc.rows.map((r) => ({ category: r.category, exercise: r.exercise })),
+    ...Object.entries(mu.categories).flatMap(([c, ex]) => Object.keys(ex).map((e) => ({ category: c, exercise: e }))),
+  ];
+  const unknownKeys = computeFitUnknown(official, categories);
+  writeFileSync(
+    "data/sources/fit-sdk-unknown-keys.json",
+    JSON.stringify({ fit_sdk_version: version, note: "Claves de Garmin Connect que ese FIT SDK no lista (solo nuestras claves; sin contenido del SDK).", keys: unknownKeys }, null, 1) + "\n",
+  );
+  console.log(`FIT SDK ${version}: ${unknownKeys.length} claves de Connect que el SDK aún no lista (data/sources/fit-sdk-unknown-keys.json)`);
   console.log(`FIT SDK ${version}: ${Object.keys(categories).length} categorías, ${total} nombres (guardado en .cache/, no se versiona)`);
 }
 

@@ -1,0 +1,4 @@
+{
+  "_readme": "Correcciones manuales del catálogo. Se aplican SIEMPRE encima de lo importado y de las fichas curadas: regenerar (npm run gen:exercise-catalog) nunca las pisa. Clave: \"CATEGORÍA/EJERCICIO\" (p. ej. \"WARM_UP/THORACIC_ROTATION\"). Campos permitidos: name_es, equipment, primary_muscles, secondary_muscles, movement_pattern, level, dose_default, cues, common_mistake, alternatives, review_status, plan_eligible. Un override a un ejercicio inexistente o con un campo no permitido falla el generador. Ejemplo: { \"WARM_UP/THORACIC_ROTATION\": { \"primary_muscles\": [\"LOWER_BACK\"] } } marcaría muscles_source='manual'. Vacío a propósito: ninguna ficha curada permite rellenar los músculos que faltan sin inventarlos.",
+  "overrides": {}
+}

@@ -1,12 +1,16 @@
 import { describe, expect, it } from "vitest";
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { EXERCISES } from "../strength/library";
 import { GARMIN_OVERRIDES } from "../strength/garmin-overrides";
 import {
   buildCatalog,
   buildMigrationSql,
   buildNamesCsv,
+  buildRollbackSql,
+  ROLLBACK_FILE,
   deriveEquipment,
+  PLAN_BLOCKED_CATEGORIES,
+  type ExerciseOverride,
   MIGRATION_FILE,
   parseReviewedNames,
   type Catalog,
@@ -15,9 +19,11 @@ import {
   type RawRow,
 } from "./catalog";
 import { CATEGORY_ES, translateName } from "./names-es";
+import { buildCuratedReview, INTENT_EN } from "./curated-review";
 
 const DATA = "data/garmin-exercises.json";
 const NAMES = "data/exercise-names-es.csv";
+const REVIEW_DOC = "docs/curated-mapping-review.md";
 
 function load(): Catalog {
   const gc = JSON.parse(readFileSync("data/sources/garminconnect-exercises.json", "utf8")) as { source: string; rows: RawRow[] };
@@ -31,7 +37,9 @@ function load(): Catalog {
     };
   });
   const reviewedNames = existsSync(NAMES) ? parseReviewedNames(readFileSync(NAMES, "utf8")) : undefined;
-  return buildCatalog({ rows: gc.rows, muscles: mu.categories, legacy, reviewedNames, sources: [gc.source, mu.source] });
+  const overrides = (JSON.parse(readFileSync("data/exercise-overrides.json", "utf8")) as { overrides: Record<string, ExerciseOverride> }).overrides;
+  const fitUnknown = new Set((JSON.parse(readFileSync("data/sources/fit-sdk-unknown-keys.json", "utf8")) as { keys: string[] }).keys);
+  return buildCatalog({ rows: gc.rows, muscles: mu.categories, legacy, reviewedNames, overrides, fitUnknown, sources: [gc.source, mu.source] });
 }
 
 describe("catálogo de ejercicios (generado)", () => {
@@ -41,14 +49,21 @@ describe("catálogo de ejercicios (generado)", () => {
     const json = JSON.stringify(catalog, null, 1) + "\n";
     const csv = buildNamesCsv(catalog);
     const sql = buildMigrationSql(catalog);
+    const review = buildCuratedReview(catalog);
+    const down = buildRollbackSql();
     if (process.env.UPDATE_CATALOG === "1") {
+      mkdirSync("supabase/rollbacks", { recursive: true });
+      writeFileSync(ROLLBACK_FILE, down);
       writeFileSync(DATA, json);
       writeFileSync(NAMES, csv);
       writeFileSync(MIGRATION_FILE, sql);
+      writeFileSync(REVIEW_DOC, review);
     }
     expect(readFileSync(DATA, "utf8")).toBe(json);
     expect(readFileSync(NAMES, "utf8")).toBe(csv);
     expect(readFileSync(MIGRATION_FILE, "utf8")).toBe(sql);
+    expect(readFileSync(REVIEW_DOC, "utf8")).toBe(review);
+    expect(readFileSync(ROLLBACK_FILE, "utf8")).toBe(down);
   });
 
   it("claves únicas y todas las categorías existen", () => {
@@ -108,6 +123,52 @@ describe("catálogo de ejercicios (generado)", () => {
     }
   });
 
+  it("equipo conservador: 'bodyweight' solo con BODY_WEIGHT en la clave, categoría de calentamiento o ficha curada; sin pista → 'unknown'", () => {
+    for (const e of catalog.exercises) {
+      if (!e.equipment.includes("bodyweight")) continue;
+      const ok = e.legacy_slug !== null || /BODY_?WEIGHT/.test(e.garmin_name) || e.garmin_category === "WARM_UP";
+      expect(ok, `${e.garmin_category}/${e.garmin_name}`).toBe(true);
+    }
+    expect(catalog.exercises.some((e) => e.equipment.includes("unknown"))).toBe(true);
+    expect(catalog.exercises.filter((e) => e.equipment.includes("unknown") && e.equipment.length > 1)).toEqual([]);
+  });
+
+  it("plan_eligible: solo fichas 'reviewed' con nivel, y ningún olímpico ni pliométrico", () => {
+    const eligible = catalog.exercises.filter((e) => e.plan_eligible);
+    expect(eligible.length).toBeGreaterThan(0);
+    for (const e of eligible) {
+      expect(e.review_status).toBe("reviewed");
+      expect(e.level).not.toBeNull();
+      expect((PLAN_BLOCKED_CATEGORIES as readonly string[]).includes(e.garmin_category)).toBe(false);
+    }
+    expect(catalog.exercises.filter((e) => e.review_status !== "reviewed" && e.plan_eligible)).toEqual([]);
+  });
+
+  it("muscles_source: 'exercises_json' cuando hay músculos de Exercises.json y null cuando no hay ninguno", () => {
+    for (const e of catalog.exercises) {
+      const has = e.primary_muscles.length + e.secondary_muscles.length > 0;
+      expect(e.muscles_source === null, `${e.garmin_name}`).toBe(!has);
+      if (has) expect(["exercises_json", "curated", "manual"]).toContain(e.muscles_source);
+    }
+  });
+
+  it("fit_sdk_known=false exactamente en las claves que el FIT SDK no lista", () => {
+    const unknown = (JSON.parse(readFileSync("data/sources/fit-sdk-unknown-keys.json", "utf8")) as { keys: string[] }).keys;
+    const inCatalog = new Set(catalog.exercises.map((e) => `${e.garmin_category}/${e.garmin_name}`));
+    const expected = unknown.filter((k) => inCatalog.has(k)).sort();
+    const flagged = catalog.exercises.filter((e) => !e.fit_sdk_known).map((e) => `${e.garmin_category}/${e.garmin_name}`).sort();
+    expect(flagged).toEqual(expected);
+    expect(flagged.length).toBe(59);
+  });
+
+  it("el informe de emparejamiento cubre las fichas curadas, con 3 candidatas y avisos de material", () => {
+    expect(Object.keys(INTENT_EN).sort()).toEqual(EXERCISES.map((e) => e.slug).sort());
+    const doc = buildCuratedReview(catalog);
+    expect((doc.match(/- \*\*Candidatas:\*\*/g) ?? []).length).toBe(EXERCISES.length);
+    expect(doc).toContain("MATERIAL");
+    expect(doc).toContain("BARBELL_HIP_THRUST_ON_FLOOR");
+  });
+
   it("el SQL escapa comillas y usa los nombres de tabla esperados", () => {
     const sql = buildMigrationSql(catalog);
     expect(sql).toContain("alter table public.exercises rename to exercises_legacy;");
@@ -121,13 +182,17 @@ describe("derivación de equipo", () => {
     expect(deriveEquipment("SQUAT", "BARBELL_BACK_SQUAT")).toEqual(["barbell"]);
     expect(deriveEquipment("BENCH_PRESS", "DUMBBELL_BENCH_PRESS")).toEqual(["bench", "dumbbell"]);
     expect(deriveEquipment("CURL", "CABLE_BICEPS_CURL")).toEqual(["cable"]);
-    expect(deriveEquipment("PLANK", "PLANK")).toEqual(["bodyweight"]);
+    expect(deriveEquipment("PLANK", "PLANK")).toEqual(["unknown"]);
+    expect(deriveEquipment("SQUAT", "BODY_WEIGHT_WALL_SQUAT")).toEqual(["bodyweight"]);
+    expect(deriveEquipment("WARM_UP", "STRETCH_CAT_COW")).toEqual(["bodyweight"]);
     expect(deriveEquipment("BANDED_EXERCISES", "SQUAT")).toEqual(["band"]);
     expect(deriveEquipment("PULL_UP", "PULL_UP")).toEqual(["pull_up_bar"]);
     expect(deriveEquipment("PULL_UP", "BANDED_PULL_UP")).toEqual(["band"]);
+    // Una categoría con material heterogéneo no da pista: el jalón al pecho NO es una dominada en barra.
+    expect(deriveEquipment("PULL_UP", "LAT_PULLDOWN")).toEqual(["unknown"]);
   });
   it("no confunde palabras que contienen otra (BANDED≠BAND dentro de otra palabra)", () => {
-    expect(deriveEquipment("CORE", "HUSBANDRY")).toEqual(["bodyweight"]);
+    expect(deriveEquipment("CORE", "HUSBANDRY")).toEqual(["unknown"]);
   });
 });
 
@@ -182,5 +247,44 @@ describe("validador de claves (offline, contra las fuentes versionadas)", () => 
   it("la clave canónica ignora los guiones bajos (L_SIT = LSIT, _3_WAY = 3_WAY)", () => {
     expect(canonical("HANGING_L_SIT")).toBe(canonical("HANGING_LSIT"));
     expect(canonical("_3_WAY_CALF_RAISE")).toBe(canonical("3_WAY_CALF_RAISE"));
+  });
+});
+
+describe("overrides manuales", () => {
+  const rows: RawRow[] = [
+    { name: "Thoracic Rotation", category: "WARM_UP", exercise: "THORACIC_ROTATION" },
+    { name: "Goblet Squat", category: "SQUAT", exercise: "GOBLET_SQUAT" },
+    { name: "Power Clean", category: "OLYMPIC_LIFT", exercise: "POWER_CLEAN" },
+  ];
+  const base = { rows, muscles: {} as MuscleMap, legacy: [] as LegacyExercise[], sources: ["t"] };
+  const find = (c: ReturnType<typeof buildCatalog>, k: string) => c.exercises.find((e) => e.garmin_name === k)!;
+
+  it("se aplican encima de lo importado; los músculos pasan a muscles_source='manual'", () => {
+    const c = buildCatalog({ ...base, overrides: { "WARM_UP/THORACIC_ROTATION": { primary_muscles: ["LOWER_BACK"], secondary_muscles: ["OBLIQUES"], name_es: "Rotación de tórax" } } });
+    const e = find(c, "THORACIC_ROTATION");
+    expect(e.primary_muscles).toEqual(["LOWER_BACK"]);
+    expect(e.muscles_source).toBe("manual");
+    expect(e.name_es).toBe("Rotación de tórax");
+    expect(e.name_es_status).toBe("reviewed");
+  });
+
+  it("un override a un ejercicio inexistente o con un campo no permitido falla", () => {
+    expect(() => buildCatalog({ ...base, overrides: { "WARM_UP/NO_EXISTE": { level: 1 } } })).toThrow(/no existe/);
+    expect(() => buildCatalog({ ...base, overrides: { "WARM_UP/THORACIC_ROTATION": { legacy_slug: "x" } as unknown as ExerciseOverride } })).toThrow(/no permitido/);
+  });
+
+  it("plan_eligible=true exige review_status='reviewed'; olímpicos y pliométricos solo por decisión explícita", () => {
+    expect(() => buildCatalog({ ...base, overrides: { "SQUAT/GOBLET_SQUAT": { plan_eligible: true } } })).toThrow(/reviewed/);
+    const reviewed = buildCatalog({ ...base, overrides: { "SQUAT/GOBLET_SQUAT": { review_status: "reviewed", level: 2 }, "OLYMPIC_LIFT/POWER_CLEAN": { review_status: "reviewed", level: 3 } } });
+    expect(find(reviewed, "GOBLET_SQUAT").plan_eligible).toBe(true);
+    expect(find(reviewed, "POWER_CLEAN").plan_eligible).toBe(false); // olímpico: bloqueado salvo decisión explícita
+    const explicit = buildCatalog({ ...base, overrides: { "OLYMPIC_LIFT/POWER_CLEAN": { review_status: "reviewed", level: 3, plan_eligible: true } } });
+    expect(find(explicit, "POWER_CLEAN").plan_eligible).toBe(true);
+  });
+
+  it("fit_sdk_known=false para las claves que el SDK no lista", () => {
+    const c = buildCatalog({ ...base, fitUnknown: new Set(["SQUAT/GOBLET_SQUAT"]) });
+    expect(find(c, "GOBLET_SQUAT").fit_sdk_known).toBe(false);
+    expect(find(c, "THORACIC_ROTATION").fit_sdk_known).toBe(true);
   });
 });

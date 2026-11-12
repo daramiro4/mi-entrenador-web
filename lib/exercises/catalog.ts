@@ -9,6 +9,11 @@ import { CATEGORY_ES, translateName } from "./names-es";
 export type ReviewStatus = "draft" | "reviewed";
 export type NameStatus = "curated" | "reviewed" | "auto" | "en";
 export type Dose = { type: "time"; seconds: number } | { type: "reps"; reps: number };
+/** De dónde salen los músculos: Exercises.json de Garmin, una ficha curada o una corrección manual. */
+export type MusclesSource = "exercises_json" | "curated" | "manual";
+
+/** Categorías que NUNCA entran en el plan (plan_eligible=false) salvo decisión explícita en data/exercise-overrides.json. */
+export const PLAN_BLOCKED_CATEGORIES = ["OLYMPIC_LIFT", "PLYO"] as const;
 
 export interface CatalogCategory {
   garmin_category: string;
@@ -26,6 +31,8 @@ export interface CatalogExercise {
   equipment: string[];
   primary_muscles: string[];
   secondary_muscles: string[];
+  /** null si no hay músculos conocidos. Permite sustituir estos datos antes de abrir la app a más usuarios. */
+  muscles_source: MusclesSource | null;
   movement_pattern: string | null;
   level: 1 | 2 | 3 | null;
   dose_default: Dose | null;
@@ -34,6 +41,10 @@ export interface CatalogExercise {
   /** garmin_name de ejercicios alternativos (misma categoría o no). */
   alternatives: string[];
   review_status: ReviewStatus;
+  /** true SOLO si review_status='reviewed' (y no es olímpico/pliométrico salvo decisión explícita): lo que el motor de plan puede proponer. */
+  plan_eligible: boolean;
+  /** false si la clave es más nueva que el FIT SDK 21.221 (Garmin Connect la acepta; el SDK aún no la lista). */
+  fit_sdk_known: boolean;
   source: string;
   /** Slug del módulo de fuerza actual (lib/strength/library.ts), si viene de ahí. */
   legacy_slug: string | null;
@@ -74,6 +85,29 @@ export interface LegacyExercise {
   unilateral: boolean;
   mode: "reps" | "time";
 }
+
+/**
+ * Corrección manual de un ejercicio (data/exercise-overrides.json). Se aplica SIEMPRE encima de lo importado y de las fichas
+ * curadas, así que regenerar nunca pisa una corrección. Clave: "CATEGORÍA/EJERCICIO". Solo estos campos:
+ */
+export interface ExerciseOverride {
+  name_es?: string;
+  equipment?: string[];
+  primary_muscles?: string[];
+  secondary_muscles?: string[];
+  movement_pattern?: string | null;
+  level?: 1 | 2 | 3 | null;
+  dose_default?: Dose | null;
+  cues?: string[];
+  common_mistake?: string | null;
+  alternatives?: string[];
+  review_status?: ReviewStatus;
+  plan_eligible?: boolean;
+}
+export const OVERRIDE_FIELDS: (keyof ExerciseOverride)[] = [
+  "name_es", "equipment", "primary_muscles", "secondary_muscles", "movement_pattern", "level", "dose_default",
+  "cues", "common_mistake", "alternatives", "review_status", "plan_eligible",
+];
 
 /* ------------------------------------------------------------------ Metadatos derivados */
 
@@ -126,7 +160,14 @@ const EQUIPMENT_WORDS: [string, string][] = [
   ["SLED", "sled"],
   ["BATTLE_ROPE", "battle_rope"],
   ["TIRE", "tire"],
+  ["PULL_UP", "pull_up_bar"],
+  ["CHIN_UP", "pull_up_bar"],
+  ["BODY_WEIGHT", "bodyweight"],
+  ["BODYWEIGHT", "bodyweight"],
 ];
+
+/** Categorías de peso corporal inequívocas (movilidad / calentamiento). El resto, sin pista en el nombre, es 'unknown'. */
+const UNEQUIVOCAL_BODYWEIGHT_CATEGORIES = new Set(["WARM_UP"]);
 
 const EQUIPMENT_BY_CATEGORY: Record<string, string> = {
   BANDED_EXERCISES: "band",
@@ -140,10 +181,10 @@ const EQUIPMENT_BY_CATEGORY: Record<string, string> = {
   INDOOR_BIKE: "machine",
   ELLIPTICAL: "machine",
   STAIR_STEPPER: "machine",
-  PULL_UP: "pull_up_bar",
 };
 
-export function deriveEquipment(category: string, garminName: string): string[] {
+/** Equipo que el nombre indica EXPLÍCITAMENTE (palabras de la clave + categorías de material propio). Puede ser vacío. */
+export function explicitEquipment(category: string, garminName: string): string[] {
   const words = ` ${garminName.replace(/^_+/, "")} `;
   const found = new Set<string>();
   for (const [word, equipment] of EQUIPMENT_WORDS) {
@@ -151,9 +192,20 @@ export function deriveEquipment(category: string, garminName: string): string[] 
     if (words.includes(`_${word}_`) || words.startsWith(` ${word}_`) || words.endsWith(`_${word} `) || words === ` ${word} `) found.add(equipment);
   }
   const byCategory = EQUIPMENT_BY_CATEGORY[category];
-  if (byCategory && !(byCategory === "pull_up_bar" && found.has("band"))) found.add(byCategory);
-  if (found.size === 0) found.add("bodyweight");
+  if (byCategory) found.add(byCategory);
+  // Con banda de asistencia no se pide barra aparte en el nombre.
+  if (found.has("band") && found.has("pull_up_bar")) found.delete("pull_up_bar");
   return [...found].sort();
+}
+
+/**
+ * Equipo conservador: lo que indica el nombre; si no hay ninguna pista, 'unknown'. 'bodyweight' solo con BODY_WEIGHT en
+ * la clave, en categorías inequívocas (calentamiento) o por ficha curada. Nunca se asume peso corporal por defecto.
+ */
+export function deriveEquipment(category: string, garminName: string): string[] {
+  const found = explicitEquipment(category, garminName);
+  if (found.length > 0) return found;
+  return UNEQUIVOCAL_BODYWEIGHT_CATEGORIES.has(category) ? ["bodyweight"] : ["unknown"];
 }
 
 /** Patrón de movimiento por categoría. null cuando la categoría es heterogénea (no se inventa). */
@@ -205,6 +257,10 @@ export interface BuildInput {
   legacy: LegacyExercise[];
   /** Nombres revisados a mano (data/exercise-names-es.csv con estado "reviewed"): mandan sobre el diccionario. */
   reviewedNames?: Map<string, string>;
+  /** Correcciones manuales (data/exercise-overrides.json), aplicadas al final. */
+  overrides?: Record<string, ExerciseOverride>;
+  /** Claves "CATEGORÍA/EJERCICIO" que el FIT SDK 21.221 aún no lista (fit_sdk_known=false). */
+  fitUnknown?: Set<string>;
   sources: string[];
 }
 
@@ -221,6 +277,7 @@ export function buildCatalog(input: BuildInput): Catalog {
     equipment: deriveEquipment(category, name),
     primary_muscles: [],
     secondary_muscles: [],
+    muscles_source: null,
     movement_pattern: PATTERN_BY_CATEGORY[category] ?? null,
     level: null,
     dose_default: null,
@@ -228,6 +285,8 @@ export function buildCatalog(input: BuildInput): Catalog {
     common_mistake: null,
     alternatives: [],
     review_status: "draft",
+    plan_eligible: false,
+    fit_sdk_known: true,
     source,
     legacy_slug: null,
     leg_load: null,
@@ -260,6 +319,7 @@ export function buildCatalog(input: BuildInput): Catalog {
     if (m) {
       ex.primary_muscles = m.p.filter(Boolean);
       ex.secondary_muscles = m.s.filter(Boolean);
+      if (ex.primary_muscles.length > 0 || ex.secondary_muscles.length > 0) ex.muscles_source = "exercises_json";
       if (ex.source === "garminconnect") ex.source = "garminconnect+connect-json";
     }
     if (ex.primary_muscles.length === 0) withoutMuscles++;
@@ -306,6 +366,40 @@ export function buildCatalog(input: BuildInput): Catalog {
     });
     ex.review_status = "reviewed";
     ex.source = `${ex.source}+legacy-curated`;
+  }
+
+  // 6) Correcciones manuales: encima de todo lo anterior. Un override a un ejercicio inexistente es un error (evita typos silenciosos).
+  for (const [id, ov] of Object.entries(input.overrides ?? {})) {
+    const [category, ...rest] = id.split("/");
+    const ex = byKey.get(pairKey(category, rest.join("/")));
+    if (!ex) throw new Error(`Override para un ejercicio que no existe: ${id}`);
+    for (const field of Object.keys(ov)) {
+      if (!OVERRIDE_FIELDS.includes(field as keyof ExerciseOverride)) throw new Error(`Override ${id}: campo no permitido "${field}"`);
+    }
+    if (ov.name_es !== undefined) { ex.name_es = ov.name_es; ex.name_es_status = "reviewed"; }
+    if (ov.equipment !== undefined) ex.equipment = [...ov.equipment].sort();
+    if (ov.primary_muscles !== undefined || ov.secondary_muscles !== undefined) {
+      if (ov.primary_muscles !== undefined) ex.primary_muscles = [...ov.primary_muscles];
+      if (ov.secondary_muscles !== undefined) ex.secondary_muscles = [...ov.secondary_muscles];
+      ex.muscles_source = ex.primary_muscles.length + ex.secondary_muscles.length > 0 ? "manual" : null;
+    }
+    if (ov.movement_pattern !== undefined) ex.movement_pattern = ov.movement_pattern;
+    if (ov.level !== undefined) ex.level = ov.level;
+    if (ov.dose_default !== undefined) ex.dose_default = ov.dose_default;
+    if (ov.cues !== undefined) ex.cues = [...ov.cues];
+    if (ov.common_mistake !== undefined) ex.common_mistake = ov.common_mistake;
+    if (ov.alternatives !== undefined) ex.alternatives = [...ov.alternatives];
+    if (ov.review_status !== undefined) ex.review_status = ov.review_status;
+    if (ov.plan_eligible === true && ex.review_status !== "reviewed") throw new Error(`Override ${id}: plan_eligible=true exige review_status='reviewed'`);
+  }
+
+  // 7) plan_eligible: solo fichas revisadas con nivel, y nunca olímpicos/pliométricos salvo override explícito (true).
+  for (const ex of byKey.values()) {
+    const ov = input.overrides?.[`${ex.garmin_category}/${ex.garmin_name}`];
+    const blocked = (PLAN_BLOCKED_CATEGORIES as readonly string[]).includes(ex.garmin_category);
+    const base = ex.review_status === "reviewed" && ex.level !== null && !blocked;
+    ex.plan_eligible = ov?.plan_eligible !== undefined ? ov.plan_eligible && ex.review_status === "reviewed" : base;
+    ex.fit_sdk_known = !(input.fitUnknown?.has(`${ex.garmin_category}/${ex.garmin_name}`) ?? false);
   }
 
   const exercises = [...byKey.values()].sort((a, b) => a.garmin_category.localeCompare(b.garmin_category) || a.garmin_name.localeCompare(b.garmin_name));
@@ -360,6 +454,44 @@ const jsonb = (v: unknown) => `${q(JSON.stringify(v))}::jsonb`;
 const nul = (v: string | number | null, fmt: (x: never) => string = ((x: string | number) => (typeof x === "number" ? String(x) : q(x))) as never) => (v === null ? "null" : fmt(v as never));
 
 export const MIGRATION_FILE = "supabase/migrations/20261112120000_exercise_catalog.sql";
+/** Script de vuelta. Vive FUERA de supabase/migrations a propósito: no debe ejecutarse solo con `db push`. */
+export const ROLLBACK_FILE = "supabase/rollbacks/20261112120000_exercise_catalog.down.sql";
+
+/** Vuelta de la migración: elimina las tablas nuevas y devuelve `exercises_legacy` a su nombre (y sus índices/política). */
+export function buildRollbackSql(): string {
+  return `-- VUELTA de supabase/migrations/20261112120000_exercise_catalog.sql. GENERADO (npm run gen:exercise-catalog).
+-- NO está en supabase/migrations a propósito: se ejecuta a mano (psql / SQL editor) solo si hay que deshacer el corte.
+--
+-- Hace: elimina exercises (la NUEVA), exercise_animations y exercise_categories, y devuelve exercises_legacy a su nombre original
+-- con su clave primaria, su unique de slug y su política de lectura. Las 41 filas y las poses de la tabla antigua no se tocan.
+-- ADVERTENCIA: se pierde todo lo que se haya escrito en las tablas nuevas (ediciones de fichas, animaciones, revisiones).
+--           Haz antes un pg_dump de exercises / exercise_animations si hay trabajo que conservar.
+-- Se detiene sin cambios si el estado no es el esperado (las comprobaciones van dentro de la misma transacción).
+
+begin;
+
+do $$
+begin
+  if to_regclass('public.exercises_legacy') is null then
+    raise exception 'No existe public.exercises_legacy: la migración no está aplicada (o ya se deshizo).';
+  end if;
+  if not exists (select 1 from information_schema.columns where table_schema = 'public' and table_name = 'exercises' and column_name = 'garmin_category') then
+    raise exception 'public.exercises no es la tabla nueva (no tiene garmin_category): no se hace nada.';
+  end if;
+end $$;
+
+drop table public.exercises;
+drop table public.exercise_animations;
+drop table public.exercise_categories;
+
+alter table public.exercises_legacy rename to exercises;
+alter index public.exercises_legacy_pkey rename to exercises_pkey;
+alter index public.exercises_legacy_slug_key rename to exercises_slug_key;
+alter policy exercises_legacy_read_authenticated on public.exercises rename to exercises_read_authenticated;
+
+commit;
+`;
+}
 
 export function buildMigrationSql(catalog: Catalog): string {
   const out: string[] = [];
@@ -370,9 +502,10 @@ export function buildMigrationSql(catalog: Catalog): string {
 -- (con sus poses pose_a/pose_b y sus 41 filas) y NO se borra aquí; se elimina en una migración posterior cuando el
 -- módulo de fuerza esté verificado sobre el catálogo nuevo. Las 41 fichas curadas están migradas a la tabla nueva
 -- con review_status = 'reviewed' y su slug en legacy_slug.
--- Rollback manual (antes de borrar exercises_legacy):
---   drop table public.exercise_animations, public.exercises, public.exercise_categories cascade;
---   alter table public.exercises_legacy rename to exercises;  (y devolver los nombres de pkey/slug_key/política)
+-- VUELTA (antes de borrar exercises_legacy): supabase/rollbacks/20261112120000_exercise_catalog.down.sql
+-- (fuera de supabase/migrations a propósito; probada ida y vuelta con scripts/test-exercise-migration.sh).
+
+begin;
 
 alter table public.exercises rename to exercises_legacy;
 alter index public.exercises_pkey rename to exercises_legacy_pkey;
@@ -403,6 +536,7 @@ create table public.exercises (
   equipment text[] not null default '{}',
   primary_muscles text[] not null default '{}',
   secondary_muscles text[] not null default '{}',
+  muscles_source text check (muscles_source is null or muscles_source = any (array['exercises_json','curated','manual'])),
   movement_pattern text,
   level smallint check (level between 1 and 3),
   dose_default jsonb,
@@ -411,12 +545,15 @@ create table public.exercises (
   alternatives text[] not null default '{}',
   animation_id uuid references public.exercise_animations(id),
   review_status text not null default 'draft' check (review_status = any (array['draft','reviewed'])),
+  plan_eligible boolean not null default false,
+  fit_sdk_known boolean not null default true,
   source text not null,
   legacy_slug text unique,
   leg_load text check (leg_load = any (array['none','light','heavy'])),
   contraindications text[] not null default '{}',
   unilateral boolean not null default false,
-  constraint exercises_garmin_key unique (garmin_category, garmin_name)
+  constraint exercises_garmin_key unique (garmin_category, garmin_name),
+  constraint exercises_plan_eligible_reviewed check (not plan_eligible or review_status = 'reviewed')
 );
 
 create index exercises_category_idx on public.exercises (garmin_category);
@@ -430,23 +567,29 @@ alter table public.exercises enable row level security;
 create policy exercise_categories_read_authenticated on public.exercise_categories for select to authenticated using (true);
 create policy exercise_animations_read_authenticated on public.exercise_animations for select to authenticated using (true);
 create policy exercises_read_authenticated on public.exercises for select to authenticated using (true);
+
+-- Permisos: solo lectura para usuarios con sesión; el rol anónimo no ve nada (mismo criterio que supabase/migrations/20261110090000_security_hardening.sql).
+-- Los privilegios por defecto de Supabase darían escritura a las tablas nuevas; RLS ya la bloquea, pero se quitan para no depender de una sola barrera.
+revoke all on public.exercise_categories, public.exercise_animations, public.exercises from anon;
+revoke insert, update, delete, truncate, trigger, references on public.exercise_categories, public.exercise_animations, public.exercises from authenticated;
 `);
 
   out.push("insert into public.exercise_categories (garmin_category, name_es, name_en) values");
   out.push(catalog.categories.map((c) => `  (${q(c.garmin_category)}, ${q(c.name_es)}, ${q(c.name_en)})`).join(",\n") + ";\n");
 
-  const cols = "garmin_category, garmin_name, name_en, name_es, name_es_status, equipment, primary_muscles, secondary_muscles, movement_pattern, level, dose_default, cues, common_mistake, alternatives, review_status, source, legacy_slug, leg_load, contraindications, unilateral";
+  const cols = "garmin_category, garmin_name, name_en, name_es, name_es_status, equipment, primary_muscles, secondary_muscles, muscles_source, movement_pattern, level, dose_default, cues, common_mistake, alternatives, review_status, plan_eligible, fit_sdk_known, source, legacy_slug, leg_load, contraindications, unilateral";
   const rowSql = (e: CatalogExercise) =>
     `  (${[
       q(e.garmin_category), q(e.garmin_name), q(e.name_en), q(e.name_es), q(e.name_es_status),
-      arr(e.equipment), arr(e.primary_muscles), arr(e.secondary_muscles),
+      arr(e.equipment), arr(e.primary_muscles), arr(e.secondary_muscles), nul(e.muscles_source),
       nul(e.movement_pattern), nul(e.level), e.dose_default ? jsonb(e.dose_default) : "null", jsonb(e.cues),
-      nul(e.common_mistake), arr(e.alternatives), q(e.review_status), q(e.source),
+      nul(e.common_mistake), arr(e.alternatives), q(e.review_status), String(e.plan_eligible), String(e.fit_sdk_known), q(e.source),
       nul(e.legacy_slug), nul(e.leg_load), arr(e.contraindications), String(e.unilateral),
     ].join(", ")})`;
   for (let i = 0; i < catalog.exercises.length; i += 250) {
     out.push(`insert into public.exercises (${cols}) values`);
     out.push(catalog.exercises.slice(i, i + 250).map(rowSql).join(",\n") + ";\n");
   }
+  out.push("commit;\n");
   return out.join("\n");
 }
