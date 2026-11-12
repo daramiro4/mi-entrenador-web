@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { AlertCircle } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
@@ -52,6 +53,9 @@ export default async function FuerzaPage() {
         <p className="mt-1 text-sm text-label-2">
           Fuerza por salud: compensa las horas sentado y protege tu espalda. Esta app no sustituye a un profesional; si el dolor persiste, consulta con un fisioterapeuta.
         </p>
+        <Link href="/ejercicios" className="mt-2 inline-flex min-h-11 items-center text-sm text-accent hover:underline">
+          Biblioteca de ejercicios
+        </Link>
       </header>
 
       {!prefs ? (

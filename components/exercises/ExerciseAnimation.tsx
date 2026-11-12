@@ -24,11 +24,14 @@ export function ExerciseAnimation({
   autoPlay = true,
   showSteps = true,
   className,
+  below,
 }: {
   rig: Rig;
   autoPlay?: boolean;
   showSteps?: boolean;
   className?: string;
+  /** Contenido entre el escenario y los pasos numerados (metadatos, título, dosis…). */
+  below?: React.ReactNode;
 }) {
   const reduced = useSyncExternalStore(subscribeReduced, reducedSnapshot, () => false);
   const [t, setT] = useState(0);
@@ -106,6 +109,7 @@ export function ExerciseAnimation({
           </div>
         </div>
       </div>
+      {below}
       {showSteps && steps.length > 0 && (
         <ol className="mt-4 space-y-2" aria-label="Cómo hacerlo">
           {steps.map((s, i) => (
