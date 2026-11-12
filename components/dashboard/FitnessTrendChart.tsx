@@ -12,9 +12,10 @@ import {
 } from "recharts";
 import { hasEnoughTrendData, type FitnessTrendPoint } from "@/lib/fitness-trend";
 
-const VOLT_HEX = "#34C6F4";
-const EMBER_HEX = "#FF4F1F";
-const PAPER_HEX = "#F2F4F7";
+// Colores desde los tokens (app/tokens.css): nunca hex sueltos.
+const VOLT_HEX = "var(--volt)";
+const EMBER_HEX = "var(--accent)";
+const PAPER_HEX = "var(--label)";
 
 const RANGE_OPTIONS = [7, 30, 90] as const;
 
@@ -26,22 +27,18 @@ export function FitnessTrendChart({ points90 }: { points90: FitnessTrendPoint[] 
   const [range, setRange] = useState<(typeof RANGE_OPTIONS)[number]>(30);
 
   return (
-    <div className="data-surface p-5">
-      <div className="h-0.5 w-10 rounded-full bg-volt mb-3" />
-      <div className="flex items-center justify-between mb-1">
-        <p className="font-display text-base text-paper">
-          Fitness / Fatiga / Forma
-        </p>
-        <div className="flex gap-2">
+    <div className="data-surface">
+      <div className="mb-1 flex flex-wrap items-center justify-between gap-2">
+        <h2 className="text-xl">Fitness / Fatiga / Forma</h2>
+        <div role="group" aria-label="Periodo" className="inline-flex rounded-full bg-fill p-1">
           {RANGE_OPTIONS.map((option) => (
             <button
               key={option}
               type="button"
               onClick={() => setRange(option)}
-              className={`text-xs px-2.5 py-1 rounded-full border cursor-pointer ${
-                range === option
-                  ? "border-volt text-volt"
-                  : "border-fog/30 text-fog hover:border-fog/60 hover:text-paper"
+              aria-pressed={range === option}
+              className={`min-h-11 min-w-14 cursor-pointer rounded-full px-4 font-mono text-xs ${
+                range === option ? "bg-surface-2 text-label" : "text-label-2 hover:text-label"
               }`}
             >
               {option}d
@@ -51,15 +48,22 @@ export function FitnessTrendChart({ points90 }: { points90: FitnessTrendPoint[] 
       </div>
 
       {!hasEnoughTrendData(points90) ? (
-        <p className="text-sm text-fog py-8 text-center">
+        <p className="py-8 text-center text-sm text-label-2">
           Necesitamos más días de datos para ver la tendencia.
         </p>
       ) : (
         <>
-          <div className="flex gap-4 mb-3">
-            <span className="text-[10px] text-volt">● Fitness</span>
-            <span className="text-[10px] text-ember">● Fatiga</span>
-            <span className="text-[10px] text-fog">● Forma</span>
+          <div className="mb-3 flex flex-wrap gap-4 text-xs">
+            {[
+              ["Fitness", "bg-volt"],
+              ["Fatiga", "bg-accent"],
+              ["Forma", "bg-label/45"],
+            ].map(([name, dot]) => (
+              <span key={name} className="inline-flex items-center gap-1.5 text-label-2">
+                <span aria-hidden="true" className={`h-2 w-2 rounded-full ${dot}`} />
+                {name}
+              </span>
+            ))}
           </div>
           <div className="h-56 w-full -ml-2">
             <ResponsiveContainer width="100%" height="100%">
@@ -67,12 +71,12 @@ export function FitnessTrendChart({ points90 }: { points90: FitnessTrendPoint[] 
                 data={points90.slice(-range)}
                 margin={{ top: 4, right: 4, left: 4, bottom: 0 }}
               >
-                <CartesianGrid stroke="#8B92A0" strokeOpacity={0.1} vertical={false} />
+                <CartesianGrid stroke="var(--separator)" vertical={false} />
                 <XAxis
                   dataKey="date"
                   tickFormatter={formatDayMonth}
-                  stroke="#8B92A0"
-                  tick={{ fontSize: 10, fontFamily: "var(--font-mono)" }}
+                  stroke="var(--label-2)"
+                  tick={{ fontSize: 11, fontFamily: "var(--font-mono)" }}
                   tickLine={false}
                   axisLine={false}
                   minTickGap={24}
@@ -80,13 +84,13 @@ export function FitnessTrendChart({ points90 }: { points90: FitnessTrendPoint[] 
                 <Tooltip
                   labelFormatter={(label) => formatDayMonth(String(label))}
                   contentStyle={{
-                    backgroundColor: "#1B1F27",
-                    border: "1px solid rgba(139,146,160,0.2)",
-                    borderRadius: 2,
+                    backgroundColor: "var(--surface)",
+                    border: "1px solid var(--separator)",
+                    borderRadius: 12,
                     fontSize: 12,
                     fontFamily: "var(--font-mono)",
                   }}
-                  labelStyle={{ color: "#8B92A0" }}
+                  labelStyle={{ color: "var(--label-2)" }}
                 />
                 <Area
                   type="monotone"

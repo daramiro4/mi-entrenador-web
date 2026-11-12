@@ -8,7 +8,7 @@ import { TextInput } from "@/components/ui/TextInput";
 import { HAS_PASSWORD_KEY, translateAuthError, validateNewPassword } from "@/lib/auth-validation";
 
 /** Fija una contraseña nueva (usuario con sesión). `redirectTo`: ruta tras guardar (reset); sin ella, solo confirma. */
-export function PasswordForm({ redirectTo, submitLabel = "Guardar contraseña" }: { redirectTo?: string; submitLabel?: string }) {
+export function PasswordForm({ redirectTo, submitLabel = "Guardar contraseña", variant = "primary" }: { redirectTo?: string; submitLabel?: string; variant?: "primary" | "secondary" }) {
   const router = useRouter();
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -76,7 +76,7 @@ export function PasswordForm({ redirectTo, submitLabel = "Guardar contraseña" }
         </p>
       )}
       {done && <p role="status" className="text-sm text-accent">Contraseña actualizada.</p>}
-      <Button type="submit" disabled={saving} className="w-full sm:w-auto">
+      <Button type="submit" variant={variant} disabled={saving} className="w-full sm:w-auto">
         {saving ? "Guardando..." : submitLabel}
       </Button>
     </form>

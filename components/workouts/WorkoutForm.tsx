@@ -1,5 +1,6 @@
 "use client";
 
+import { ChevronDown, ChevronUp, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { createWorkoutAction, updateWorkoutAction } from "@/app/workouts/actions";
@@ -119,10 +120,10 @@ export function WorkoutForm({
           {steps.map((step, index) => (
             <div
               key={index}
-              className="data-surface p-3 grid grid-cols-[1fr_1fr_1fr_1fr_auto] gap-2 items-end"
+              className="data-surface grid grid-cols-3 items-end gap-2 p-3 sm:grid-cols-[1.4fr_1fr_1fr_1fr_auto]"
             >
-              <label className="space-y-1">
-                <span className="text-[10px] text-fog">Tipo de paso</span>
+              <label className="col-span-3 space-y-1 sm:col-span-1">
+                <span className="text-xs text-label-2">Tipo de paso</span>
                 <select
                   className={SELECT_CLASSES}
                   value={step.kind}
@@ -137,7 +138,7 @@ export function WorkoutForm({
               </label>
 
               <label className="space-y-1">
-                <span className="text-[10px] text-fog">Duración (s)</span>
+                <span className="text-xs text-label-2">Duración (s)</span>
                 <NumberInput
                   value={step.duration_seconds}
                   onChange={(e) => updateStep(index, { duration_seconds: Number(e.target.value) })}
@@ -145,7 +146,7 @@ export function WorkoutForm({
               </label>
 
               <label className="space-y-1">
-                <span className="text-[10px] text-fog">% FTP mín.</span>
+                <span className="text-xs text-label-2">% FTP mín.</span>
                 <NumberInput
                   value={step.target_low_pct_ftp}
                   onChange={(e) =>
@@ -155,7 +156,7 @@ export function WorkoutForm({
               </label>
 
               <label className="space-y-1">
-                <span className="text-[10px] text-fog">% FTP máx.</span>
+                <span className="text-xs text-label-2">% FTP máx.</span>
                 <NumberInput
                   value={step.target_high_pct_ftp}
                   onChange={(e) =>
@@ -164,32 +165,32 @@ export function WorkoutForm({
                 />
               </label>
 
-              <div className="flex gap-1.5 pb-2">
+              <div className="col-span-3 flex justify-end gap-1 sm:col-span-1">
                 <button
                   type="button"
                   disabled={index === 0}
                   onClick={() => moveStep(index, -1)}
-                  className="text-fog hover:text-paper disabled:opacity-30 disabled:pointer-events-none cursor-pointer text-xs"
+                  className="inline-flex h-11 w-11 items-center justify-center rounded-full text-label-2 hover:bg-fill hover:text-label disabled:pointer-events-none disabled:opacity-30 cursor-pointer"
                   aria-label="Subir paso"
                 >
-                  ↑
+                  <ChevronUp size={18} aria-hidden="true" />
                 </button>
                 <button
                   type="button"
                   disabled={index === steps.length - 1}
                   onClick={() => moveStep(index, 1)}
-                  className="text-fog hover:text-paper disabled:opacity-30 disabled:pointer-events-none cursor-pointer text-xs"
+                  className="inline-flex h-11 w-11 items-center justify-center rounded-full text-label-2 hover:bg-fill hover:text-label disabled:pointer-events-none disabled:opacity-30 cursor-pointer"
                   aria-label="Bajar paso"
                 >
-                  ↓
+                  <ChevronDown size={18} aria-hidden="true" />
                 </button>
                 <button
                   type="button"
                   onClick={() => removeStep(index)}
-                  className="text-fatiga hover:text-paper cursor-pointer text-xs"
+                  className="inline-flex h-11 w-11 items-center justify-center rounded-full text-danger hover:bg-fill cursor-pointer"
                   aria-label="Quitar paso"
                 >
-                  ✕
+                  <X size={18} aria-hidden="true" />
                 </button>
               </div>
               {!isStepValid(step) && (

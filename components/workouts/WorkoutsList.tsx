@@ -24,10 +24,10 @@ export function WorkoutsList({ workouts }: { workouts: Workout[] }) {
               {workout.intervals.length} pasos
             </p>
           </div>
-          <div className="flex items-center gap-4 shrink-0">
+          <div className="flex items-center gap-1 shrink-0">
             <Link
               href={`/workouts/${workout.id}/edit`}
-              className="text-xs text-fog hover:text-paper underline"
+              className="inline-flex min-h-11 items-center px-2 text-sm text-label-2 hover:text-label"
             >
               Editar
             </Link>

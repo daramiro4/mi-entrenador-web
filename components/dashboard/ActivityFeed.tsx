@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@/components/ui/Button";
 import { useState, useTransition } from "react";
 import { loadMoreActivitiesAction } from "@/app/dashboard/activity-feed-actions";
 import { getActivityTypeCircleClass, getActivityTypeLabel } from "@/lib/labels";
@@ -75,9 +76,8 @@ export function ActivityFeed({
   };
 
   return (
-    <div className="data-surface p-5">
-      <div className="h-0.5 w-10 rounded-full bg-ember mb-3" />
-      <p className="font-display text-base text-paper mb-3">Actividades</p>
+    <div className="data-surface">
+      <h2 className="mb-3 text-xl">Actividades</h2>
 
       {activities.length === 0 ? (
         <p className="text-sm text-fog">Aún no hay actividades registradas.</p>
@@ -137,16 +137,11 @@ export function ActivityFeed({
       )}
 
       {hasMore && (
-        <button
-          type="button"
-          disabled={isPending}
-          onClick={handleLoadMore}
-          className="mt-3 text-xs text-volt hover:text-paper underline disabled:opacity-40 disabled:pointer-events-none cursor-pointer"
-        >
+        <Button type="button" variant="secondary" className="mt-3" disabled={isPending} onClick={handleLoadMore}>
           {isPending ? "Cargando…" : "Cargar más"}
-        </button>
+        </Button>
       )}
-      {error && <p className="text-xs text-fatiga mt-2">{error}</p>}
+      {error && <p className="mt-2 text-xs text-danger">{error}</p>}
     </div>
   );
 }

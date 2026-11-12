@@ -42,7 +42,7 @@ export default async function AjustesPage() {
           <p className="mb-4 text-sm text-label-2">
             Cuenta: {user.email}. Con una contraseña puedes entrar sin depender del correo.
           </p>
-          <PasswordForm />
+          <PasswordForm variant="secondary" />
         </GlassCard>
       </div>
     </AppShell>

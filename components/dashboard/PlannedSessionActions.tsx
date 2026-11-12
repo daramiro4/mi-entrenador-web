@@ -154,7 +154,7 @@ export function PlannedSessionActions({
             {stats.map((stat) => (
               <div key={stat.label}>
                 <p className="metric text-sm text-paper">{stat.value}</p>
-                <p className="text-[10px] text-fog">{stat.label}</p>
+                <p className="text-xs text-label-2">{stat.label}</p>
               </div>
             ))}
           </div>

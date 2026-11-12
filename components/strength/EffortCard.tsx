@@ -48,6 +48,7 @@ export function EffortCard({ workoutId, workoutName }: { workoutId: string; work
           </fieldset>
           <div>
             <Button
+              variant="secondary"
               disabled={pending}
               onClick={() =>
                 start(async () => {

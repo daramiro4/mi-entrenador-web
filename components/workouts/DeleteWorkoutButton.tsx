@@ -20,13 +20,13 @@ export function DeleteWorkoutButton({ workoutId }: { workoutId: string }) {
 
   if (confirming) {
     return (
-      <div className="flex items-center gap-2 text-xs">
-        <span className="text-fog">¿Borrar?</span>
+      <div className="flex flex-wrap items-center gap-1 text-sm">
+        <span className="text-label-2">¿Borrar?</span>
         <button
           type="button"
           disabled={isPending}
           onClick={handleDelete}
-          className="text-fatiga hover:text-paper underline disabled:opacity-40 disabled:pointer-events-none cursor-pointer"
+          className="inline-flex min-h-11 items-center rounded-full px-3 text-danger hover:bg-fill disabled:opacity-40 disabled:pointer-events-none cursor-pointer"
         >
           Sí, borrar
         </button>
@@ -34,11 +34,11 @@ export function DeleteWorkoutButton({ workoutId }: { workoutId: string }) {
           type="button"
           disabled={isPending}
           onClick={() => setConfirming(false)}
-          className="text-fog hover:text-paper underline disabled:opacity-40 cursor-pointer"
+          className="inline-flex min-h-11 items-center rounded-full px-3 text-label-2 hover:text-label disabled:opacity-40 cursor-pointer"
         >
           Cancelar
         </button>
-        {error && <span className="text-fatiga">{error}</span>}
+        {error && <span className="text-danger">{error}</span>}
       </div>
     );
   }
@@ -47,7 +47,7 @@ export function DeleteWorkoutButton({ workoutId }: { workoutId: string }) {
     <button
       type="button"
       onClick={() => setConfirming(true)}
-      className="text-xs text-fog hover:text-fatiga underline cursor-pointer"
+      className="inline-flex min-h-11 items-center px-2 text-sm text-label-2 hover:text-danger cursor-pointer"
     >
       Borrar
     </button>

@@ -43,7 +43,7 @@ export function ProvisionalFtpForm({ initialWatts }: { initialWatts: number | nu
       />
       {error && <p className="text-sm text-fatiga">{error}</p>}
       {saved && <p className="text-sm text-label-2">Guardado.</p>}
-      <Button type="submit" disabled={isPending}>
+      <Button type="submit" variant="secondary" disabled={isPending}>
         {isPending ? "Guardando..." : "Guardar FTP"}
       </Button>
     </form>

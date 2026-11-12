@@ -73,7 +73,7 @@ export function PrefsForm({ initial, onDone }: { initial: Prefs; onDone?: () => 
         Esta app no sustituye a un profesional. Si notas dolor que persiste, consulta con un fisioterapeuta.
       </p>
       <div className="flex items-center gap-3">
-        <Button type="submit" disabled={pending}>{pending ? "Guardando…" : "Guardar preferencias"}</Button>
+        <Button type="submit" variant="secondary" disabled={pending}>{pending ? "Guardando…" : "Guardar preferencias"}</Button>
         <span role="status" className="text-sm text-label-2">{msg}</span>
       </div>
     </form>

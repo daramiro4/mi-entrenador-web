@@ -1,5 +1,7 @@
 "use client";
 
+import { Check } from "lucide-react";
+
 /** Selección única (role=radio) y múltiple (role=checkbox) en forma de píldoras ≥ 44 px. */
 export interface ChoiceOption<T extends string | number> {
   value: T;
@@ -49,7 +51,7 @@ export function MultiChoice<T extends string>({
             onClick={() => onChange(on ? values.filter((v) => v !== o.value) : [...values, o.value])}
             className={`${base} ${on ? "bg-accent text-on-accent" : "bg-fill text-label"}`}
           >
-            {on ? "✓ " : ""}
+            {on && <Check size={16} strokeWidth={2.5} aria-hidden="true" className="mr-1.5" />}
             {o.label}
           </button>
         );
