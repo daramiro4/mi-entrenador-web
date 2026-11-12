@@ -48,7 +48,9 @@ export async function proxy(request: NextRequest) {
   const isPublicPath =
     PUBLIC_PATHS.includes(pathname) ||
     pathname.startsWith("/auth") ||
-    (process.env.UI_PREVIEW === "1" && pathname.startsWith("/ui"));
+    (process.env.UI_PREVIEW === "1" && pathname.startsWith("/ui")) ||
+    // /dev/* (herramientas de desarrollo, p. ej. /dev/rigs): públicas solo con `next dev`; en producción la propia página responde 404.
+    (process.env.NODE_ENV !== "production" && pathname.startsWith("/dev"));
 
   if (!user && !isPublicPath) {
     const url = request.nextUrl.clone();

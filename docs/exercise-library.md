@@ -1,7 +1,7 @@
 # Biblioteca de ejercicios (catálogo de Garmin)
 
 Catálogo de los ejercicios que el reloj acepta en un entreno de fuerza (categoría + nombre de ejercicio), con metadatos
-para el módulo de fuerza y, más adelante, ficha animada. **Estado: Fase 1 (datos) + Fase 2 (motor de animación) en curso.** Contenido y UI (fases 3-4) no están hechas. La migración está probada en local e **sin aplicar** en producción: ver `docs/exercise-cutover-plan.md`.
+para el módulo de fuerza y, más adelante, ficha animada. **Estado: Fase 1 (datos) hecha y Fase 2 (motor de animación) en la PARADA 2.** Contenido y UI (fases 3-4) no están hechas. La migración está probada en local e **sin aplicar** en producción: ver `docs/exercise-cutover-plan.md`.
 
 ## Cifras reales (2026-11-12)
 
@@ -75,3 +75,23 @@ Para las 41 fichas curadas: clave de Garmin asignada, 3 candidatas por parecido 
 - 52 ejercicios sin músculo primario; 385 sin patrón de movimiento (cardio, pliométricos, olímpicos…); 791 con equipo `unknown`.
 - 59 claves no están en el FIT SDK 21.221 (`fit_sdk_known=false`).
 - Fichas curadas con emparejamiento dudoso: ver el informe de emparejamiento (14 de 41 con algún aviso).
+
+## Motor de animación (Fase 2)
+
+SVG puro, sin librerías de animación. Código en `lib/exercises/rig/` (puro, con tests) y `components/exercises/`.
+
+- **Rig** (`rig/types.ts`): articulaciones NOMBRADAS en un lienzo de 480×300 con el suelo en y=254; `poses` = `[{ t: 0..1, joints }]`; los **huesos se dibujan entre
+  articulaciones** en cada fotograma, así el escorzo de un movimiento fuera de plano sale de la proyección 2D sin escalar nada. `phases` con subtítulo por fase
+  (y paso numerado opcional), resalte muscular Volt con opacidad por fase, implementos (mancuerna, barra, banco, banda), espejo izquierda/derecha.
+- **Interpolación** (`rig/interpolate.ts`): lerp + suavizado cúbico por tramo (`"eased"`, rigs con pocas poses a mano) o lineal (`"linear"`, rigs con muchas poses
+  muestreadas de una cinemática: así los huesos no se acortan a mitad de un giro y no hay paradas entre poses).
+- **Validador** (`rig/validate.ts`): ningún hueso cambia de longitud más de un **8 %** salvo los marcados `foreshortened`; bucle cerrado; dentro del lienzo y sin atravesar el suelo;
+  fases sin huecos; bucle de 4-8 s.
+- **Cinemática** (`rig/fk.ts`, `rig/skeleton.ts`): FK/IK de 2 huesos para construir poses con longitudes constantes.
+- **Componentes**: `RigStage` (un fotograma), `ExerciseAnimation` (bucle con rAF, pausa, cambio de lado, subtítulo por fase, resalte, pasos sincronizados; con
+  `prefers-reduced-motion` muestra la pose inicial estática), `ExerciseStaticPoses` (ficha de respaldo: pose inicial y final estáticas + músculo + dosis, sin técnica inventada).
+- **Herramienta** `/dev/rigs` (solo con `next dev`; 404 en producción): fotogramas, reproductor, editor (arrastrar articulaciones, marcar escorzos, validar en vivo, exportar JSON).
+- **Arquetipos** (`rig/archetypes/`): 17 previstos; **listos 3** (`squat`, `hip_hinge`, `quadruped_rotation`); el resto `pending`. Cada uno se carga **bajo demanda** (import dinámico).
+- **Mapa** `animation-map.ts`: ejercicio de Garmin → arquetipo + parámetros (hoy 6 ejercicios). Sin entrada = sin animación.
+- Los rigs viven en código; `exercise_animations` / `exercises.animation_id` de la base de datos quedan sin usar hasta la Fase 4.
+- Los pasos numerados de un rig solo existen si hay técnica verificada: la rotación torácica usa exactamente las 3 claves de su ficha curada; los arquetipos genéricos no traen pasos.
