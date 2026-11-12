@@ -41,7 +41,7 @@ export interface CatalogExercise {
   dose_default: Dose | null;
   cues: string[];
   common_mistake: string | null;
-  /** garmin_name de ejercicios alternativos (misma categoría o no). */
+  /** Alternativas como clave completa "CATEGORÍA/EJERCICIO" (el nombre de Garmin solo NO es único: hay 27 repetidos entre categorías). */
   alternatives: string[];
   review_status: ReviewStatus;
   /** true SOLO si review_status='reviewed' (y no es olímpico/pliométrico salvo decisión explícita): lo que el motor de plan puede proponer. */
@@ -339,7 +339,7 @@ export function buildCatalog(input: BuildInput): Catalog {
   }
 
   // 5) Fichas curadas del módulo de fuerza: se migran SIN perder nada y quedan 'reviewed'.
-  const slugToGarmin = new Map(input.legacy.map((l) => [l.slug, l.garmin_exercise]));
+  const slugToGarmin = new Map(input.legacy.map((l) => [l.slug, `${l.garmin_category}/${l.garmin_exercise}`]));
   const used = new Set<string>();
   for (const l of input.legacy) {
     const key = pairKey(l.garmin_category, l.garmin_exercise);
@@ -391,8 +391,10 @@ export function buildCatalog(input: BuildInput): Catalog {
     if (ov.cues !== undefined) ex.cues = [...ov.cues];
     if (ov.common_mistake !== undefined) ex.common_mistake = ov.common_mistake;
     if (ov.alternatives !== undefined) {
-      const names = new Set([...byKey.values()].map((e) => e.garmin_name));
-      for (const alt of ov.alternatives) if (!names.has(alt)) throw new Error(`Override ${id}: la alternativa "${alt}" no existe en el catálogo`);
+      for (const alt of ov.alternatives) {
+        const [altCategory, ...altRest] = alt.split("/");
+        if (!byKey.has(pairKey(altCategory, altRest.join("/")))) throw new Error(`Override ${id}: la alternativa "${alt}" no existe en el catálogo (usa la clave completa CATEGORÍA/EJERCICIO)`);
+      }
       ex.alternatives = [...ov.alternatives];
     }
     if (ov.review_status !== undefined) ex.review_status = ov.review_status;

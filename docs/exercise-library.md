@@ -56,6 +56,7 @@ Diccionario determinista y conservador: un nombre se traduce solo si todas sus p
     salvo decisión explícita en `data/exercise-overrides.json`. Una restricción de la tabla impide `plan_eligible` sin `reviewed`.
   - **`muscles_source`** (`exercises_json` | `curated` | `manual` | null): origen de los músculos, para poder sustituirlos antes de abrir la app a más usuarios.
   - **`fit_sdk_known`**: false en las claves que Garmin Connect acepta pero el FIT SDK 21.221 aún no lista (`data/sources/fit-sdk-unknown-keys.json`; solo nuestras claves).
+- `alternatives`: claves completas `CATEGORÍA/EJERCICIO` (el nombre de Garmin solo no es único: 27 se repiten entre categorías; una alternativa "CRUNCH" podía apuntar a otro ejercicio).
 - Equipo **conservador**: lo que indica el nombre; sin pista, `unknown`. `bodyweight` solo con `BODY_WEIGHT` en la clave, categoría de calentamiento o ficha curada.
   Distribución actual (un ejercicio puede tener varios): unknown 791 · dumbbell 144 · barbell 110 · bodyweight 88 · stability_ball 86 · band 62 · bench 42 · cable 40 ·
   suspension 38 · battle_rope 29 · medicine_ball 29 · pull_up_bar 29 · box 22 · sandbag 21 · kettlebell 18 · rings 15 · machine 14 · bosu 12 · sled 8 · plate 4 · ladder 3 · sledgehammer 3 · tire 2.

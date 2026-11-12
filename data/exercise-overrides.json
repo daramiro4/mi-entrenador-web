@@ -1,5 +1,5 @@
 {
- "_readme": "Correcciones manuales del catálogo. Se aplican SIEMPRE encima de lo importado y de las fichas curadas: regenerar (npm run gen:exercise-catalog) nunca las pisa. Clave: \"CATEGORÍA/EJERCICIO\" (p. ej. \"WARM_UP/THORACIC_ROTATION\"). Campos permitidos: name_es, equipment, primary_muscles, secondary_muscles, movement_pattern, archetype, level, dose_default, cues, common_mistake, alternatives, review_status, plan_eligible. Un override a un ejercicio inexistente o con un campo no permitido falla el generador. Ejemplo: { \"WARM_UP/THORACIC_ROTATION\": { \"primary_muscles\": [\"LOWER_BACK\"] } } marcaría muscles_source='manual'. Contenido de la fase 3: 80 ejercicios priorizados (borradores propuestos, review_status='draft'): nombre en español (estado 'proposed' hasta que lo marques 'reviewed' en data/exercise-names-es.csv), nivel, arquetipo de animación, dosis, claves (máx. 3), error común y alternativas. Sin consejos médicos ni contraindicaciones. Los músculos no se tocan (siguen siendo los de Exercises.json). Contenido de la fase 3: 80 ejercicios priorizados (borradores propuestos, review_status='draft'): nombre en español (estado 'proposed' hasta que lo marques 'reviewed' en data/exercise-names-es.csv), nivel, arquetipo de animación, dosis, claves (máx. 3), error común y alternativas. Sin consejos médicos ni contraindicaciones. Los músculos no se tocan (siguen siendo los de Exercises.json).",
+ "_readme": "Correcciones manuales del catálogo. Se aplican SIEMPRE encima de lo importado y de las fichas curadas: regenerar (npm run gen:exercise-catalog) nunca las pisa. Clave: \"CATEGORÍA/EJERCICIO\" (p. ej. \"WARM_UP/THORACIC_ROTATION\"). Campos permitidos: name_es, equipment, primary_muscles, secondary_muscles, movement_pattern, archetype, level, dose_default, cues, common_mistake, alternatives, review_status, plan_eligible. Un override a un ejercicio inexistente o con un campo no permitido falla el generador. Ejemplo: { \"WARM_UP/THORACIC_ROTATION\": { \"primary_muscles\": [\"LOWER_BACK\"] } } marcaría muscles_source='manual'. Contenido de la fase 3: 80 ejercicios priorizados (borradores propuestos, review_status='draft'): nombre en español (estado 'proposed' hasta que lo marques 'reviewed' en data/exercise-names-es.csv), nivel, arquetipo de animación, dosis, claves (máx. 3), error común y alternativas. Sin consejos médicos ni contraindicaciones. Los músculos no se tocan (siguen siendo los de Exercises.json). Contenido de la fase 3: 80 ejercicios priorizados (borradores propuestos, review_status='draft'): nombre en español (estado 'proposed' hasta que lo marques 'reviewed' en data/exercise-names-es.csv), nivel, arquetipo de animación, dosis, claves (máx. 3), error común y alternativas. Sin consejos médicos ni contraindicaciones. Los músculos no se tocan (siguen siendo los de Exercises.json). Contenido de la fase 3: 80 ejercicios priorizados (borradores propuestos, review_status='draft'): nombre en español (estado 'proposed' hasta que lo marques 'reviewed' en data/exercise-names-es.csv), nivel, arquetipo de animación, dosis, claves (máx. 3), error común y alternativas. Sin consejos médicos ni contraindicaciones. Los músculos no se tocan (siguen siendo los de Exercises.json).",
  "overrides": {
   "WARM_UP/QUADRUPED_ROCKING": {
    "name_es": "Balanceo en cuadrupedia",
@@ -17,8 +17,8 @@
    ],
    "common_mistake": "Redondear la espalda en lugar de mover la cadera.",
    "alternatives": [
-    "STRETCH_CAT_COW",
-    "STRETCH_CHILDS_POSE"
+    "WARM_UP/STRETCH_CAT_COW",
+    "WARM_UP/STRETCH_CHILDS_POSE"
    ],
    "equipment": [
     "bodyweight"
@@ -40,8 +40,8 @@
    ],
    "common_mistake": "Dejar que el torso se hunda en lugar de inclinarse desde la cadera.",
    "alternatives": [
-    "STRETCH_PIGEON_POSE",
-    "STRETCH_LYING_PIRIFORMIS"
+    "WARM_UP/STRETCH_PIGEON_POSE",
+    "WARM_UP/STRETCH_LYING_PIRIFORMIS"
    ],
    "equipment": [
     "bodyweight"
@@ -63,8 +63,8 @@
    ],
    "common_mistake": "Subir los hombros hacia las orejas.",
    "alternatives": [
-    "STRETCH_CHILDS_POSE",
-    "STRETCH_CAT_COW"
+    "WARM_UP/STRETCH_CHILDS_POSE",
+    "WARM_UP/STRETCH_CAT_COW"
    ],
    "equipment": [
     "bodyweight"
@@ -86,8 +86,8 @@
    ],
    "common_mistake": "Aguantar la respiración.",
    "alternatives": [
-    "QUADRUPED_ROCKING",
-    "STRETCH_COBRA"
+    "WARM_UP/QUADRUPED_ROCKING",
+    "WARM_UP/STRETCH_COBRA"
    ],
    "equipment": [
     "bodyweight"
@@ -109,8 +109,8 @@
    ],
    "common_mistake": "Girar solo los hombros sin que el tronco acompañe.",
    "alternatives": [
-    "STRETCH_HIP_FLEXOR_AND_QUAD",
-    "THORACIC_ROTATION"
+    "WARM_UP/STRETCH_HIP_FLEXOR_AND_QUAD",
+    "WARM_UP/THORACIC_ROTATION"
    ],
    "equipment": [
     "bodyweight"
@@ -132,8 +132,8 @@
    ],
    "common_mistake": "Levantar un hombro del suelo para llegar más lejos.",
    "alternatives": [
-    "STRETCH_LYING_KNEE_TO_CHEST",
-    "THORACIC_ROTATION"
+    "WARM_UP/STRETCH_LYING_KNEE_TO_CHEST",
+    "WARM_UP/THORACIC_ROTATION"
    ],
    "equipment": [
     "bodyweight"
@@ -155,8 +155,8 @@
    ],
    "common_mistake": "Levantar la cabeza y encoger los hombros.",
    "alternatives": [
-    "STRETCH_LYING_SPINAL_TWIST",
-    "STRETCH_LYING_PIRIFORMIS"
+    "WARM_UP/STRETCH_LYING_SPINAL_TWIST",
+    "WARM_UP/STRETCH_LYING_PIRIFORMIS"
    ],
    "equipment": [
     "bodyweight"
@@ -178,8 +178,8 @@
    ],
    "common_mistake": "Arquear la espalda baja en vez de empujar la cadera.",
    "alternatives": [
-    "STRETCH_LUNGING_HIP_FLEXOR",
-    "STRETCH_QUAD"
+    "WARM_UP/STRETCH_LUNGING_HIP_FLEXOR",
+    "WARM_UP/STRETCH_QUAD"
    ],
    "equipment": [
     "bodyweight"
@@ -201,8 +201,8 @@
    ],
    "common_mistake": "Dejar caer la cadera hacia un lado.",
    "alternatives": [
-    "STRETCH_LYING_PIRIFORMIS",
-    "STRETCH_90_90"
+    "WARM_UP/STRETCH_LYING_PIRIFORMIS",
+    "WARM_UP/STRETCH_90_90"
    ],
    "equipment": [
     "bodyweight"
@@ -224,8 +224,8 @@
    ],
    "common_mistake": "Tirar con el cuello en lugar de con los brazos.",
    "alternatives": [
-    "STRETCH_PIGEON_POSE",
-    "STRETCH_FORWARD_GLUTES"
+    "WARM_UP/STRETCH_PIGEON_POSE",
+    "WARM_UP/STRETCH_FORWARD_GLUTES"
    ],
    "equipment": [
     "bodyweight"
@@ -247,8 +247,8 @@
    ],
    "common_mistake": "Redondear la espalda para llegar al pie.",
    "alternatives": [
-    "STANDING_HAMSTRING_STRETCH",
-    "INVERTED_HAMSTRING_STRETCH"
+    "WARM_UP/STANDING_HAMSTRING_STRETCH",
+    "WARM_UP/INVERTED_HAMSTRING_STRETCH"
    ],
    "equipment": [
     "bodyweight"
@@ -270,8 +270,8 @@
    ],
    "common_mistake": "Subir el hombro hacia la oreja.",
    "alternatives": [
-    "STRETCH_PECTORAL",
-    "STRETCH_SHOULDER"
+    "WARM_UP/STRETCH_PECTORAL",
+    "WARM_UP/STRETCH_SHOULDER"
    ],
    "equipment": [
     "bodyweight"
@@ -293,8 +293,8 @@
    ],
    "common_mistake": "Mover la cadera en lugar de girar el tronco.",
    "alternatives": [
-    "THORACIC_ROTATION",
-    "STRETCH_LUNGE_WITH_SPINAL_TWIST"
+    "WARM_UP/THORACIC_ROTATION",
+    "WARM_UP/STRETCH_LUNGE_WITH_SPINAL_TWIST"
    ],
    "equipment": [
     "bodyweight"
@@ -316,7 +316,7 @@
    ],
    "common_mistake": "Levantar el talón al adelantar la rodilla.",
    "alternatives": [
-    "STRETCH_CALF"
+    "WARM_UP/STRETCH_CALF"
    ],
    "equipment": [
     "band"
@@ -338,8 +338,8 @@
    ],
    "common_mistake": "Inclinar el torso hacia delante para alcanzar la rodilla.",
    "alternatives": [
-    "WALKING_LEG_CRADLES",
-    "STRETCH_LYING_KNEE_TO_CHEST"
+    "WARM_UP/WALKING_LEG_CRADLES",
+    "WARM_UP/STRETCH_LYING_KNEE_TO_CHEST"
    ],
    "equipment": [
     "bodyweight"
@@ -361,8 +361,8 @@
    ],
    "common_mistake": "Perder el equilibrio por forzar la altura del tobillo.",
    "alternatives": [
-    "WALKING_KNEE_HUGS",
-    "STRETCH_PIGEON_POSE"
+    "WARM_UP/WALKING_KNEE_HUGS",
+    "WARM_UP/STRETCH_PIGEON_POSE"
    ],
    "equipment": [
     "bodyweight"
@@ -384,8 +384,8 @@
    ],
    "common_mistake": "Tirar de la cabeza con fuerza.",
    "alternatives": [
-    "NECK_TILTS",
-    "STRETCH_SIDE"
+    "WARM_UP/NECK_TILTS",
+    "WARM_UP/STRETCH_SIDE"
    ],
    "equipment": [
     "bodyweight"
@@ -407,8 +407,8 @@
    ],
    "common_mistake": "Inclinarse hacia delante en lugar de hacia el lado.",
    "alternatives": [
-    "STRETCH_OBLIQUES",
-    "STRETCH_LAT"
+    "WARM_UP/STRETCH_OBLIQUES",
+    "WARM_UP/STRETCH_LAT"
    ],
    "equipment": [
     "bodyweight"
@@ -430,8 +430,8 @@
    ],
    "common_mistake": "Arquear la espalda baja al subir.",
    "alternatives": [
-    "HIP_RAISE_WITH_KNEE_SQUEEZE",
-    "MARCHING_HIP_RAISE"
+    "HIP_RAISE/HIP_RAISE_WITH_KNEE_SQUEEZE",
+    "HIP_RAISE/MARCHING_HIP_RAISE"
    ],
    "equipment": [
     "bodyweight"
@@ -453,8 +453,8 @@
    ],
    "common_mistake": "Dejar caer la cadera al levantar el pie.",
    "alternatives": [
-    "HIP_RAISE",
-    "BRIDGE_WITH_LEG_EXTENSION"
+    "HIP_RAISE/HIP_RAISE",
+    "HIP_RAISE/BRIDGE_WITH_LEG_EXTENSION"
    ],
    "equipment": [
     "bodyweight"
@@ -476,8 +476,8 @@
    ],
    "common_mistake": "Soltar la presión entre las rodillas al subir.",
    "alternatives": [
-    "HIP_RAISE",
-    "CLAM_BRIDGE"
+    "HIP_RAISE/HIP_RAISE",
+    "HIP_RAISE/CLAM_BRIDGE"
    ],
    "equipment": [
     "bodyweight"
@@ -499,8 +499,8 @@
    ],
    "common_mistake": "Inclinar la pelvis hacia un lado al estirar la pierna.",
    "alternatives": [
-    "MARCHING_HIP_RAISE",
-    "SINGLE_LEG_HIP_RAISE"
+    "HIP_RAISE/MARCHING_HIP_RAISE",
+    "HIP_RAISE/SINGLE_LEG_HIP_RAISE"
    ],
    "equipment": [
     "bodyweight"
@@ -522,8 +522,8 @@
    ],
    "common_mistake": "Girar la pelvis para abrir más la rodilla.",
    "alternatives": [
-    "HIP_RAISE",
-    "CLAM_SHELLS"
+    "HIP_RAISE/HIP_RAISE",
+    "BANDED_EXERCISES/CLAM_SHELLS"
    ],
    "equipment": [
     "bodyweight"
@@ -545,8 +545,8 @@
    ],
    "common_mistake": "Girar la cadera hacia el lado de la pierna que sube.",
    "alternatives": [
-    "QUADRUPED_HIP_EXTENSION",
-    "SIDE_LYING_LEG_RAISE"
+    "HIP_STABILITY/QUADRUPED_HIP_EXTENSION",
+    "HIP_STABILITY/SIDE_LYING_LEG_RAISE"
    ],
    "equipment": [
     "bodyweight"
@@ -568,8 +568,8 @@
    ],
    "common_mistake": "Subir la pierna arqueando la zona lumbar.",
    "alternatives": [
-    "FIRE_HYDRANT_KICKS",
-    "QUADRUPED_LEG_RAISE"
+    "HIP_STABILITY/FIRE_HYDRANT_KICKS",
+    "LEG_RAISE/QUADRUPED_LEG_RAISE"
    ],
    "equipment": [
     "bodyweight"
@@ -591,8 +591,8 @@
    ],
    "common_mistake": "Rotar la cadera hacia atrás para subir más la pierna.",
    "alternatives": [
-    "STANDING_HIP_ABDUCTION",
-    "FIRE_HYDRANT_KICKS"
+    "HIP_STABILITY/STANDING_HIP_ABDUCTION",
+    "HIP_STABILITY/FIRE_HYDRANT_KICKS"
    ],
    "equipment": [
     "bodyweight"
@@ -614,8 +614,8 @@
    ],
    "common_mistake": "Inclinar el tronco hacia el lado contrario.",
    "alternatives": [
-    "SIDE_LYING_LEG_RAISE",
-    "LATERAL_WALKS_WITH_BAND_AT_ANKLES"
+    "HIP_STABILITY/SIDE_LYING_LEG_RAISE",
+    "HIP_STABILITY/LATERAL_WALKS_WITH_BAND_AT_ANKLES"
    ],
    "equipment": [
     "bodyweight"
@@ -637,8 +637,8 @@
    ],
    "common_mistake": "Dejar que las rodillas se junten.",
    "alternatives": [
-    "CLAM_SHELLS",
-    "STANDING_HIP_ABDUCTION"
+    "BANDED_EXERCISES/CLAM_SHELLS",
+    "HIP_STABILITY/STANDING_HIP_ABDUCTION"
    ],
    "equipment": [
     "band"
@@ -660,8 +660,8 @@
    ],
    "common_mistake": "Dejar que las rodillas se cierren hacia dentro.",
    "alternatives": [
-    "HIP_RAISE",
-    "HIP_RAISE_WITH_KNEE_SQUEEZE"
+    "HIP_RAISE/HIP_RAISE",
+    "HIP_RAISE/HIP_RAISE_WITH_KNEE_SQUEEZE"
    ],
    "equipment": [
     "band"
@@ -683,8 +683,8 @@
    ],
    "common_mistake": "Redondear la espalda al bajar las mancuernas.",
    "alternatives": [
-    "ROMANIAN_DEADLIFT",
-    "DUMBBELL_STRAIGHT_LEG_DEADLIFT"
+    "DEADLIFT/ROMANIAN_DEADLIFT",
+    "DEADLIFT/DUMBBELL_STRAIGHT_LEG_DEADLIFT"
    ],
    "equipment": [
     "dumbbell"
@@ -706,8 +706,8 @@
    ],
    "common_mistake": "Doblar las rodillas hasta convertirlo en sentadilla.",
    "alternatives": [
-    "DUMBBELL_DEADLIFT",
-    "ROMANIAN_DEADLIFT"
+    "DEADLIFT/DUMBBELL_DEADLIFT",
+    "DEADLIFT/ROMANIAN_DEADLIFT"
    ],
    "equipment": [
     "dumbbell"
@@ -729,8 +729,8 @@
    ],
    "common_mistake": "Doblar la espalda en lugar de la cadera.",
    "alternatives": [
-    "GOOD_MORNING",
-    "DUMBBELL_DEADLIFT"
+    "LEG_CURL/GOOD_MORNING",
+    "DEADLIFT/DUMBBELL_DEADLIFT"
    ],
    "equipment": [
     "band"
@@ -752,8 +752,8 @@
    ],
    "common_mistake": "Dejar caer la cadera del lado de la pierna libre.",
    "alternatives": [
-    "SINGLE_LEG_HIP_RAISE",
-    "MARCHING_HIP_RAISE"
+    "HIP_RAISE/SINGLE_LEG_HIP_RAISE",
+    "HIP_RAISE/MARCHING_HIP_RAISE"
    ],
    "equipment": [
     "bench",
@@ -776,8 +776,8 @@
    ],
    "common_mistake": "Redondear la espalda al agacharte.",
    "alternatives": [
-    "BAND_GOOD_MORNING",
-    "DUMBBELL_DEADLIFT"
+    "LEG_CURL/BAND_GOOD_MORNING",
+    "DEADLIFT/DUMBBELL_DEADLIFT"
    ],
    "equipment": [
     "band"
@@ -799,7 +799,7 @@
    ],
    "common_mistake": "Dejar caer la cadera hacia el suelo.",
    "alternatives": [
-    "KNEELING_PLANK"
+    "PLANK/KNEELING_PLANK"
    ],
    "equipment": [
     "bodyweight"
@@ -821,7 +821,7 @@
    ],
    "common_mistake": "Balancear la cadera al levantar el brazo.",
    "alternatives": [
-    "KNEELING_PLANK"
+    "PLANK/KNEELING_PLANK"
    ],
    "equipment": [
     "bodyweight"
@@ -843,7 +843,7 @@
    ],
    "common_mistake": "Hundir la zona lumbar.",
    "alternatives": [
-    "SIDE_PLANK"
+    "PLANK/SIDE_PLANK"
    ],
    "equipment": [
     "bodyweight"
@@ -865,8 +865,8 @@
    ],
    "common_mistake": "Tirar del cuello con las manos.",
    "alternatives": [
-    "REVERSE_CRUNCH",
-    "MCGILL_CURL_UP"
+    "CRUNCH/REVERSE_CRUNCH",
+    "CRUNCH/MCGILL_CURL_UP"
    ],
    "equipment": [
     "bodyweight"
@@ -888,8 +888,8 @@
    ],
    "common_mistake": "Mover los codos sin rotar el tronco.",
    "alternatives": [
-    "CRUNCH",
-    "RUSSIAN_TWIST"
+    "CRUNCH/CRUNCH",
+    "CORE/RUSSIAN_TWIST"
    ],
    "equipment": [
     "bodyweight"
@@ -911,8 +911,8 @@
    ],
    "common_mistake": "Balancear las piernas con impulso.",
    "alternatives": [
-    "CRUNCH",
-    "LYING_STRAIGHT_LEG_RAISE"
+    "CRUNCH/CRUNCH",
+    "LEG_RAISE/LYING_STRAIGHT_LEG_RAISE"
    ],
    "equipment": [
     "bodyweight"
@@ -934,8 +934,8 @@
    ],
    "common_mistake": "Elevarse demasiado o arquear la zona lumbar.",
    "alternatives": [
-    "CRUNCH",
-    "REVERSE_CRUNCH"
+    "CRUNCH/CRUNCH",
+    "CRUNCH/REVERSE_CRUNCH"
    ],
    "equipment": [
     "bodyweight"
@@ -957,8 +957,8 @@
    ],
    "common_mistake": "Arquear la espalda baja al bajar las piernas.",
    "alternatives": [
-    "REVERSE_CRUNCH",
-    "QUADRUPED_LEG_RAISE"
+    "CRUNCH/REVERSE_CRUNCH",
+    "LEG_RAISE/QUADRUPED_LEG_RAISE"
    ],
    "equipment": [
     "bodyweight"
@@ -980,8 +980,8 @@
    ],
    "common_mistake": "Subir la pierna por encima de la cadera arqueando la espalda.",
    "alternatives": [
-    "QUADRUPED_HIP_EXTENSION",
-    "FIRE_HYDRANT_KICKS"
+    "HIP_STABILITY/QUADRUPED_HIP_EXTENSION",
+    "HIP_STABILITY/FIRE_HYDRANT_KICKS"
    ],
    "equipment": [
     "bodyweight"
@@ -1003,8 +1003,8 @@
    ],
    "common_mistake": "Mover solo los brazos sin rotar el tronco.",
    "alternatives": [
-    "BICYCLE_CRUNCH",
-    "SIDE_BEND"
+    "CRUNCH/BICYCLE_CRUNCH",
+    "CORE/SIDE_BEND"
    ],
    "equipment": [
     "bodyweight"
@@ -1026,8 +1026,8 @@
    ],
    "common_mistake": "Girar o inclinarse hacia delante en vez de hacia el lado.",
    "alternatives": [
-    "RUSSIAN_TWIST",
-    "SIDE_PLANK"
+    "CORE/RUSSIAN_TWIST",
+    "PLANK/SIDE_PLANK"
    ],
    "equipment": [
     "dumbbell"
@@ -1049,8 +1049,8 @@
    ],
    "common_mistake": "Arquear la espalda baja al bajar las piernas.",
    "alternatives": [
-    "LYING_STRAIGHT_LEG_RAISE",
-    "REVERSE_CRUNCH"
+    "LEG_RAISE/LYING_STRAIGHT_LEG_RAISE",
+    "CRUNCH/REVERSE_CRUNCH"
    ],
    "equipment": [
     "bodyweight"
@@ -1072,8 +1072,8 @@
    ],
    "common_mistake": "Impulsarse con el tronco en vez de tirar con la espalda.",
    "alternatives": [
-    "CHEST_SUPPORTED_DUMBBELL_ROW",
-    "DUMBBELL_ROW"
+    "ROW/CHEST_SUPPORTED_DUMBBELL_ROW",
+    "ROW/DUMBBELL_ROW"
    ],
    "equipment": [
     "dumbbell"
@@ -1095,8 +1095,8 @@
    ],
    "common_mistake": "Levantar el pecho del banco al tirar.",
    "alternatives": [
-    "DUMBBELL_ROW",
-    "BENT_OVER_ROW_WITH_DUMBELL"
+    "ROW/DUMBBELL_ROW",
+    "ROW/BENT_OVER_ROW_WITH_DUMBELL"
    ],
    "equipment": [
     "bench",
@@ -1119,8 +1119,8 @@
    ],
    "common_mistake": "Balancear el tronco hacia atrás en cada repetición.",
    "alternatives": [
-    "CHEST_SUPPORTED_DUMBBELL_ROW",
-    "INVERTED_ROW"
+    "ROW/CHEST_SUPPORTED_DUMBBELL_ROW",
+    "ROW/INVERTED_ROW"
    ],
    "equipment": [
     "cable"
@@ -1142,8 +1142,8 @@
    ],
    "common_mistake": "Subir los hombros hacia las orejas.",
    "alternatives": [
-    "BENT_OVER_LATERAL_RAISE",
-    "FLOOR_T_RAISE"
+    "LATERAL_RAISE/BENT_OVER_LATERAL_RAISE",
+    "SHOULDER_STABILITY/FLOOR_T_RAISE"
    ],
    "equipment": [
     "bench",
@@ -1166,8 +1166,8 @@
    ],
    "common_mistake": "Impulsarse con el torso.",
    "alternatives": [
-    "INCLINE_REVERSE_FLYE",
-    "FLOOR_T_RAISE"
+    "FLYE/INCLINE_REVERSE_FLYE",
+    "SHOULDER_STABILITY/FLOOR_T_RAISE"
    ],
    "equipment": [
     "dumbbell"
@@ -1189,8 +1189,8 @@
    ],
    "common_mistake": "Arquear la espalda baja para subir más los brazos.",
    "alternatives": [
-    "FLOOR_Y_RAISE",
-    "SCAPULAR_RETRACTION"
+    "SHOULDER_STABILITY/FLOOR_Y_RAISE",
+    "SHRUG/SCAPULAR_RETRACTION"
    ],
    "equipment": [
     "bodyweight"
@@ -1212,8 +1212,8 @@
    ],
    "common_mistake": "Levantar la cabeza o arquear la espalda.",
    "alternatives": [
-    "FLOOR_T_RAISE",
-    "WALL_SLIDE"
+    "SHOULDER_STABILITY/FLOOR_T_RAISE",
+    "LATERAL_RAISE/WALL_SLIDE"
    ],
    "equipment": [
     "bodyweight"
@@ -1235,8 +1235,8 @@
    ],
    "common_mistake": "Encoger los hombros hacia las orejas.",
    "alternatives": [
-    "FLOOR_Y_RAISE",
-    "INCLINE_REVERSE_FLYE"
+    "SHOULDER_STABILITY/FLOOR_Y_RAISE",
+    "FLYE/INCLINE_REVERSE_FLYE"
    ],
    "equipment": [
     "bodyweight"
@@ -1258,8 +1258,8 @@
    ],
    "common_mistake": "Separar el codo del cuerpo.",
    "alternatives": [
-    "FLOOR_T_RAISE",
-    "SCAPULAR_RETRACTION"
+    "SHOULDER_STABILITY/FLOOR_T_RAISE",
+    "SHRUG/SCAPULAR_RETRACTION"
    ],
    "equipment": [
     "band"
@@ -1281,8 +1281,8 @@
    ],
    "common_mistake": "Encoger los hombros hacia las orejas.",
    "alternatives": [
-    "FLOOR_T_RAISE",
-    "PULL_APART"
+    "SHOULDER_STABILITY/FLOOR_T_RAISE",
+    "BANDED_EXERCISES/PULL_APART"
    ],
    "equipment": [
     "bodyweight"
@@ -1304,8 +1304,8 @@
    ],
    "common_mistake": "Subir los hombros al separar la banda.",
    "alternatives": [
-    "FLOOR_T_RAISE",
-    "SCAPULAR_RETRACTION"
+    "SHOULDER_STABILITY/FLOOR_T_RAISE",
+    "SHRUG/SCAPULAR_RETRACTION"
    ],
    "equipment": [
     "band"
@@ -1327,8 +1327,8 @@
    ],
    "common_mistake": "Hundir o levantar la cadera.",
    "alternatives": [
-    "INCLINE_PUSH_UP",
-    "PUSH_UP"
+    "PUSH_UP/INCLINE_PUSH_UP",
+    "PUSH_UP/PUSH_UP"
    ],
    "equipment": [
     "bodyweight"
@@ -1350,8 +1350,8 @@
    ],
    "common_mistake": "Abrir los codos del todo al bajar.",
    "alternatives": [
-    "DUMBBELL_BENCH_PRESS",
-    "DUMBBELL_FLOOR_PRESS"
+    "BENCH_PRESS/DUMBBELL_BENCH_PRESS",
+    "BENCH_PRESS/DUMBBELL_FLOOR_PRESS"
    ],
    "equipment": [
     "bench",
@@ -1374,8 +1374,8 @@
    ],
    "common_mistake": "Dejar caer los codos de golpe.",
    "alternatives": [
-    "DUMBBELL_BENCH_PRESS",
-    "CHEST_PRESS_WITH_BAND"
+    "BENCH_PRESS/DUMBBELL_BENCH_PRESS",
+    "PUSH_UP/CHEST_PRESS_WITH_BAND"
    ],
    "equipment": [
     "dumbbell"
@@ -1397,8 +1397,8 @@
    ],
    "common_mistake": "Arquear la zona lumbar al subir.",
    "alternatives": [
-    "DUMBBELL_SHOULDER_PRESS",
-    "DUMBBELL_LATERAL_RAISE"
+    "SHOULDER_PRESS/DUMBBELL_SHOULDER_PRESS",
+    "LATERAL_RAISE/DUMBBELL_LATERAL_RAISE"
    ],
    "equipment": [
     "bench",
@@ -1421,7 +1421,7 @@
    ],
    "common_mistake": "Balancear el cuerpo para subir las mancuernas.",
    "alternatives": [
-    "SEATED_LATERAL_RAISE"
+    "LATERAL_RAISE/SEATED_LATERAL_RAISE"
    ],
    "equipment": [
     "dumbbell"
@@ -1443,8 +1443,8 @@
    ],
    "common_mistake": "Abrir los codos hacia los lados.",
    "alternatives": [
-    "DUMBBELL_KICKBACK",
-    "TRICEPS_EXTENSION_ON_FLOOR"
+    "TRICEPS_EXTENSION/DUMBBELL_KICKBACK",
+    "TRICEPS_EXTENSION/TRICEPS_EXTENSION_ON_FLOOR"
    ],
    "equipment": [
     "dumbbell"
@@ -1466,8 +1466,8 @@
    ],
    "common_mistake": "Balancear el codo en lugar de dejarlo fijo.",
    "alternatives": [
-    "OVERHEAD_DUMBBELL_TRICEPS_EXTENSION",
-    "TRICEPS_EXTENSION_ON_FLOOR"
+    "TRICEPS_EXTENSION/OVERHEAD_DUMBBELL_TRICEPS_EXTENSION",
+    "TRICEPS_EXTENSION/TRICEPS_EXTENSION_ON_FLOOR"
    ],
    "equipment": [
     "dumbbell"
@@ -1489,8 +1489,8 @@
    ],
    "common_mistake": "Inclinarse hacia atrás para tirar con el cuerpo.",
    "alternatives": [
-    "LAT_PULLDOWN",
-    "STRAIGHT_ARM_PULLDOWN"
+    "PULL_UP/LAT_PULLDOWN",
+    "PULL_UP/STRAIGHT_ARM_PULLDOWN"
    ],
    "equipment": [
     "cable"
@@ -1512,8 +1512,8 @@
    ],
    "common_mistake": "Doblar los codos y convertirlo en un jalón normal.",
    "alternatives": [
-    "LAT_PULLDOWN",
-    "WIDE_GRIP_LAT_PULLDOWN"
+    "PULL_UP/LAT_PULLDOWN",
+    "PULL_UP/WIDE_GRIP_LAT_PULLDOWN"
    ],
    "equipment": [
     "cable"
@@ -1535,8 +1535,8 @@
    ],
    "common_mistake": "Balancear el torso para subir.",
    "alternatives": [
-    "STANDING_DUMBBELL_BICEPS_CURL",
-    "DUMBBELL_BICEPS_CURL"
+    "CURL/STANDING_DUMBBELL_BICEPS_CURL",
+    "CURL/DUMBBELL_BICEPS_CURL"
    ],
    "equipment": [
     "dumbbell"
@@ -1558,8 +1558,8 @@
    ],
    "common_mistake": "Dejar que las rodillas se vayan hacia dentro.",
    "alternatives": [
-    "GOBLET_SQUAT",
-    "AIR_SQUAT"
+    "SQUAT/GOBLET_SQUAT",
+    "SQUAT/AIR_SQUAT"
    ],
    "equipment": [
     "dumbbell"
@@ -1581,8 +1581,8 @@
    ],
    "common_mistake": "Tirar del cuello con las manos.",
    "alternatives": [
-    "AIR_SQUAT",
-    "GOBLET_SQUAT"
+    "SQUAT/AIR_SQUAT",
+    "SQUAT/GOBLET_SQUAT"
    ],
    "equipment": [
     "bodyweight"
@@ -1604,8 +1604,8 @@
    ],
    "common_mistake": "Dejar caer las rodillas hacia dentro.",
    "alternatives": [
-    "WIDE_STANCE_GOBLET_SQUAT",
-    "GOBLET_SQUAT"
+    "SQUAT/WIDE_STANCE_GOBLET_SQUAT",
+    "SQUAT/GOBLET_SQUAT"
    ],
    "equipment": [
     "bodyweight"
@@ -1627,8 +1627,8 @@
    ],
    "common_mistake": "Redondear la espalda al bajar.",
    "alternatives": [
-    "GOBLET_SQUAT",
-    "SUMO_SQUAT"
+    "SQUAT/GOBLET_SQUAT",
+    "SQUAT/SUMO_SQUAT"
    ],
    "equipment": [
     "dumbbell"
@@ -1650,8 +1650,8 @@
    ],
    "common_mistake": "Inclinar el torso hacia delante.",
    "alternatives": [
-    "DUMBBELL_BULGARIAN_SPLIT_SQUAT",
-    "LUNGE"
+    "LUNGE/DUMBBELL_BULGARIAN_SPLIT_SQUAT",
+    "LUNGE/LUNGE"
    ],
    "equipment": [
     "dumbbell"
@@ -1673,8 +1673,8 @@
    ],
    "common_mistake": "Impulsarse con la pierna de abajo.",
    "alternatives": [
-    "STEP_UP",
-    "DUMBBELL_BULGARIAN_SPLIT_SQUAT"
+    "SQUAT/STEP_UP",
+    "LUNGE/DUMBBELL_BULGARIAN_SPLIT_SQUAT"
    ],
    "equipment": [
     "box",
@@ -1697,8 +1697,8 @@
    ],
    "common_mistake": "Dejar que la rodilla delantera se vaya hacia dentro.",
    "alternatives": [
-    "DUMBBELL_REVERSE_LUNGE",
-    "WALKING_LUNGE"
+    "LUNGE/DUMBBELL_REVERSE_LUNGE",
+    "LUNGE/WALKING_LUNGE"
    ],
    "equipment": [
     "bodyweight"
@@ -1720,8 +1720,8 @@
    ],
    "common_mistake": "Dar pasos demasiado cortos.",
    "alternatives": [
-    "LUNGE",
-    "DUMBBELL_REVERSE_LUNGE"
+    "LUNGE/LUNGE",
+    "LUNGE/DUMBBELL_REVERSE_LUNGE"
    ],
    "equipment": [
     "bodyweight"
@@ -1743,8 +1743,8 @@
    ],
    "common_mistake": "Girar el pie o dejar caer la rodilla hacia dentro.",
    "alternatives": [
-    "CURTSY_LUNGE",
-    "LUNGE"
+    "LUNGE/CURTSY_LUNGE",
+    "LUNGE/LUNGE"
    ],
    "equipment": [
     "bodyweight"
@@ -1766,8 +1766,8 @@
    ],
    "common_mistake": "Dejar caer la rodilla delantera hacia dentro.",
    "alternatives": [
-    "LUNGE",
-    "SIDE_LUNGE"
+    "LUNGE/LUNGE",
+    "LUNGE/SIDE_LUNGE"
    ],
    "equipment": [
     "bodyweight"
@@ -1789,8 +1789,8 @@
    ],
    "common_mistake": "Rebotar sin controlar la bajada.",
    "alternatives": [
-    "STANDING_CALF_RAISE",
-    "SINGLE_LEG_STANDING_CALF_RAISE"
+    "CALF_RAISE/STANDING_CALF_RAISE",
+    "CALF_RAISE/SINGLE_LEG_STANDING_CALF_RAISE"
    ],
    "equipment": [
     "dumbbell"
@@ -1812,8 +1812,8 @@
    ],
    "common_mistake": "Doblar la rodilla para subir más.",
    "alternatives": [
-    "STANDING_CALF_RAISE",
-    "STANDING_DUMBBELL_CALF_RAISE"
+    "CALF_RAISE/STANDING_CALF_RAISE",
+    "CALF_RAISE/STANDING_DUMBBELL_CALF_RAISE"
    ],
    "equipment": [
     "bodyweight"
@@ -1835,8 +1835,8 @@
    ],
    "common_mistake": "Girar los hombros hacia delante o atrás.",
    "alternatives": [
-    "FARMERS_CARRY",
-    "SCAPULAR_RETRACTION"
+    "CARRY/FARMERS_CARRY",
+    "SHRUG/SCAPULAR_RETRACTION"
    ],
    "equipment": [
     "dumbbell"

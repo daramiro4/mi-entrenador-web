@@ -196,7 +196,7 @@ export function buildContentReview(catalog: Catalog): string {
       out.push(`\`${e.garmin_category}/${e.garmin_name}\` · ${section} · nivel ${e.level} · ${e.equipment.join(", ")} · ${doseText(e.dose_default)} · animación: ${e.archetype}`);
       out.push("");
       e.cues.forEach((c, i) => out.push(`${i + 1}. ${c}`));
-      out.push("", `**Error común:** ${e.common_mistake}`, `**Alternativas:** ${e.alternatives.map((a) => catalog.exercises.find((x) => x.garmin_name === a)?.name_es ?? a).join(" · ")}`, "");
+      out.push("", `**Error común:** ${e.common_mistake}`, `**Alternativas:** ${e.alternatives.map((a) => catalog.exercises.find((x) => `${x.garmin_category}/${x.garmin_name}` === a)?.name_es ?? a).join(" · ")}`, "");
     }
   }
   return out.join("\n");

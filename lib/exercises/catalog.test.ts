@@ -96,6 +96,7 @@ describe("catálogo de ejercicios (generado)", () => {
       expect(e.contraindications).toEqual(l.contraindications);
       expect(e.leg_load).toBe(l.leg_load);
       expect(e.alternatives).toHaveLength(l.alternatives.length);
+      for (const a of e.alternatives) expect(a, `${l.slug} → ${a}`).toMatch(/^[A-Z0-9_]+\/[A-Z0-9_]+$/); // clave completa, no ambigua
     }
   });
 
@@ -290,8 +291,11 @@ describe("overrides manuales", () => {
     expect(e.name_es_status).toBe("reviewed");
   });
 
-  it("una alternativa inexistente en un override hace fallar el generador", () => {
-    expect(() => buildCatalog({ ...base, overrides: { "WARM_UP/THORACIC_ROTATION": { alternatives: ["NO_EXISTE"] } } })).toThrow(/alternativa/);
+  it("una alternativa inexistente o sin categoría en un override hace fallar el generador", () => {
+    expect(() => buildCatalog({ ...base, overrides: { "WARM_UP/THORACIC_ROTATION": { alternatives: ["SQUAT/NO_EXISTE"] } } })).toThrow(/alternativa/);
+    expect(() => buildCatalog({ ...base, overrides: { "WARM_UP/THORACIC_ROTATION": { alternatives: ["GOBLET_SQUAT"] } } })).toThrow(/clave completa/);
+    const c = buildCatalog({ ...base, overrides: { "WARM_UP/THORACIC_ROTATION": { alternatives: ["SQUAT/GOBLET_SQUAT"] } } });
+    expect(c.exercises.find((e) => e.garmin_name === "THORACIC_ROTATION")!.alternatives).toEqual(["SQUAT/GOBLET_SQUAT"]);
   });
 
   it("un override a un ejercicio inexistente o con un campo no permitido falla", () => {
@@ -355,15 +359,15 @@ describe("contenido priorizado (fase 3): 80 ejercicios en borrador", () => {
   });
 
   it("error común con punto final y 1-2 alternativas que existen y no son el propio ejercicio", () => {
-    const names = new Set(catalog.exercises.map((e) => e.garmin_name));
+    const keys = new Set(catalog.exercises.map((e) => `${e.garmin_category}/${e.garmin_name}`));
     for (const e of drafts) {
       const id = `${e.garmin_category}/${e.garmin_name}`;
       expect(e.common_mistake, id).toMatch(/\.$/);
       expect(e.alternatives.length, id).toBeGreaterThanOrEqual(1);
       expect(e.alternatives.length, id).toBeLessThanOrEqual(2);
       for (const a of e.alternatives) {
-        expect(names.has(a), `${id} → ${a}`).toBe(true);
-        expect(a, id).not.toBe(e.garmin_name);
+        expect(keys.has(a), `${id} → ${a}`).toBe(true);
+        expect(a, id).not.toBe(id);
       }
     }
   });

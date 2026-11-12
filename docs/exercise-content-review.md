@@ -480,7 +480,7 @@
 3. Mira las manos
 
 **Error común:** Mover solo los brazos sin rotar el tronco.
-**Alternativas:** Crunch de bicicleta con banda · Inclinación lateral con mancuerna
+**Alternativas:** Crunch bicicleta · Inclinación lateral con mancuerna
 
 ### Inclinación lateral con mancuerna
 `CORE/SIDE_BEND` · Core · nivel 1 · dumbbell · 12 reps · animación: crunch
@@ -510,7 +510,7 @@
 3. Baja controlando
 
 **Error común:** Tirar del cuello con las manos.
-**Alternativas:** Crunch inverso con banda · Curl-up de McGill
+**Alternativas:** Crunch inverso · Curl-up de McGill
 
 ### Patadas de tijera tumbado
 `CRUNCH/FLUTTER_KICKS` · Core · nivel 2 · bodyweight · 30 s · animación: crunch
@@ -520,7 +520,7 @@
 3. Mantén el abdomen firme
 
 **Error común:** Arquear la espalda baja al bajar las piernas.
-**Alternativas:** Elevación de piernas tumbado · Crunch inverso con banda
+**Alternativas:** Elevación de piernas tumbado · Crunch inverso
 
 ### Curl-up de McGill
 `CRUNCH/MCGILL_CURL_UP` · Core · nivel 1 · bodyweight · 8 reps · animación: crunch
@@ -530,7 +530,7 @@
 3. Mantén unos segundos sin mover la espalda baja
 
 **Error común:** Elevarse demasiado o arquear la zona lumbar.
-**Alternativas:** Crunch abdominal · Crunch inverso con banda
+**Alternativas:** Crunch abdominal · Crunch inverso
 
 ### Crunch inverso
 `CRUNCH/REVERSE_CRUNCH` · Core · nivel 2 · bodyweight · 10 reps · animación: crunch
@@ -550,7 +550,7 @@
 3. Baja despacio sin tocar el suelo
 
 **Error común:** Arquear la espalda baja al bajar las piernas.
-**Alternativas:** Crunch inverso con banda · Elevación de pierna a cuatro apoyos
+**Alternativas:** Crunch inverso · Elevación de pierna a cuatro apoyos
 
 ### Elevación de pierna a cuatro apoyos
 `LEG_RAISE/QUADRUPED_LEG_RAISE` · Core · nivel 1 · bodyweight · 10 reps · animación: quadruped_rotation
@@ -820,7 +820,7 @@
 3. Empuja para volver
 
 **Error común:** Dejar caer la rodilla delantera hacia dentro.
-**Alternativas:** Zancada con banda · Zancada lateral
+**Alternativas:** Zancada con peso corporal · Zancada lateral
 
 ### Zancada con peso corporal
 `LUNGE/LUNGE` · Sentadilla y zancada · nivel 1 · bodyweight · 10 reps · animación: lunge
@@ -840,7 +840,7 @@
 3. Empuja para volver al centro
 
 **Error común:** Girar el pie o dejar caer la rodilla hacia dentro.
-**Alternativas:** Zancada cruzada · Zancada con banda
+**Alternativas:** Zancada cruzada · Zancada con peso corporal
 
 ### Zancada caminando
 `LUNGE/WALKING_LUNGE` · Sentadilla y zancada · nivel 2 · bodyweight · 10 reps · animación: lunge
@@ -850,7 +850,7 @@
 3. Avanza alternando las piernas
 
 **Error común:** Dar pasos demasiado cortos.
-**Alternativas:** Zancada con banda · Zancada hacia atrás
+**Alternativas:** Zancada con peso corporal · Zancada hacia atrás
 
 ### Sentadilla dividida con mancuernas
 `SQUAT/DUMBBELL_SPLIT_SQUAT` · Sentadilla y zancada · nivel 2 · dumbbell · 10 reps · animación: lunge
@@ -860,7 +860,7 @@
 3. Sube empujando con el pie delantero
 
 **Error común:** Inclinar el torso hacia delante.
-**Alternativas:** Sentadilla búlgara · Zancada con banda
+**Alternativas:** Sentadilla búlgara · Zancada con peso corporal
 
 ### Sentadilla con mancuernas
 `SQUAT/DUMBBELL_SQUAT` · Sentadilla y zancada · nivel 1 · dumbbell · 10 reps · animación: squat

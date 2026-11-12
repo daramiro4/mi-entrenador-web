@@ -58,7 +58,7 @@ check "plan_eligible" "41" "$(psql_q 'select count(*) from public.exercises wher
 check "plan_eligible solo si reviewed" "0" "$(psql_q "select count(*) from public.exercises where plan_eligible and review_status <> 'reviewed'")"
 check "fit_sdk_known = false" "59" "$(psql_q 'select count(*) from public.exercises where not fit_sdk_known')"
 check "muscles_source nulo (sin músculos)" "52" "$(psql_q 'select count(*) from public.exercises where muscles_source is null')"
-check "alternativas apuntan a claves que existen" "0" "$(psql_q "select count(*) from public.exercises e, unnest(e.alternatives) a where not exists (select 1 from public.exercises x where x.garmin_name = a)")"
+check "alternativas apuntan a claves que existen" "0" "$(psql_q "select count(*) from public.exercises e, unnest(e.alternatives) a where not exists (select 1 from public.exercises x where x.garmin_category || '/' || x.garmin_name = a)")"
 check "RLS activada en las 3 tablas nuevas" "3" "$(psql_q "select count(*) from pg_class where relname in ('exercises','exercise_categories','exercise_animations') and relrowsecurity")"
 check "authenticated lee el catálogo" "1553" "$(psql_q "set role authenticated; select count(*) from public.exercises" | grep -E '^[0-9]+$')"
 check "anon no puede leer (sin permisos)" "si" "$(has "$(sql_error "set role anon; select count(*) from public.exercises")" 'permission denied')"
