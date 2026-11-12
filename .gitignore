@@ -49,3 +49,6 @@ supabase/.temp/
 
 # Capturas de revisión (pueden contener datos reales)
 docs/screens/
+
+# caché local de fuentes con licencia restrictiva (FIT SDK): no se versiona
+/.cache/

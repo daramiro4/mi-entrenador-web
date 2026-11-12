@@ -9,7 +9,9 @@
     "lint": "eslint",
     "typecheck": "next typegen && tsc --noEmit",
     "test": "vitest",
-    "seed:strength": "UPDATE_SEED=1 vitest run lib/strength/seed.test.ts"
+    "seed:strength": "UPDATE_SEED=1 vitest run lib/strength/seed.test.ts",
+    "gen:exercise-catalog": "UPDATE_CATALOG=1 vitest run lib/exercises/catalog.test.ts",
+    "import:garmin-exercises": "node scripts/import-garmin-exercises.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.5",
