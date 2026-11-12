@@ -1,133 +1,68 @@
-"use client";
-
-import { useState } from "react";
 import type { FatigueRecommendation } from "@/lib/types";
+import { fatigueView } from "@/lib/dashboard-v2";
 
-// Única excepción a los 7 tokens de la paleta: zona "precaución" del arco.
-const AMBER = "var(--warning-soft)";
-
+const SIZE = 224;
 const STROKE = 14;
 const START_ANGLE = -135;
-const END_ANGLE = 135;
-const TOTAL_ANGLE = END_ANGLE - START_ANGLE;
-// Rango visual del dial: 0.0 - 2.0 de ACWR (acute:chronic workload ratio).
-const SCALE_MAX = 2;
+const END_ANGLE = 135; // arco de 270°
 
-// Vista por defecto: lenguaje humano, nunca el ratio ACWR crudo (decisión 6).
-// Exportado para que SyncGarminButton reutilice la misma frase tras sincronizar.
-export const RECOMMENDATION_PHRASE: Record<FatigueRecommendation, string> = {
-  normal: "Recuperado",
-  precaucion: "Cuidado, vas cargado",
-  descanso: "Necesitas descansar",
-};
-
-// Vista expandida (al tocar el anillo): etiqueta corta junto al número crudo.
-const RECOMMENDATION_LABEL: Record<FatigueRecommendation, string> = {
-  normal: "Normal",
-  precaucion: "Precaución",
-  descanso: "Descansa",
-};
-
-const RECOMMENDATION_COLOR: Record<FatigueRecommendation, string> = {
-  normal: "var(--success-soft)",
-  precaucion: AMBER,
-  descanso: "var(--color-fatiga)",
-};
-
-function polarToCartesian(cx: number, cy: number, r: number, angleDeg: number) {
-  const angleRad = ((angleDeg - 90) * Math.PI) / 180;
-  return { x: cx + r * Math.cos(angleRad), y: cy + r * Math.sin(angleRad) };
+function polar(cx: number, cy: number, r: number, angleDeg: number) {
+  const rad = ((angleDeg - 90) * Math.PI) / 180;
+  return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
 }
 
-function describeArc(cx: number, cy: number, r: number, startAngle: number, endAngle: number) {
-  const start = polarToCartesian(cx, cy, r, endAngle);
-  const end = polarToCartesian(cx, cy, r, startAngle);
-  const largeArcFlag = endAngle - startAngle <= 180 ? 0 : 1;
-  return `M ${start.x} ${start.y} A ${r} ${r} 0 ${largeArcFlag} 0 ${end.x} ${end.y}`;
+/** Arco de 270° en sentido horario desde abajo-izquierda hasta abajo-derecha: el relleno crece desde la izquierda. */
+function arcPath(cx: number, cy: number, r: number) {
+  const start = polar(cx, cy, r, START_ANGLE);
+  const end = polar(cx, cy, r, END_ANGLE);
+  return `M ${start.x} ${start.y} A ${r} ${r} 0 1 1 ${end.x} ${end.y}`;
 }
 
-export interface FatigueRingProps {
-  acwrRatio: number | null;
-  recommendation: FatigueRecommendation | null;
-  notes?: string | null;
-  size?: number;
-}
-
-export function FatigueRing({ acwrRatio, recommendation, notes, size = 208 }: FatigueRingProps) {
-  const [expanded, setExpanded] = useState(false);
-  const center = size / 2;
-  const radius = (size - STROKE) / 2 - 4;
-  const hasData = acwrRatio != null && recommendation != null;
-
-  const clampedRatio = hasData ? Math.min(Math.max(acwrRatio as number, 0), SCALE_MAX) : 0;
-  const progress = clampedRatio / SCALE_MAX;
-  const sweepAngle = START_ANGLE + TOTAL_ANGLE * progress;
-
-  const trackPath = describeArc(center, center, radius, START_ANGLE, END_ANGLE);
-  const valuePath = hasData ? describeArc(center, center, radius, START_ANGLE, sweepAngle) : "";
-  const color = hasData ? RECOMMENDATION_COLOR[recommendation as FatigueRecommendation] : "var(--color-fog)";
+/**
+ * Anillo de fatiga de 270°. El relleno depende de la recomendación (constantes provisionales en
+ * lib/dashboard-v2.ts), no del ratio: la vista principal usa lenguaje humano (decisión 6).
+ */
+export function FatigueRing({ recommendation }: { recommendation: FatigueRecommendation | null }) {
+  const view = fatigueView(recommendation);
+  const center = SIZE / 2;
+  const radius = (SIZE - STROKE) / 2 - 2;
+  const path = arcPath(center, center, radius);
 
   return (
-    <button
-      type="button"
-      onClick={() => hasData && setExpanded((current) => !current)}
-      disabled={!hasData}
-      aria-label={
-        hasData
-          ? expanded
-            ? "Ocultar el detalle numérico de fatiga"
-            : "Ver el detalle numérico de fatiga"
-          : undefined
-      }
-      className="relative inline-flex items-center justify-center shrink-0 rounded-full disabled:cursor-default cursor-pointer"
-      style={{ width: size, height: size }}
+    <div
+      className="relative mx-auto inline-flex shrink-0 items-center justify-center"
+      style={{ width: SIZE, height: SIZE }}
+      role="img"
+      aria-label={view ? `Estado de fatiga: ${view.word}. ${view.subtext}.` : "Estado de fatiga: sin datos"}
     >
-      <svg width={size} height={size}>
-        <path
-          d={trackPath}
-          fill="none"
-          stroke="var(--fill)"
-          strokeOpacity={1}
-          strokeWidth={STROKE}
-          strokeLinecap="round"
-        />
-        {hasData && (
-          <path d={valuePath} fill="none" stroke={color} strokeWidth={STROKE} strokeLinecap="round" />
+      <svg width={SIZE} height={SIZE} aria-hidden="true">
+        <path d={path} fill="none" stroke="var(--fill)" strokeWidth={STROKE} strokeLinecap="round" />
+        {view && (
+          <path
+            className="arc-anim"
+            d={path}
+            pathLength={1}
+            fill="none"
+            stroke={view.color}
+            strokeWidth={STROKE}
+            strokeLinecap="round"
+            strokeDasharray={1}
+            strokeDashoffset={1 - view.fill}
+          />
         )}
       </svg>
-      <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6">
-        {hasData ? (
-          expanded ? (
-            <>
-              <span className="metric text-3xl font-semibold" style={{ color }}>
-                {(acwrRatio as number).toFixed(2)}
-              </span>
-              <span className="text-xs text-fog mt-1">ACWR</span>
-              <span
-                className="font-display text-base mt-2"
-                style={{ color }}
-              >
-                {RECOMMENDATION_LABEL[recommendation as FatigueRecommendation]}
-              </span>
-              {notes && <span className="text-[10px] text-fog mt-1.5 leading-tight">{notes}</span>}
-            </>
-          ) : (
-            <>
-              <span
-                className="font-display text-xl leading-tight"
-                style={{ color }}
-              >
-                {RECOMMENDATION_PHRASE[recommendation as FatigueRecommendation]}
-              </span>
-              <span className="text-[10px] text-fog mt-2">
-                Toca para ver el detalle
-              </span>
-            </>
-          )
+      <div className="absolute inset-0 flex flex-col items-center justify-center px-12 text-center">
+        {view ? (
+          <>
+            <span className="font-display text-[30px] font-extrabold leading-[1.05]" style={{ color: view.color }}>
+              {view.word}
+            </span>
+            <span className="mt-2 text-sm text-label-2">{view.subtext}</span>
+          </>
         ) : (
-          <span className="text-sm text-fog px-2">Sin datos aún</span>
+          <span className="text-sm text-label-2">Sin datos aún</span>
         )}
       </div>
-    </button>
+    </div>
   );
 }

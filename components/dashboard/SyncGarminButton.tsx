@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { syncFromGarminAction } from "@/app/dashboard/garmin-sync-actions";
 import { Button } from "@/components/ui/Button";
-import { RECOMMENDATION_PHRASE } from "@/components/fatigue-ring/FatigueRing";
+import { fatigueView } from "@/lib/dashboard-v2";
 import type { FatigueRecommendation } from "@/lib/types";
 
 type Mode = "idle" | "done" | "error";
@@ -29,7 +29,7 @@ export function SyncGarminButton() {
           ? "1 actividad"
           : `${result.activitiesSynced ?? 0} actividades`;
       const recommendation = result.fatigue?.recommendation as FatigueRecommendation | undefined;
-      const fatigueLabel = recommendation ? RECOMMENDATION_PHRASE[recommendation] : null;
+      const fatigueLabel = fatigueView(recommendation ?? null)?.word ?? null;
 
       setSummary(fatigueLabel ? `${activityLabel} · ${fatigueLabel}` : activityLabel);
       setMode("done");
@@ -43,14 +43,13 @@ export function SyncGarminButton() {
         variant="volt"
         onClick={handleClick}
         disabled={isPending}
-        className="!px-3 !py-1.5 !text-xs"
       >
         {isPending ? "Sincronizando..." : "Actualizar desde Garmin"}
       </Button>
       {mode === "done" && summary && (
-        <span className="text-[10px] text-fog">Sincronizado ✓ {summary}</span>
+        <span className="text-xs text-label-2">Sincronizado · {summary}</span>
       )}
-      {mode === "error" && error && <span className="text-[10px] text-fatiga">{error}</span>}
+      {mode === "error" && error && <span className="text-xs text-danger">{error}</span>}
     </div>
   );
 }

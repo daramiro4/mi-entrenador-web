@@ -121,3 +121,10 @@ h1, h2, h3, .font-display {
   .pose-loop-b { animation: none; opacity: 0; }
   * { scroll-behavior: auto !important; }
 }
+
+/* Arco del anillo de fatiga: se dibuja en <= 500 ms; con prefers-reduced-motion queda estático. */
+@keyframes arc-draw { from { stroke-dashoffset: 1; } }
+.arc-anim { animation: arc-draw 500ms cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+@media (prefers-reduced-motion: reduce) {
+  .arc-anim { animation: none; }
+}

@@ -5,12 +5,15 @@ export function Sparkline({
   height = 48,
   color = "var(--accent)",
   label,
+  endDot = true,
 }: {
   values: number[];
   width?: number;
   height?: number;
   color?: string;
   label: string;
+  /** Punto en el último valor (por defecto sí). */
+  endDot?: boolean;
 }) {
   if (values.length < 2) return null;
   const min = Math.min(...values);
@@ -27,7 +30,7 @@ export function Sparkline({
   return (
     <svg viewBox={`0 0 ${width} ${height}`} width="100%" height={height} role="img" aria-label={label} preserveAspectRatio="none">
       <path d={d} fill="none" stroke={color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
-      <circle cx={last[0]} cy={last[1]} r={3.5} fill={color} />
+      {endDot && <circle cx={last[0]} cy={last[1]} r={3.5} fill={color} />}
     </svg>
   );
 }

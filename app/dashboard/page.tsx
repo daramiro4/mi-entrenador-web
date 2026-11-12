@@ -3,6 +3,11 @@ import { userHasPassword } from "@/lib/auth-validation";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getActiveSeason } from "@/lib/seasons";
+import { resolveBaseFtp } from "@/lib/ftp-base";
+import { hrAdjustedFtp, HR_ADJUSTMENT, z2PowerRange } from "@/lib/hr-adjustment";
+import { adaptationPhrase, buildHrvChart } from "@/lib/dashboard-v2";
+import { DEMO_NARRATIVE, demoFtpHistory, demoHrv, demoWeek } from "@/lib/demo-data";
+import type { FatigueRecommendation } from "@/lib/types";
 import {
   getLatestFtp,
   getLatestFatigueIndex,
@@ -31,7 +36,9 @@ import { getStrengthSessionsSince } from "@/lib/strength-sessions";
 import {
   computeBadges, computeStreak, computeTotals, greeting, plannedTssIsEstimated, redistributionLine, sumPlannedTss, sumTss,
 } from "@/lib/dashboard-stats";
-import { HeroStatus } from "@/components/dashboard/HeroStatus";
+import { TodaySessionCard, type PowerInfo } from "@/components/dashboard/TodaySessionCard";
+import { SeasonPill } from "@/components/dashboard/SeasonPill";
+import { HrvBandChart } from "@/components/dashboard/HrvBandChart";
 import { SeasonSummaryCard } from "@/components/dashboard/SeasonSummaryCard";
 import { WeeklyNarrativeCard } from "@/components/dashboard/WeeklyNarrativeCard";
 import { WeeklyStrip } from "@/components/dashboard/WeeklyStrip";
@@ -44,7 +51,9 @@ import { ActivityFeed } from "@/components/dashboard/ActivityFeed";
 
 const ACTIVITY_FEED_PAGE_SIZE = 12;
 
-export default async function DashboardPage() {
+export default async function DashboardPage({ searchParams }: { searchParams: Promise<{ demo?: string }> }) {
+  // Modo demo: ?demo=1, solo fuera de producción. Rellena con datos de ejemplo lo que no tiene datos reales.
+  const demoOn = (await searchParams).demo === "1" && process.env.NODE_ENV !== "production";
   const supabase = await createClient();
   const {
     data: { user },
@@ -84,7 +93,7 @@ export default async function DashboardPage() {
     getActivitiesForWeek(supabase, user.id, weekStartDate),
     getStrengthSessionsForWeek(supabase, user.id, weekStartDate),
     getFatigueIndexHistory(supabase, user.id, addDays(today, -89)),
-    getDailyMetricsHistory(supabase, user.id, addDays(today, -6)),
+    getDailyMetricsHistory(supabase, user.id, addDays(today, -364)),
     getFtpHistory(supabase, user.id),
     getRecentActivities(supabase, user.id, { limit: ACTIVITY_FEED_PAGE_SIZE, offset: 0 }),
     getProfileName(supabase, user.id),
@@ -128,9 +137,43 @@ export default async function DashboardPage() {
   );
   const totals = computeTotals(strengthSinceMonth, activities84, today);
   const badges = computeBadges({ streak, totals, activityCount: activities84.length });
-  const dateLabel = new Intl.DateTimeFormat("es-ES", { weekday: "long", day: "numeric", month: "long" }).format(
-    new Date(`${today}T12:00:00`)
-  );
+
+  // --- Datos de la vista (con relleno de ejemplo solo en modo demo) ---
+  const sessionsView = weeklySessions.length === 0 && demoOn ? demoWeek(today) : weeklySessions;
+  const usingDemoWeek = sessionsView !== weeklySessions;
+  const completedTssView = usingDemoWeek ? sessionsView.filter((s) => s.status === "done").reduce((a, s) => a + (s.planned_tss ?? 0), 0) : currentWeek.completedTss;
+  const plannedTssView = usingDemoWeek ? sumPlannedTss(sessionsView) : currentWeek.plannedTss;
+  const narrativeView = latestNarrative ?? (demoOn ? { narrative: DEMO_NARRATIVE } : null);
+  const ftpHistoryView = ftpHistory.length === 0 && demoOn ? demoFtpHistory(today) : ftpHistory;
+  const realHrv = dailyMetricsHistory.map((r) => ({ date: r.date, hrv_ms: r.hrv_ms }));
+  const hrvRows = !buildHrvChart(realHrv, today, 60).enough && demoOn ? demoHrv(today) : realHrv;
+
+  const todaySession = sessionsView.find((s) => s.date === today) ?? null;
+  const recommendation = (fatigueIndex?.recommendation as FatigueRecommendation | null) ?? null;
+  const hrDiscountPct = season.notes?.hr_discount_pct ?? 0;
+
+  // Potencia de la Z2 de hoy: % del FTP y vatios, con el ajuste por pulso vigente.
+  let power: PowerInfo | null = null;
+  if (todaySession?.session_type === "z2") {
+    const base = resolveBaseFtp({
+      measured: latestFtp?.ftp_watts ?? null,
+      provisional: season.notes?.provisional_ftp_watts ?? null,
+      garmin: season.notes?.garmin_ftp_watts ?? null,
+      sessionType: "z2",
+      notes: todaySession.notes,
+    });
+    const factor = 1 - hrDiscountPct / 100;
+    const range = base ? z2PowerRange(hrAdjustedFtp(base.watts, hrDiscountPct)) : null;
+    power = {
+      pctLow: Math.round(HR_ADJUSTMENT.Z2_LOW_PCT * 100 * factor),
+      pctHigh: Math.round(HR_ADJUSTMENT.Z2_HIGH_PCT * 100 * factor),
+      wattsLow: range?.low ?? null,
+      wattsHigh: range?.high ?? null,
+    };
+  }
+  const adaptation = adaptationPhrase({ session: todaySession, recommendation, hrDiscountPct });
+
+  const [weekdayMonth] = [new Intl.DateTimeFormat("es-ES", { weekday: "long", day: "numeric", month: "short" }).format(new Date(`${today}T12:00:00`))];
 
   return (
     <AppShell active="hoy">
@@ -138,73 +181,117 @@ export default async function DashboardPage() {
       {!userHasPassword(user) && (
         <Link
           href="/ajustes"
-          className="mb-4 block rounded-2xl bg-fill px-4 py-3 text-sm text-label hover:brightness-95"
+          className="mb-4 block rounded-[18px] border border-separator bg-surface px-4 py-3 text-sm text-label hover:bg-surface-2"
         >
-          Aún no tienes contraseña. <span className="text-accent font-semibold">Fíjala en Ajustes</span> para entrar sin depender del correo.
+          Aún no tienes contraseña. <span className="font-semibold text-accent">Fíjala en Ajustes</span> para entrar sin depender del correo.
         </Link>
       )}
-      {!latestFtp && season && season.notes?.provisional_ftp_watts == null && season.notes?.garmin_ftp_watts == null && (
+      {!latestFtp && season.notes?.provisional_ftp_watts == null && season.notes?.garmin_ftp_watts == null && (
         <Link
           href="/ajustes"
-          className="mb-4 block rounded-2xl bg-fill px-4 py-3 text-sm text-label hover:brightness-95"
+          className="mb-4 block rounded-[18px] border border-separator bg-surface px-4 py-3 text-sm text-label hover:bg-surface-2"
         >
-          Aún no tienes un FTP. <span className="text-accent font-semibold">Indica uno provisional en Ajustes</span> (sirve el que estima Garmin) para calcular bien las zonas.
+          Aún no tienes un FTP. <span className="font-semibold text-accent">Indica uno provisional en Ajustes</span> (sirve el que estima Garmin) para calcular bien las zonas.
         </Link>
       )}
-      <header className="mb-6">
-        <p className="text-sm text-label-2 first-letter:uppercase">{dateLabel}</p>
-        <h1 className="text-3xl font-semibold sm:text-4xl" style={{ letterSpacing: "-0.025em" }}>
-          {greeting(new Date().getHours(), profileName)}
-        </h1>
-      </header>
-      <div className="grid gap-6 lg:grid-cols-2">
-        <StatusCard fatigueIndex={fatigueIndex} history={dailyMetricsHistory} today={today} />
-        <HeroStatus todaySession={weeklySessions.find((s) => s.date === today) ?? null} />
-        <div className="lg:col-span-2">
-          <WeeklyStrip
-            sessions={weeklySessions}
-            activities={weeklyActivities}
-            strengthSessions={weeklyStrengthSessions}
-            today={today}
-            weekStartDate={weekStartDate}
-            header={
-              <WeekHeader
-                completedTss={currentWeek.completedTss}
-                targetTss={currentWeek.plannedTss}
-                targetIsEstimate={currentWeek.plannedIsEstimate}
-                streak={streak}
-                redistribution={redistributionLine(weeklySessions)}
-              />
-            }
-          />
+
+      <header className="mb-8 flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <p className="font-mono text-xs uppercase tracking-wider text-label-2">{weekdayMonth}</p>
+          <h1 className="mt-2 text-[40px] font-bold leading-none sm:text-[56px]">
+            {greeting(new Date().getHours(), profileName)}
+          </h1>
         </div>
-        <section id="progreso" aria-label="Progreso" className="scroll-mt-20 grid gap-6 lg:col-span-2 lg:grid-cols-2">
-          <SeasonSummaryCard
-            season={season}
-            currentFtpWatts={latestFtp?.ftp_watts ?? null}
-            progress={progress}
-          />
-          <FtpProgressionChart history={ftpHistory} targetFtp={season.target_ftp} />
-          <div className="lg:col-span-2">
-            <FitnessTrendChart points90={fitnessTrendPoints} />
+        <SeasonPill goalType={season.goal_type} targetDate={season.target_date} />
+      </header>
+
+      <div className="flex flex-col gap-6">
+        {/* 2. Hero: anillo de fatiga + sesión de hoy */}
+        <div className="flex flex-wrap gap-6">
+          <div className="min-w-[280px] flex-1 basis-[340px]">
+            <StatusCard fatigueIndex={fatigueIndex} />
+          </div>
+          <div className="min-w-[280px] flex-[1.4] basis-[420px]">
+            <TodaySessionCard
+              todaySession={todaySession}
+              weekSessions={sessionsView}
+              activities={weeklyActivities}
+              strengthSessions={weeklyStrengthSessions}
+              today={today}
+              adaptation={adaptation}
+              power={power}
+            />
+          </div>
+        </div>
+
+        {/* 3. Esta semana */}
+        <WeeklyStrip
+          sessions={sessionsView}
+          activities={weeklyActivities}
+          strengthSessions={weeklyStrengthSessions}
+          today={today}
+          weekStartDate={weekStartDate}
+          header={
+            <WeekHeader
+              completedTss={completedTssView}
+              targetTss={plannedTssView}
+              targetIsEstimate={usingDemoWeek ? false : currentWeek.plannedIsEstimate}
+              blockPct={progress?.pct ?? null}
+              streak={streak}
+              redistribution={redistributionLine(sessionsView)}
+            />
+          }
+        />
+
+        {/* 4. Lectura semanal */}
+        <WeeklyNarrativeCard narrative={narrativeView} />
+
+        {/* 5. KPIs de salud */}
+        <DailyHealthCard history={dailyMetricsHistory} today={today} />
+
+        {/* 6. Progreso */}
+        <section id="progreso" aria-labelledby="progreso-title" className="scroll-mt-20">
+          <h2 id="progreso-title" className="mb-3 text-2xl">Progreso</h2>
+          <div className="flex flex-wrap gap-6">
+            <div className="min-w-[300px] flex-1 basis-[460px]">
+              <HrvBandChart rows={hrvRows} today={today} />
+            </div>
+            <div className="min-w-[300px] flex-1 basis-[460px]">
+              <FtpProgressionChart history={ftpHistoryView} targetFtp={season.target_ftp} today={today} />
+            </div>
+            <div className="min-w-[300px] flex-1 basis-[460px]">
+              <SeasonSummaryCard season={season} currentFtpWatts={latestFtp?.ftp_watts ?? null} progress={progress} />
+            </div>
+            <div className="min-w-[300px] flex-1 basis-[460px]">
+              <FitnessTrendChart points90={fitnessTrendPoints} />
+            </div>
           </div>
         </section>
-        <TotalsCard totals={totals} badges={badges} />
-        <WeeklyNarrativeCard narrative={latestNarrative} />
-        <DailyHealthCard history={dailyMetricsHistory} today={today} />
-        <ActivityFeed
-          initialActivities={recentActivities}
-          initialStrengthSessionsByActivityId={initialStrengthByActivityId}
-          initialHasMore={recentActivities.length === ACTIVITY_FEED_PAGE_SIZE}
-          pageSize={ACTIVITY_FEED_PAGE_SIZE}
-        />
+
+        <div className="flex flex-wrap gap-6">
+          <div className="min-w-[300px] flex-1 basis-[420px]">
+            <TotalsCard totals={totals} badges={badges} />
+          </div>
+          <div className="min-w-[300px] flex-[1.4] basis-[460px]">
+            <ActivityFeed
+              initialActivities={recentActivities}
+              initialStrengthSessionsByActivityId={initialStrengthByActivityId}
+              initialHasMore={recentActivities.length === ACTIVITY_FEED_PAGE_SIZE}
+              pageSize={ACTIVITY_FEED_PAGE_SIZE}
+            />
+          </div>
+        </div>
       </div>
-      <div className="mt-6 flex flex-wrap items-center gap-4">
+
+      <div className="mt-8 flex flex-wrap items-center gap-4">
         <ChangeGoalButton />
-        <Link href="/ajustes" className="text-sm text-label-2 hover:text-label">
+        <Link href="/ajustes" className="inline-flex min-h-11 items-center text-sm text-label-2 hover:text-label">
           Ajustes de cuenta
         </Link>
       </div>
+      {demoOn && (
+        <p className="mt-6 text-center font-mono text-xs uppercase tracking-wider text-label-2">Datos de ejemplo</p>
+      )}
     </AppShell>
   );
 }

@@ -8,13 +8,13 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 export const BUTTON_VARIANT_CLASSES: Record<Variant, string> = {
-  // Primario: uno por vista, pill, halo + brillo interior.
+  // Primario: UNO por vista, pill Ember con texto Asphalt (nunca blanco: no llega a 4.5:1).
   primary: "bg-accent text-on-accent btn-primary-glow hover:brightness-105",
-  secondary: "bg-fill text-accent hover:brightness-95",
+  secondary: "bg-surface-2 text-label hover:brightness-110",
   ghost: "text-label-2 hover:text-label bg-transparent",
   danger: "bg-danger/10 text-danger hover:bg-danger/15",
   // Acción técnica/de dato (ej. forzar una sincronización).
-  volt: "bg-fill text-accent hover:brightness-95",
+  volt: "bg-surface-2 text-label hover:brightness-110",
 };
 
 const BUTTON_BASE_CLASSES =

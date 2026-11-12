@@ -220,3 +220,31 @@ export function buildFtpSeries(history: Pick<FtpHistoryRow, "date" | "ftp_watts"
     nextTest: { date: nextDate, ftp: last.ftp },
   };
 }
+
+/* ------------------------------------------------------------------ Lectura semanal (narrativa IA) */
+
+/** Titular = primera frase del texto; el resto, el párrafo. */
+export function splitNarrative(text: string): { headline: string; body: string | null } {
+  const clean = text.trim().replace(/\s+/g, " ");
+  const match = clean.match(/^(.{12,}?[.!?])(\s+|$)/);
+  if (!match) return { headline: clean, body: null };
+  const headline = match[1];
+  const body = clean.slice(match[0].length).trim();
+  return { headline, body: body.length > 0 ? body : null };
+}
+
+/* ------------------------------------------------------------------ Contratos de datos de la semana */
+
+/** Plan de la semana en curso, ya con sus totales de TSS. */
+export interface WeekPlan {
+  weekStartDate: string;
+  sessions: PlannedSession[];
+  plannedTss: number;
+  completedTss: number;
+}
+
+/** Resumen de una semana cerrada (la narrativa la redacta la IA al cerrar la semana). */
+export interface WeeklySummary {
+  weekStartDate: string;
+  narrative: string | null;
+}

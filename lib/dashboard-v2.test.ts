@@ -12,6 +12,7 @@ import {
   lastValues,
   NEXT_TEST_WEEKS,
   seasonPillLabel,
+  splitNarrative,
 } from "./dashboard-v2";
 import { addDays } from "./week";
 
@@ -123,5 +124,20 @@ describe("buildFtpSeries", () => {
   });
   it("si el último test es de hoy no hay tramo de prolongación", () => {
     expect(buildFtpSeries([{ date: "2026-11-10", ftp_watts: 220 }], "2026-11-10").stepEnd).toBeNull();
+  });
+});
+
+describe("splitNarrative", () => {
+  it("la primera frase es el titular y el resto el párrafo", () => {
+    expect(splitNarrative("Semana sólida: cumpliste casi todo el TSS. Sigue así, el lunes toca calidad.")).toEqual({
+      headline: "Semana sólida: cumpliste casi todo el TSS.",
+      body: "Sigue así, el lunes toca calidad.",
+    });
+  });
+  it("una sola frase: sin párrafo", () => {
+    expect(splitNarrative("Buena semana, sigue así.")).toEqual({ headline: "Buena semana, sigue así.", body: null });
+  });
+  it("sin punto final: todo es titular", () => {
+    expect(splitNarrative("Semana tranquila")).toEqual({ headline: "Semana tranquila", body: null });
   });
 });

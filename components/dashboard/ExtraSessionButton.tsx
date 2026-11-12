@@ -64,7 +64,7 @@ export function ExtraSessionButton() {
   };
 
   if (state.mode === "sent") {
-    return <span className="text-[10px] text-volt">Enviada al reloj ✓</span>;
+    return <span className="inline-flex min-h-11 items-center text-sm text-accent" role="status">Bici extra enviada al reloj</span>;
   }
 
   return (
@@ -75,19 +75,18 @@ export function ExtraSessionButton() {
           variant="volt"
           onClick={handleSuggest}
           disabled={isPending}
-          className="!px-3 !py-1.5 !text-xs"
         >
           {isPending ? "Pensando..." : "¿Hago bici extra?"}
         </Button>
       )}
-      {state.mode === "no_session" && <span className="text-[10px] text-fog">{state.reason}</span>}
-      {error && <span className="text-[10px] text-fatiga">{error}</span>}
+      {state.mode === "no_session" && <span className="text-xs text-label-2">{state.reason}</span>}
+      {error && <span className="text-xs text-danger">{error}</span>}
 
       {state.mode === "previewing" && (
-        <div className="data-surface p-3 space-y-2 text-left w-64">
+        <div className="data-surface space-y-2 p-4 text-left w-full max-w-xs">
           <div>
             <p className="text-sm text-paper font-semibold">{state.preview.workout_name}</p>
-            <p className="text-[10px] text-fog">
+            <p className="text-xs text-label-2">
               {state.preview.estimated_duration_minutes} min en total · por pulso
             </p>
             <p className="text-xs text-fog mt-1">{state.reason}</p>
@@ -100,23 +99,13 @@ export function ExtraSessionButton() {
               </li>
             ))}
           </ul>
-          <div className="flex gap-3 pt-1">
-            <button
-              type="button"
-              disabled={isPending}
-              onClick={() => handleConfirm(state.variant)}
-              className="text-xs text-volt hover:text-paper underline disabled:opacity-40 disabled:pointer-events-none cursor-pointer"
-            >
+          <div className="flex flex-wrap gap-2 pt-1">
+            <Button type="button" variant="secondary" disabled={isPending} onClick={() => handleConfirm(state.variant)}>
               {isPending ? "Enviando..." : "Enviar al reloj"}
-            </button>
-            <button
-              type="button"
-              disabled={isPending}
-              onClick={handleCancel}
-              className="text-xs text-fog hover:text-paper underline disabled:opacity-40 disabled:pointer-events-none cursor-pointer"
-            >
+            </Button>
+            <Button type="button" variant="ghost" disabled={isPending} onClick={handleCancel}>
               Cancelar
-            </button>
+            </Button>
           </div>
         </div>
       )}

@@ -78,3 +78,11 @@ Pedido del usuario: en vez de circuito/AMRAP/EMOM/contrarreloj/pirámide, una se
 
 ## Envío de fuerza a Garmin vía el bot (2026-11-04)
 Se sustituye la función `api/garmin_strength.py` del repo web por `api/send_strength.py` del repo del bot. Motivos: el bot ya tiene las credenciales de Garmin y su login/`upload_workout` están verificados con la cuenta real (envío de bici); evita duplicar la contraseña de Garmin y el `SUPABASE_SERVICE_ROLE_KEY` en el proyecto web, la dependencia nueva (garminconnect ≥ 0.3.20 sobre Python 3.12, nunca desplegada) y el filtro `proxy.ts`, que redirigía a `/login` cualquier llamada sin cookies a esa ruta. La web sigue construyendo el JSON de Garmin; el bot solo valida y sube. Autenticación: el secreto compartido existente. Se eliminan `api/garmin_strength.py`, `requirements.txt`, `.python-version` y su test.
+
+## D-dashboard-v2 — Sistema de diseño plano y oscuro en toda la app (2026-11-12)
+Se sustituye "Garmin by Apple" (Inter, cristal con desenfoque, manchas de fondo, claro/oscuro del sistema) por un sistema plano y solo oscuro:
+Asphalt `#12151A` (fondo), Steel `#1B1F27` (tarjetas), Steel-2 `#232833` (control activo), Ember `#FF4F1F` (acción y logro), Volt `#34C6F4` (datos y gráficas), Fatiga `#E23D3D` (solo alerta), Paper/Fog (texto).
+Barlow Condensed (títulos), IBM Plex Sans (cuerpo), IBM Plex Mono (vatios, ppm, kg, %, TSS, fechas cortas). Radios 18 (tarjetas) / 12 (celdas) / 999 (botones). Sin gradientes, sombras ni emojis. Texto sobre Ember en Asphalt (contraste).
+Mecanismo: todo cuelga de `app/tokens.css` y de los alias de `globals.css`, así que los componentes antiguos adoptan la paleta sin reescribirse; las clases `glass-card`/`data-surface`/`glass-bar` se conservan como nombres pero ahora son superficies planas. Para un tema claro futuro basta definir los mismos tokens bajo `:root[data-theme="light"]`.
+Pendiente: el icono de la app (anillos azul/cian/verde sobre `#05080d`) no se regeneró con la paleta nueva.
+Desviación del prompt original: el detalle del anillo de fatiga NO muestra el ACWR en el botón colapsado (decisión 6: la vista principal usa lenguaje humano); el número aparece al desplegar "Ver detalle".
