@@ -586,7 +586,7 @@ create policy exercise_categories_read_authenticated on public.exercise_categori
 create policy exercise_animations_read_authenticated on public.exercise_animations for select to authenticated using (true);
 create policy exercises_read_authenticated on public.exercises for select to authenticated using (true);
 
--- Permisos: solo lectura para usuarios con sesión; el rol anónimo no ve nada (mismo criterio que supabase/migrations/20261110090000_security_hardening.sql).
+-- Permisos: solo lectura para usuarios con sesión; el rol anónimo no ve nada (mismo criterio que supabase/migrations/20261110003825_security_hardening.sql).
 -- Los privilegios por defecto de Supabase darían escritura a las tablas nuevas; RLS ya la bloquea, pero se quitan para no depender de una sola barrera.
 revoke all on public.exercise_categories, public.exercise_animations, public.exercises from anon;
 revoke insert, update, delete, truncate, trigger, references on public.exercise_categories, public.exercise_animations, public.exercises from authenticated;
