@@ -7,7 +7,8 @@ import { CATEGORY_ES, translateName } from "./names-es";
  */
 
 export type ReviewStatus = "draft" | "reviewed";
-export type NameStatus = "curated" | "reviewed" | "auto" | "en";
+/** curated = ficha del módulo de fuerza · reviewed = revisado por el responsable · proposed = traducción propuesta (pendiente de revisar) · auto = diccionario · en = inglés. */
+export type NameStatus = "curated" | "reviewed" | "proposed" | "auto" | "en";
 export type Dose = { type: "time"; seconds: number } | { type: "reps"; reps: number };
 /** De dónde salen los músculos: Exercises.json de Garmin, una ficha curada o una corrección manual. */
 export type MusclesSource = "exercises_json" | "curated" | "manual";
@@ -34,6 +35,8 @@ export interface CatalogExercise {
   /** null si no hay músculos conocidos. Permite sustituir estos datos antes de abrir la app a más usuarios. */
   muscles_source: MusclesSource | null;
   movement_pattern: string | null;
+  /** Arquetipo de animación previsto (ver lib/exercises/rig/archetypes). Puede ser uno aún sin rig ("pending"). */
+  archetype: string | null;
   level: 1 | 2 | 3 | null;
   dose_default: Dose | null;
   cues: string[];
@@ -96,6 +99,7 @@ export interface ExerciseOverride {
   primary_muscles?: string[];
   secondary_muscles?: string[];
   movement_pattern?: string | null;
+  archetype?: string | null;
   level?: 1 | 2 | 3 | null;
   dose_default?: Dose | null;
   cues?: string[];
@@ -105,7 +109,7 @@ export interface ExerciseOverride {
   plan_eligible?: boolean;
 }
 export const OVERRIDE_FIELDS: (keyof ExerciseOverride)[] = [
-  "name_es", "equipment", "primary_muscles", "secondary_muscles", "movement_pattern", "level", "dose_default",
+  "name_es", "equipment", "primary_muscles", "secondary_muscles", "movement_pattern", "archetype", "level", "dose_default",
   "cues", "common_mistake", "alternatives", "review_status", "plan_eligible",
 ];
 
@@ -279,6 +283,7 @@ export function buildCatalog(input: BuildInput): Catalog {
     secondary_muscles: [],
     muscles_source: null,
     movement_pattern: PATTERN_BY_CATEGORY[category] ?? null,
+    archetype: null,
     level: null,
     dose_default: null,
     cues: [],
@@ -331,11 +336,6 @@ export function buildCatalog(input: BuildInput): Catalog {
     const t = translateName(ex.name_en);
     ex.name_es = t.name_es;
     ex.name_es_status = t.status;
-    const reviewed = input.reviewedNames?.get(pairKey(ex.garmin_category, ex.garmin_name));
-    if (reviewed) {
-      ex.name_es = reviewed;
-      ex.name_es_status = "reviewed";
-    }
   }
 
   // 5) Fichas curadas del módulo de fuerza: se migran SIN perder nada y quedan 'reviewed'.
@@ -376,7 +376,8 @@ export function buildCatalog(input: BuildInput): Catalog {
     for (const field of Object.keys(ov)) {
       if (!OVERRIDE_FIELDS.includes(field as keyof ExerciseOverride)) throw new Error(`Override ${id}: campo no permitido "${field}"`);
     }
-    if (ov.name_es !== undefined) { ex.name_es = ov.name_es; ex.name_es_status = "reviewed"; }
+    // Un override de nombre es una PROPUESTA hasta que el responsable la marque "reviewed" en el CSV.
+    if (ov.name_es !== undefined) { ex.name_es = ov.name_es; ex.name_es_status = "proposed"; }
     if (ov.equipment !== undefined) ex.equipment = [...ov.equipment].sort();
     if (ov.primary_muscles !== undefined || ov.secondary_muscles !== undefined) {
       if (ov.primary_muscles !== undefined) ex.primary_muscles = [...ov.primary_muscles];
@@ -384,13 +385,27 @@ export function buildCatalog(input: BuildInput): Catalog {
       ex.muscles_source = ex.primary_muscles.length + ex.secondary_muscles.length > 0 ? "manual" : null;
     }
     if (ov.movement_pattern !== undefined) ex.movement_pattern = ov.movement_pattern;
+    if (ov.archetype !== undefined) ex.archetype = ov.archetype;
     if (ov.level !== undefined) ex.level = ov.level;
     if (ov.dose_default !== undefined) ex.dose_default = ov.dose_default;
     if (ov.cues !== undefined) ex.cues = [...ov.cues];
     if (ov.common_mistake !== undefined) ex.common_mistake = ov.common_mistake;
-    if (ov.alternatives !== undefined) ex.alternatives = [...ov.alternatives];
+    if (ov.alternatives !== undefined) {
+      const names = new Set([...byKey.values()].map((e) => e.garmin_name));
+      for (const alt of ov.alternatives) if (!names.has(alt)) throw new Error(`Override ${id}: la alternativa "${alt}" no existe en el catálogo`);
+      ex.alternatives = [...ov.alternatives];
+    }
     if (ov.review_status !== undefined) ex.review_status = ov.review_status;
     if (ov.plan_eligible === true && ex.review_status !== "reviewed") throw new Error(`Override ${id}: plan_eligible=true exige review_status='reviewed'`);
+  }
+
+  // 6b) Nombres revisados por el responsable (data/exercise-names-es.csv, estado "reviewed"): mandan sobre todo lo demás, incluidas mis propuestas.
+  for (const ex of byKey.values()) {
+    const reviewed = input.reviewedNames?.get(pairKey(ex.garmin_category, ex.garmin_name));
+    if (reviewed) {
+      ex.name_es = reviewed;
+      ex.name_es_status = "reviewed";
+    }
   }
 
   // 7) plan_eligible: solo fichas revisadas con nivel, y nunca olímpicos/pliométricos salvo override explícito (true).
@@ -532,12 +547,13 @@ create table public.exercises (
   garmin_name text not null,
   name_en text not null,
   name_es text not null,
-  name_es_status text not null default 'en' check (name_es_status = any (array['curated','reviewed','auto','en'])),
+  name_es_status text not null default 'en' check (name_es_status = any (array['curated','reviewed','proposed','auto','en'])),
   equipment text[] not null default '{}',
   primary_muscles text[] not null default '{}',
   secondary_muscles text[] not null default '{}',
   muscles_source text check (muscles_source is null or muscles_source = any (array['exercises_json','curated','manual'])),
   movement_pattern text,
+  archetype text,
   level smallint check (level between 1 and 3),
   dose_default jsonb,
   cues jsonb not null default '[]'::jsonb,
@@ -577,12 +593,12 @@ revoke insert, update, delete, truncate, trigger, references on public.exercise_
   out.push("insert into public.exercise_categories (garmin_category, name_es, name_en) values");
   out.push(catalog.categories.map((c) => `  (${q(c.garmin_category)}, ${q(c.name_es)}, ${q(c.name_en)})`).join(",\n") + ";\n");
 
-  const cols = "garmin_category, garmin_name, name_en, name_es, name_es_status, equipment, primary_muscles, secondary_muscles, muscles_source, movement_pattern, level, dose_default, cues, common_mistake, alternatives, review_status, plan_eligible, fit_sdk_known, source, legacy_slug, leg_load, contraindications, unilateral";
+  const cols = "garmin_category, garmin_name, name_en, name_es, name_es_status, equipment, primary_muscles, secondary_muscles, muscles_source, movement_pattern, archetype, level, dose_default, cues, common_mistake, alternatives, review_status, plan_eligible, fit_sdk_known, source, legacy_slug, leg_load, contraindications, unilateral";
   const rowSql = (e: CatalogExercise) =>
     `  (${[
       q(e.garmin_category), q(e.garmin_name), q(e.name_en), q(e.name_es), q(e.name_es_status),
       arr(e.equipment), arr(e.primary_muscles), arr(e.secondary_muscles), nul(e.muscles_source),
-      nul(e.movement_pattern), nul(e.level), e.dose_default ? jsonb(e.dose_default) : "null", jsonb(e.cues),
+      nul(e.movement_pattern), nul(e.archetype), nul(e.level), e.dose_default ? jsonb(e.dose_default) : "null", jsonb(e.cues),
       nul(e.common_mistake), arr(e.alternatives), q(e.review_status), String(e.plan_eligible), String(e.fit_sdk_known), q(e.source),
       nul(e.legacy_slug), nul(e.leg_load), arr(e.contraindications), String(e.unilateral),
     ].join(", ")})`;

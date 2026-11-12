@@ -200,7 +200,7 @@ Para cambiar un emparejamiento hay que tocar `lib/strength/garmin-overrides.ts` 
 - ⚠ GENÉRICA: la clave coincide con la categoría (Garmin muestra solo el nombre de la categoría).
 - **Candidatas:**
   - `PLANK/EXTENDED_PLANK` — «Extended Plank» · material: unknown · puntuación 0.65
-  - `PLANK/KNEELING_PLANK` — «Kneeling Plank» · material: unknown · puntuación 0.65
+  - `PLANK/KNEELING_PLANK` — «Kneeling Plank» · material: bodyweight · puntuación 0.65
   - `PLANK/PLANK_PIKES` — «Plank Pikes» · material: unknown · puntuación 0.65
 
 ## Prensa de piernas `prensa-piernas`
@@ -227,7 +227,7 @@ Para cambiar un emparejamiento hay que tocar `lib/strength/garmin-overrides.ts` 
 - **Clave asignada:** `SHOULDER_PRESS/DUMBBELL_SHOULDER_PRESS` — «Dumbbell Shoulder Press» (material por la clave: dumbbell)
 - **Candidatas:**
   - `SHOULDER_PRESS/ALTERNATING_DUMBBELL_SHOULDER_PRESS` — «Alternating Dumbbell Shoulder Press» · material: dumbbell · puntuación 0.95
-  - `SHOULDER_PRESS/SEATED_DUMBBELL_SHOULDER_PRESS` — «Seated Dumbbell Shoulder Press» · material: dumbbell · puntuación 0.95
+  - `SHOULDER_PRESS/SEATED_DUMBBELL_SHOULDER_PRESS` — «Seated Dumbbell Shoulder Press» · material: bench, dumbbell · puntuación 0.95
   - `SHOULDER_PRESS/DUMBBELL_ALTERNATING_SHOULDER_PRESS_AND_TWIST` — «Dumbbell Alternating Shoulder Press and Twist» · material: dumbbell · puntuación 0.80
 
 ## Press de pecho con mancuernas `press-mancuernas`
@@ -246,8 +246,8 @@ Para cambiar un emparejamiento hay que tocar `lib/strength/garmin-overrides.ts` 
 - ⚠ MATERIAL: la clave implica «barbell» y la ficha dice «bodyweight».
 - ⚠ NOMBRE: «Barbell Hip Thrust on Floor» se parece poco a lo que es la ficha («Glute bridge bodyweight», similitud 0.00).
 - **Candidatas:**
-  - `HIP_RAISE/CLAM_BRIDGE` — «Clam Bridge» · material: unknown · puntuación 0.40
-  - `HIP_RAISE/BRIDGE_WITH_LEG_EXTENSION` — «Bridge with Leg Extension» · material: unknown · puntuación 0.35
+  - `HIP_RAISE/CLAM_BRIDGE` — «Clam Bridge» · material: bodyweight · puntuación 0.40
+  - `HIP_RAISE/BRIDGE_WITH_LEG_EXTENSION` — «Bridge with Leg Extension» · material: bodyweight · puntuación 0.35
   - `HIP_RAISE/WEIGHTED_CLAM_BRIDGE` — «Weighted Clam Bridge» · material: unknown · puntuación 0.35
 
 ## Puente de glúteo a una pierna `puente-gluteo-una-pierna` ⚠
@@ -256,7 +256,7 @@ Para cambiar un emparejamiento hay que tocar `lib/strength/garmin-overrides.ts` 
 - **Clave asignada:** `HIP_RAISE/SINGLE_LEG_HIP_RAISE` — «Single-leg Hip Raise» (material por la clave: sin pista)
 - ⚠ NOMBRE: «Single-leg Hip Raise» se parece poco a lo que es la ficha («Single-leg glute bridge», similitud 0.33).
 - **Candidatas:**
-  - `HIP_RAISE/BRIDGE_WITH_LEG_EXTENSION` — «Bridge with Leg Extension» · material: unknown · puntuación 0.55
+  - `HIP_RAISE/BRIDGE_WITH_LEG_EXTENSION` — «Bridge with Leg Extension» · material: bodyweight · puntuación 0.55
   - `TRICEPS_EXTENSION/SINGLE_LEG_DIP` — «Single-leg Dip» · material: unknown · puntuación 0.50
   - `HIP_RAISE/WEIGHTED_BRIDGE_WITH_LEG_EXTENSION` — «Weighted Bridge with Leg Extension» · material: unknown · puntuación 0.48
 
@@ -296,7 +296,7 @@ Para cambiar un emparejamiento hay que tocar `lib/strength/garmin-overrides.ts` 
 - **Candidatas:**
   - `WARM_UP/NECK_ROTATIONS` — «Neck Rotations» · material: bodyweight · puntuación 0.35
   - `WARM_UP/NECK_TILTS` — «Neck Tilts» · material: bodyweight · puntuación 0.35
-  - `SHRUG/SCAPULAR_RETRACTION` — «Scapular Retraction» · material: unknown · puntuación 0.30
+  - `SHRUG/SCAPULAR_RETRACTION` — «Scapular Retraction» · material: bodyweight · puntuación 0.30
 
 ## Rotación torácica `rotacion-toracica`
 
@@ -332,7 +332,7 @@ Para cambiar un emparejamiento hay que tocar `lib/strength/garmin-overrides.ts` 
 - **Clave asignada:** `SQUAT/GOBLET_SQUAT` — «Goblet Squat» (material por la clave: sin pista)
 - **Candidatas:**
   - `SQUAT/SQUAT` — «Squat» · material: bodyweight, dumbbell · puntuación 0.55
-  - `SQUAT/WIDE_STANCE_GOBLET_SQUAT` — «Wide-stance Goblet Squat» · material: unknown · puntuación 0.55
+  - `SQUAT/WIDE_STANCE_GOBLET_SQUAT` — «Wide-stance Goblet Squat» · material: dumbbell · puntuación 0.55
   - `SQUAT/DUMBBELL_SQUAT` — «Dumbbell Squat» · material: dumbbell · puntuación 0.53
 
 ## Sentadilla isométrica en la pared `sentadilla-isometrica-pared` ⚠
@@ -360,7 +360,7 @@ Para cambiar un emparejamiento hay que tocar `lib/strength/garmin-overrides.ts` 
 - **Intención (EN):** Step-up on box · **Material de la ficha:** bodyweight, dumbbell · **Patrón:** squat
 - **Clave asignada:** `SQUAT/STEP_UP` — «Step-up» (material por la clave: sin pista)
 - **Candidatas:**
-  - `SQUAT/DUMBBELL_STEP_UP` — «Dumbbell Step-up» · material: dumbbell · puntuación 0.70
+  - `SQUAT/DUMBBELL_STEP_UP` — «Dumbbell Step-up» · material: box, dumbbell · puntuación 0.70
   - `SQUAT/WEIGHTED_STEP_UP` — «Weighted Step-up» · material: unknown · puntuación 0.65
   - `SQUAT/CROSSOVER_DUMBBELL_STEP_UP` — «Crossover Dumbbell Step-up» · material: dumbbell · puntuación 0.60
 
@@ -378,8 +378,8 @@ Para cambiar un emparejamiento hay que tocar `lib/strength/garmin-overrides.ts` 
 - **Intención (EN):** Lunge · **Material de la ficha:** bodyweight, dumbbell · **Patrón:** squat
 - **Clave asignada:** `LUNGE/DUMBBELL_LUNGE` — «Dumbbell Lunge» (material por la clave: dumbbell)
 - **Candidatas:**
-  - `LUNGE/LUNGE` — «Lunge» · material: unknown · puntuación 1.15
-  - `LUNGE/CURTSY_LUNGE` — «Curtsy Lunge» · material: unknown · puntuación 0.65
+  - `LUNGE/LUNGE` — «Lunge» · material: bodyweight · puntuación 1.15
+  - `LUNGE/CURTSY_LUNGE` — «Curtsy Lunge» · material: bodyweight · puntuación 0.65
   - `LUNGE/DIAGONAL_LUNGE` — «Diagonal Lunge» · material: unknown · puntuación 0.65
 
 ## Zancada hacia atrás `zancada-atras`

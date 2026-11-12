@@ -1,4 +1,1846 @@
 {
-  "_readme": "Correcciones manuales del catálogo. Se aplican SIEMPRE encima de lo importado y de las fichas curadas: regenerar (npm run gen:exercise-catalog) nunca las pisa. Clave: \"CATEGORÍA/EJERCICIO\" (p. ej. \"WARM_UP/THORACIC_ROTATION\"). Campos permitidos: name_es, equipment, primary_muscles, secondary_muscles, movement_pattern, level, dose_default, cues, common_mistake, alternatives, review_status, plan_eligible. Un override a un ejercicio inexistente o con un campo no permitido falla el generador. Ejemplo: { \"WARM_UP/THORACIC_ROTATION\": { \"primary_muscles\": [\"LOWER_BACK\"] } } marcaría muscles_source='manual'. Vacío a propósito: ninguna ficha curada permite rellenar los músculos que faltan sin inventarlos.",
-  "overrides": {}
+ "_readme": "Correcciones manuales del catálogo. Se aplican SIEMPRE encima de lo importado y de las fichas curadas: regenerar (npm run gen:exercise-catalog) nunca las pisa. Clave: \"CATEGORÍA/EJERCICIO\" (p. ej. \"WARM_UP/THORACIC_ROTATION\"). Campos permitidos: name_es, equipment, primary_muscles, secondary_muscles, movement_pattern, archetype, level, dose_default, cues, common_mistake, alternatives, review_status, plan_eligible. Un override a un ejercicio inexistente o con un campo no permitido falla el generador. Ejemplo: { \"WARM_UP/THORACIC_ROTATION\": { \"primary_muscles\": [\"LOWER_BACK\"] } } marcaría muscles_source='manual'. Contenido de la fase 3: 80 ejercicios priorizados (borradores propuestos, review_status='draft'): nombre en español (estado 'proposed' hasta que lo marques 'reviewed' en data/exercise-names-es.csv), nivel, arquetipo de animación, dosis, claves (máx. 3), error común y alternativas. Sin consejos médicos ni contraindicaciones. Los músculos no se tocan (siguen siendo los de Exercises.json). Contenido de la fase 3: 80 ejercicios priorizados (borradores propuestos, review_status='draft'): nombre en español (estado 'proposed' hasta que lo marques 'reviewed' en data/exercise-names-es.csv), nivel, arquetipo de animación, dosis, claves (máx. 3), error común y alternativas. Sin consejos médicos ni contraindicaciones. Los músculos no se tocan (siguen siendo los de Exercises.json).",
+ "overrides": {
+  "WARM_UP/QUADRUPED_ROCKING": {
+   "name_es": "Balanceo en cuadrupedia",
+   "level": 1,
+   "archetype": "stretch",
+   "movement_pattern": "mobility",
+   "dose_default": {
+    "type": "time",
+    "seconds": 30
+   },
+   "cues": [
+    "Manos bajo los hombros, rodillas bajo la cadera",
+    "Lleva la cadera hacia los talones",
+    "Vuelve despacio al inicio"
+   ],
+   "common_mistake": "Redondear la espalda en lugar de mover la cadera.",
+   "alternatives": [
+    "STRETCH_CAT_COW",
+    "STRETCH_CHILDS_POSE"
+   ],
+   "equipment": [
+    "bodyweight"
+   ]
+  },
+  "WARM_UP/STRETCH_90_90": {
+   "name_es": "Movilidad de cadera 90/90",
+   "level": 2,
+   "archetype": "stretch",
+   "movement_pattern": "mobility",
+   "dose_default": {
+    "type": "time",
+    "seconds": 40
+   },
+   "cues": [
+    "Siéntate con las dos rodillas dobladas a 90°",
+    "Mantén el torso erguido",
+    "Inclínate hacia delante desde la cadera"
+   ],
+   "common_mistake": "Dejar que el torso se hunda en lugar de inclinarse desde la cadera.",
+   "alternatives": [
+    "STRETCH_PIGEON_POSE",
+    "STRETCH_LYING_PIRIFORMIS"
+   ],
+   "equipment": [
+    "bodyweight"
+   ]
+  },
+  "WARM_UP/STRETCH_COBRA": {
+   "name_es": "Cobra",
+   "level": 1,
+   "archetype": "stretch",
+   "movement_pattern": "mobility",
+   "dose_default": {
+    "type": "time",
+    "seconds": 30
+   },
+   "cues": [
+    "Boca abajo, manos junto a los hombros",
+    "Empuja con las manos y abre el pecho",
+    "Mantén la cadera apoyada en el suelo"
+   ],
+   "common_mistake": "Subir los hombros hacia las orejas.",
+   "alternatives": [
+    "STRETCH_CHILDS_POSE",
+    "STRETCH_CAT_COW"
+   ],
+   "equipment": [
+    "bodyweight"
+   ]
+  },
+  "WARM_UP/STRETCH_CHILDS_POSE": {
+   "name_es": "Postura del niño",
+   "level": 1,
+   "archetype": "stretch",
+   "movement_pattern": "mobility",
+   "dose_default": {
+    "type": "time",
+    "seconds": 40
+   },
+   "cues": [
+    "Siéntate sobre los talones y estira los brazos al frente",
+    "Apoya la frente y respira lento",
+    "Nota cómo se alarga la espalda"
+   ],
+   "common_mistake": "Aguantar la respiración.",
+   "alternatives": [
+    "QUADRUPED_ROCKING",
+    "STRETCH_COBRA"
+   ],
+   "equipment": [
+    "bodyweight"
+   ]
+  },
+  "WARM_UP/STRETCH_LUNGE_WITH_SPINAL_TWIST": {
+   "name_es": "Zancada con giro de columna",
+   "level": 2,
+   "archetype": "stretch",
+   "movement_pattern": "mobility",
+   "dose_default": {
+    "type": "time",
+    "seconds": 30
+   },
+   "cues": [
+    "Zancada larga, mano en el suelo junto al pie delantero",
+    "Abre el otro brazo hacia el techo girando el tronco",
+    "Sigue la mano con la mirada"
+   ],
+   "common_mistake": "Girar solo los hombros sin que el tronco acompañe.",
+   "alternatives": [
+    "STRETCH_HIP_FLEXOR_AND_QUAD",
+    "THORACIC_ROTATION"
+   ],
+   "equipment": [
+    "bodyweight"
+   ]
+  },
+  "WARM_UP/STRETCH_LYING_SPINAL_TWIST": {
+   "name_es": "Giro de columna tumbado",
+   "level": 1,
+   "archetype": "stretch",
+   "movement_pattern": "mobility",
+   "dose_default": {
+    "type": "time",
+    "seconds": 40
+   },
+   "cues": [
+    "Tumbado boca arriba, rodillas dobladas",
+    "Deja caer las rodillas a un lado",
+    "Mantén los hombros pegados al suelo"
+   ],
+   "common_mistake": "Levantar un hombro del suelo para llegar más lejos.",
+   "alternatives": [
+    "STRETCH_LYING_KNEE_TO_CHEST",
+    "THORACIC_ROTATION"
+   ],
+   "equipment": [
+    "bodyweight"
+   ]
+  },
+  "WARM_UP/STRETCH_LYING_KNEE_TO_CHEST": {
+   "name_es": "Rodilla al pecho tumbado",
+   "level": 1,
+   "archetype": "stretch",
+   "movement_pattern": "mobility",
+   "dose_default": {
+    "type": "time",
+    "seconds": 30
+   },
+   "cues": [
+    "Tumbado boca arriba, abraza una rodilla",
+    "Deja la otra pierna relajada",
+    "Respira lento"
+   ],
+   "common_mistake": "Levantar la cabeza y encoger los hombros.",
+   "alternatives": [
+    "STRETCH_LYING_SPINAL_TWIST",
+    "STRETCH_LYING_PIRIFORMIS"
+   ],
+   "equipment": [
+    "bodyweight"
+   ]
+  },
+  "WARM_UP/STRETCH_HIP_FLEXOR_AND_QUAD": {
+   "name_es": "Flexor de cadera y cuádriceps",
+   "level": 2,
+   "archetype": "stretch",
+   "movement_pattern": "mobility",
+   "dose_default": {
+    "type": "time",
+    "seconds": 30
+   },
+   "cues": [
+    "Rodilla trasera apoyada, sujeta el pie de atrás",
+    "Mete la pelvis hacia delante",
+    "Mantén el torso erguido"
+   ],
+   "common_mistake": "Arquear la espalda baja en vez de empujar la cadera.",
+   "alternatives": [
+    "STRETCH_LUNGING_HIP_FLEXOR",
+    "STRETCH_QUAD"
+   ],
+   "equipment": [
+    "bodyweight"
+   ]
+  },
+  "WARM_UP/STRETCH_PIGEON_POSE": {
+   "name_es": "Paloma",
+   "level": 3,
+   "archetype": "stretch",
+   "movement_pattern": "mobility",
+   "dose_default": {
+    "type": "time",
+    "seconds": 40
+   },
+   "cues": [
+    "Una pierna doblada delante, la otra estirada atrás",
+    "Mantén la cadera cuadrada al suelo",
+    "Inclínate hacia delante sin forzar"
+   ],
+   "common_mistake": "Dejar caer la cadera hacia un lado.",
+   "alternatives": [
+    "STRETCH_LYING_PIRIFORMIS",
+    "STRETCH_90_90"
+   ],
+   "equipment": [
+    "bodyweight"
+   ]
+  },
+  "WARM_UP/STRETCH_LYING_PIRIFORMIS": {
+   "name_es": "Glúteo tumbado (figura 4)",
+   "level": 1,
+   "archetype": "stretch",
+   "movement_pattern": "mobility",
+   "dose_default": {
+    "type": "time",
+    "seconds": 40
+   },
+   "cues": [
+    "Tumbado, cruza un tobillo sobre la rodilla contraria",
+    "Tira del muslo hacia el pecho",
+    "Mantén la cabeza apoyada"
+   ],
+   "common_mistake": "Tirar con el cuello en lugar de con los brazos.",
+   "alternatives": [
+    "STRETCH_PIGEON_POSE",
+    "STRETCH_FORWARD_GLUTES"
+   ],
+   "equipment": [
+    "bodyweight"
+   ]
+  },
+  "WARM_UP/STRETCH_HAMSTRING": {
+   "name_es": "Estiramiento de isquiotibiales",
+   "level": 1,
+   "archetype": "stretch",
+   "movement_pattern": "mobility",
+   "dose_default": {
+    "type": "time",
+    "seconds": 30
+   },
+   "cues": [
+    "Pierna estirada, talón apoyado",
+    "Inclina el torso desde la cadera con la espalda recta",
+    "Mantén la punta del pie hacia ti"
+   ],
+   "common_mistake": "Redondear la espalda para llegar al pie.",
+   "alternatives": [
+    "STANDING_HAMSTRING_STRETCH",
+    "INVERTED_HAMSTRING_STRETCH"
+   ],
+   "equipment": [
+    "bodyweight"
+   ]
+  },
+  "WARM_UP/STRETCH_WALL_CHEST_AND_SHOULDER": {
+   "name_es": "Pecho y hombro en la pared",
+   "level": 1,
+   "archetype": "stretch",
+   "movement_pattern": "mobility",
+   "dose_default": {
+    "type": "time",
+    "seconds": 30
+   },
+   "cues": [
+    "Antebrazo apoyado en la pared a la altura del hombro",
+    "Gira el cuerpo hacia el lado contrario",
+    "Mantén el hombro relajado"
+   ],
+   "common_mistake": "Subir el hombro hacia la oreja.",
+   "alternatives": [
+    "STRETCH_PECTORAL",
+    "STRETCH_SHOULDER"
+   ],
+   "equipment": [
+    "bodyweight"
+   ]
+  },
+  "WARM_UP/BENT_OVER_REACH_TO_SKY": {
+   "name_es": "Alcance al cielo con el tronco inclinado",
+   "level": 2,
+   "archetype": "stretch",
+   "movement_pattern": "mobility",
+   "dose_default": {
+    "type": "reps",
+    "reps": 8
+   },
+   "cues": [
+    "Inclina el tronco con la espalda recta",
+    "Gira y lleva un brazo hacia el techo",
+    "Sigue la mano con la mirada"
+   ],
+   "common_mistake": "Mover la cadera en lugar de girar el tronco.",
+   "alternatives": [
+    "THORACIC_ROTATION",
+    "STRETCH_LUNGE_WITH_SPINAL_TWIST"
+   ],
+   "equipment": [
+    "bodyweight"
+   ]
+  },
+  "WARM_UP/ANKLE_DORSIFLEXION_WITH_BAND": {
+   "name_es": "Movilidad de tobillo con banda",
+   "level": 1,
+   "archetype": "stretch",
+   "movement_pattern": "mobility",
+   "dose_default": {
+    "type": "reps",
+    "reps": 10
+   },
+   "cues": [
+    "Banda tirando del tobillo hacia atrás",
+    "Lleva la rodilla por encima de los dedos del pie",
+    "Mantén el talón en el suelo"
+   ],
+   "common_mistake": "Levantar el talón al adelantar la rodilla.",
+   "alternatives": [
+    "STRETCH_CALF"
+   ],
+   "equipment": [
+    "band"
+   ]
+  },
+  "WARM_UP/WALKING_KNEE_HUGS": {
+   "name_es": "Abrazo de rodilla caminando",
+   "level": 1,
+   "archetype": "stretch",
+   "movement_pattern": "mobility",
+   "dose_default": {
+    "type": "reps",
+    "reps": 8
+   },
+   "cues": [
+    "Camina y abraza una rodilla contra el pecho",
+    "Mantén el torso erguido",
+    "Alterna las piernas"
+   ],
+   "common_mistake": "Inclinar el torso hacia delante para alcanzar la rodilla.",
+   "alternatives": [
+    "WALKING_LEG_CRADLES",
+    "STRETCH_LYING_KNEE_TO_CHEST"
+   ],
+   "equipment": [
+    "bodyweight"
+   ]
+  },
+  "WARM_UP/WALKING_LEG_CRADLES": {
+   "name_es": "Cuna de pierna caminando",
+   "level": 2,
+   "archetype": "stretch",
+   "movement_pattern": "mobility",
+   "dose_default": {
+    "type": "reps",
+    "reps": 8
+   },
+   "cues": [
+    "Camina y sube el tobillo hacia la cadera con las dos manos",
+    "Mantén el torso erguido",
+    "Alterna las piernas"
+   ],
+   "common_mistake": "Perder el equilibrio por forzar la altura del tobillo.",
+   "alternatives": [
+    "WALKING_KNEE_HUGS",
+    "STRETCH_PIGEON_POSE"
+   ],
+   "equipment": [
+    "bodyweight"
+   ]
+  },
+  "WARM_UP/STRETCH_LEVATOR_SCAPULAE": {
+   "name_es": "Cuello y trapecio superior",
+   "level": 1,
+   "archetype": "stretch",
+   "movement_pattern": "mobility",
+   "dose_default": {
+    "type": "time",
+    "seconds": 30
+   },
+   "cues": [
+    "Sentado erguido, inclina la cabeza hacia un lado",
+    "Gira la nariz hacia la axila",
+    "Suelta el hombro del lado contrario"
+   ],
+   "common_mistake": "Tirar de la cabeza con fuerza.",
+   "alternatives": [
+    "NECK_TILTS",
+    "STRETCH_SIDE"
+   ],
+   "equipment": [
+    "bodyweight"
+   ]
+  },
+  "WARM_UP/STRETCH_SIDE": {
+   "name_es": "Estiramiento lateral del tronco",
+   "level": 1,
+   "archetype": "stretch",
+   "movement_pattern": "mobility",
+   "dose_default": {
+    "type": "time",
+    "seconds": 30
+   },
+   "cues": [
+    "De pie, brazo arriba e inclínate hacia un lado",
+    "Mantén la cadera quieta",
+    "Respira hacia el costado estirado"
+   ],
+   "common_mistake": "Inclinarse hacia delante en lugar de hacia el lado.",
+   "alternatives": [
+    "STRETCH_OBLIQUES",
+    "STRETCH_LAT"
+   ],
+   "equipment": [
+    "bodyweight"
+   ]
+  },
+  "HIP_RAISE/HIP_RAISE": {
+   "name_es": "Puente de glúteo básico",
+   "level": 1,
+   "archetype": "bridge_hip_thrust",
+   "movement_pattern": "hinge",
+   "dose_default": {
+    "type": "reps",
+    "reps": 12
+   },
+   "cues": [
+    "Tumbado, rodillas dobladas y pies planos",
+    "Sube la cadera apretando los glúteos",
+    "Baja despacio"
+   ],
+   "common_mistake": "Arquear la espalda baja al subir.",
+   "alternatives": [
+    "HIP_RAISE_WITH_KNEE_SQUEEZE",
+    "MARCHING_HIP_RAISE"
+   ],
+   "equipment": [
+    "bodyweight"
+   ]
+  },
+  "HIP_RAISE/MARCHING_HIP_RAISE": {
+   "name_es": "Puente de glúteo con marcha",
+   "level": 2,
+   "archetype": "bridge_hip_thrust",
+   "movement_pattern": "hinge",
+   "dose_default": {
+    "type": "reps",
+    "reps": 10
+   },
+   "cues": [
+    "Sube la cadera y mantenla alta",
+    "Levanta una rodilla sin que la pelvis gire",
+    "Alterna sin bajar la cadera"
+   ],
+   "common_mistake": "Dejar caer la cadera al levantar el pie.",
+   "alternatives": [
+    "HIP_RAISE",
+    "BRIDGE_WITH_LEG_EXTENSION"
+   ],
+   "equipment": [
+    "bodyweight"
+   ]
+  },
+  "HIP_RAISE/HIP_RAISE_WITH_KNEE_SQUEEZE": {
+   "name_es": "Puente de glúteo con apretón de rodillas",
+   "level": 1,
+   "archetype": "bridge_hip_thrust",
+   "movement_pattern": "hinge",
+   "dose_default": {
+    "type": "reps",
+    "reps": 12
+   },
+   "cues": [
+    "Coloca un cojín o balón blando entre las rodillas",
+    "Aprieta mientras subes la cadera",
+    "Mantén 1 segundo arriba"
+   ],
+   "common_mistake": "Soltar la presión entre las rodillas al subir.",
+   "alternatives": [
+    "HIP_RAISE",
+    "CLAM_BRIDGE"
+   ],
+   "equipment": [
+    "bodyweight"
+   ]
+  },
+  "HIP_RAISE/BRIDGE_WITH_LEG_EXTENSION": {
+   "name_es": "Puente con extensión de pierna",
+   "level": 2,
+   "archetype": "bridge_hip_thrust",
+   "movement_pattern": "hinge",
+   "dose_default": {
+    "type": "reps",
+    "reps": 8
+   },
+   "cues": [
+    "Sube la cadera en puente",
+    "Estira una pierna sin bajar la cadera",
+    "Vuelve y alterna"
+   ],
+   "common_mistake": "Inclinar la pelvis hacia un lado al estirar la pierna.",
+   "alternatives": [
+    "MARCHING_HIP_RAISE",
+    "SINGLE_LEG_HIP_RAISE"
+   ],
+   "equipment": [
+    "bodyweight"
+   ]
+  },
+  "HIP_RAISE/CLAM_BRIDGE": {
+   "name_es": "Puente con apertura de rodilla",
+   "level": 2,
+   "archetype": "bridge_hip_thrust",
+   "movement_pattern": "hinge",
+   "dose_default": {
+    "type": "reps",
+    "reps": 10
+   },
+   "cues": [
+    "Sube la cadera en puente",
+    "Abre una rodilla hacia fuera sin girar la pelvis",
+    "Cierra y alterna"
+   ],
+   "common_mistake": "Girar la pelvis para abrir más la rodilla.",
+   "alternatives": [
+    "HIP_RAISE",
+    "CLAM_SHELLS"
+   ],
+   "equipment": [
+    "bodyweight"
+   ]
+  },
+  "HIP_STABILITY/FIRE_HYDRANT_KICKS": {
+   "name_es": "Apertura de rodilla a cuatro apoyos",
+   "level": 1,
+   "archetype": "quadruped_rotation",
+   "movement_pattern": "hinge",
+   "dose_default": {
+    "type": "reps",
+    "reps": 10
+   },
+   "cues": [
+    "Cuatro apoyos, espalda neutra",
+    "Abre una rodilla hacia el lado sin girar la cadera",
+    "Baja controlando"
+   ],
+   "common_mistake": "Girar la cadera hacia el lado de la pierna que sube.",
+   "alternatives": [
+    "QUADRUPED_HIP_EXTENSION",
+    "SIDE_LYING_LEG_RAISE"
+   ],
+   "equipment": [
+    "bodyweight"
+   ]
+  },
+  "HIP_STABILITY/QUADRUPED_HIP_EXTENSION": {
+   "name_es": "Patada atrás a cuatro apoyos",
+   "level": 1,
+   "archetype": "quadruped_rotation",
+   "movement_pattern": "hinge",
+   "dose_default": {
+    "type": "reps",
+    "reps": 10
+   },
+   "cues": [
+    "Cuatro apoyos, abdomen firme",
+    "Estira una pierna hacia atrás apretando el glúteo",
+    "No arquees la espalda baja"
+   ],
+   "common_mistake": "Subir la pierna arqueando la zona lumbar.",
+   "alternatives": [
+    "FIRE_HYDRANT_KICKS",
+    "QUADRUPED_LEG_RAISE"
+   ],
+   "equipment": [
+    "bodyweight"
+   ]
+  },
+  "HIP_STABILITY/SIDE_LYING_LEG_RAISE": {
+   "name_es": "Elevación lateral de pierna tumbado",
+   "level": 1,
+   "archetype": "lateral_raise",
+   "movement_pattern": "hinge",
+   "dose_default": {
+    "type": "reps",
+    "reps": 12
+   },
+   "cues": [
+    "Tumbado de lado con el cuerpo en línea",
+    "Sube la pierna de arriba sin girar la cadera",
+    "Baja despacio"
+   ],
+   "common_mistake": "Rotar la cadera hacia atrás para subir más la pierna.",
+   "alternatives": [
+    "STANDING_HIP_ABDUCTION",
+    "FIRE_HYDRANT_KICKS"
+   ],
+   "equipment": [
+    "bodyweight"
+   ]
+  },
+  "HIP_STABILITY/STANDING_HIP_ABDUCTION": {
+   "name_es": "Abducción de cadera de pie",
+   "level": 1,
+   "archetype": "lateral_raise",
+   "movement_pattern": "hinge",
+   "dose_default": {
+    "type": "reps",
+    "reps": 12
+   },
+   "cues": [
+    "De pie, apóyate si lo necesitas",
+    "Lleva la pierna hacia el lado sin inclinar el tronco",
+    "Vuelve controlando"
+   ],
+   "common_mistake": "Inclinar el tronco hacia el lado contrario.",
+   "alternatives": [
+    "SIDE_LYING_LEG_RAISE",
+    "LATERAL_WALKS_WITH_BAND_AT_ANKLES"
+   ],
+   "equipment": [
+    "bodyweight"
+   ]
+  },
+  "HIP_STABILITY/LATERAL_WALKS_WITH_BAND_AT_ANKLES": {
+   "name_es": "Pasos laterales con banda",
+   "level": 2,
+   "archetype": "lunge",
+   "movement_pattern": "hinge",
+   "dose_default": {
+    "type": "reps",
+    "reps": 12
+   },
+   "cues": [
+    "Banda en los tobillos y rodillas ligeramente flexionadas",
+    "Da pasos laterales manteniendo la tensión",
+    "Mantén los pies paralelos"
+   ],
+   "common_mistake": "Dejar que las rodillas se junten.",
+   "alternatives": [
+    "CLAM_SHELLS",
+    "STANDING_HIP_ABDUCTION"
+   ],
+   "equipment": [
+    "band"
+   ]
+  },
+  "BANDED_EXERCISES/GLUTE_BRIDGE": {
+   "name_es": "Puente de glúteo con banda",
+   "level": 2,
+   "archetype": "bridge_hip_thrust",
+   "movement_pattern": "hinge",
+   "dose_default": {
+    "type": "reps",
+    "reps": 12
+   },
+   "cues": [
+    "Banda sobre las rodillas y pies planos",
+    "Sube la cadera empujando las rodillas hacia fuera",
+    "Mantén 1 segundo arriba"
+   ],
+   "common_mistake": "Dejar que las rodillas se cierren hacia dentro.",
+   "alternatives": [
+    "HIP_RAISE",
+    "HIP_RAISE_WITH_KNEE_SQUEEZE"
+   ],
+   "equipment": [
+    "band"
+   ]
+  },
+  "DEADLIFT/DUMBBELL_DEADLIFT": {
+   "name_es": "Peso muerto con mancuernas",
+   "level": 2,
+   "archetype": "hip_hinge",
+   "movement_pattern": "hinge",
+   "dose_default": {
+    "type": "reps",
+    "reps": 10
+   },
+   "cues": [
+    "Mancuernas junto a las piernas",
+    "Lleva la cadera atrás con la espalda recta",
+    "Empuja el suelo para subir"
+   ],
+   "common_mistake": "Redondear la espalda al bajar las mancuernas.",
+   "alternatives": [
+    "ROMANIAN_DEADLIFT",
+    "DUMBBELL_STRAIGHT_LEG_DEADLIFT"
+   ],
+   "equipment": [
+    "dumbbell"
+   ]
+  },
+  "DEADLIFT/DUMBBELL_STRAIGHT_LEG_DEADLIFT": {
+   "name_es": "Peso muerto con piernas rígidas y mancuernas",
+   "level": 2,
+   "archetype": "hip_hinge",
+   "movement_pattern": "hinge",
+   "dose_default": {
+    "type": "reps",
+    "reps": 10
+   },
+   "cues": [
+    "Piernas casi estiradas, rodillas sin bloquear",
+    "Baja las mancuernas pegadas a las piernas",
+    "Siente el estiramiento detrás del muslo"
+   ],
+   "common_mistake": "Doblar las rodillas hasta convertirlo en sentadilla.",
+   "alternatives": [
+    "DUMBBELL_DEADLIFT",
+    "ROMANIAN_DEADLIFT"
+   ],
+   "equipment": [
+    "dumbbell"
+   ]
+  },
+  "LEG_CURL/BAND_GOOD_MORNING": {
+   "name_es": "Buenos días con banda",
+   "level": 1,
+   "archetype": "hip_hinge",
+   "movement_pattern": "hinge",
+   "dose_default": {
+    "type": "reps",
+    "reps": 12
+   },
+   "cues": [
+    "Banda bajo los pies y sobre los hombros",
+    "Lleva la cadera atrás con la espalda recta",
+    "Sube apretando los glúteos"
+   ],
+   "common_mistake": "Doblar la espalda en lugar de la cadera.",
+   "alternatives": [
+    "GOOD_MORNING",
+    "DUMBBELL_DEADLIFT"
+   ],
+   "equipment": [
+    "band"
+   ]
+  },
+  "HIP_RAISE/SINGLE_LEG_HIP_RAISE_WITH_FOOT_ON_BENCH": {
+   "name_es": "Puente a una pierna con el pie en banco",
+   "level": 3,
+   "archetype": "bridge_hip_thrust",
+   "movement_pattern": "hinge",
+   "dose_default": {
+    "type": "reps",
+    "reps": 8
+   },
+   "cues": [
+    "Un pie apoyado en el banco y la otra pierna estirada",
+    "Sube la cadera empujando con el talón",
+    "Mantén la pelvis nivelada"
+   ],
+   "common_mistake": "Dejar caer la cadera del lado de la pierna libre.",
+   "alternatives": [
+    "SINGLE_LEG_HIP_RAISE",
+    "MARCHING_HIP_RAISE"
+   ],
+   "equipment": [
+    "bench",
+    "bodyweight"
+   ]
+  },
+  "BANDED_EXERCISES/DEADLIFT": {
+   "name_es": "Peso muerto con banda",
+   "level": 1,
+   "archetype": "hip_hinge",
+   "movement_pattern": "hinge",
+   "dose_default": {
+    "type": "reps",
+    "reps": 12
+   },
+   "cues": [
+    "Pisa la banda y agárrala con las manos",
+    "Lleva la cadera atrás con la espalda recta",
+    "Sube empujando el suelo"
+   ],
+   "common_mistake": "Redondear la espalda al agacharte.",
+   "alternatives": [
+    "BAND_GOOD_MORNING",
+    "DUMBBELL_DEADLIFT"
+   ],
+   "equipment": [
+    "band"
+   ]
+  },
+  "PLANK/SIDE_PLANK": {
+   "name_es": "Plancha lateral",
+   "level": 2,
+   "archetype": "plank_isometric",
+   "movement_pattern": "core",
+   "dose_default": {
+    "type": "time",
+    "seconds": 30
+   },
+   "cues": [
+    "Codo bajo el hombro y cuerpo en línea",
+    "Eleva la cadera y mantenla alta",
+    "Respira sin soltar el abdomen"
+   ],
+   "common_mistake": "Dejar caer la cadera hacia el suelo.",
+   "alternatives": [
+    "KNEELING_PLANK"
+   ],
+   "equipment": [
+    "bodyweight"
+   ]
+  },
+  "PLANK/PLANK_WITH_ARM_RAISE": {
+   "name_es": "Plancha con elevación de brazo",
+   "level": 2,
+   "archetype": "plank_isometric",
+   "movement_pattern": "core",
+   "dose_default": {
+    "type": "reps",
+    "reps": 8
+   },
+   "cues": [
+    "Plancha con las manos bajo los hombros",
+    "Levanta un brazo sin girar la cadera",
+    "Alterna con control"
+   ],
+   "common_mistake": "Balancear la cadera al levantar el brazo.",
+   "alternatives": [
+    "KNEELING_PLANK"
+   ],
+   "equipment": [
+    "bodyweight"
+   ]
+  },
+  "PLANK/KNEELING_PLANK": {
+   "name_es": "Plancha de rodillas",
+   "level": 1,
+   "archetype": "plank_isometric",
+   "movement_pattern": "core",
+   "dose_default": {
+    "type": "time",
+    "seconds": 30
+   },
+   "cues": [
+    "Antebrazos bajo los hombros y rodillas apoyadas",
+    "Cuerpo recto de rodillas a cabeza",
+    "Aprieta abdomen y glúteos"
+   ],
+   "common_mistake": "Hundir la zona lumbar.",
+   "alternatives": [
+    "SIDE_PLANK"
+   ],
+   "equipment": [
+    "bodyweight"
+   ]
+  },
+  "CRUNCH/CRUNCH": {
+   "name_es": "Crunch abdominal",
+   "level": 1,
+   "archetype": "crunch",
+   "movement_pattern": "core",
+   "dose_default": {
+    "type": "reps",
+    "reps": 12
+   },
+   "cues": [
+    "Rodillas dobladas y manos sin tirar del cuello",
+    "Sube los hombros del suelo con el abdomen",
+    "Baja controlando"
+   ],
+   "common_mistake": "Tirar del cuello con las manos.",
+   "alternatives": [
+    "REVERSE_CRUNCH",
+    "MCGILL_CURL_UP"
+   ],
+   "equipment": [
+    "bodyweight"
+   ]
+  },
+  "CRUNCH/BICYCLE_CRUNCH": {
+   "name_es": "Crunch bicicleta",
+   "level": 2,
+   "archetype": "crunch",
+   "movement_pattern": "core",
+   "dose_default": {
+    "type": "reps",
+    "reps": 12
+   },
+   "cues": [
+    "Lleva un codo hacia la rodilla contraria",
+    "Estira la otra pierna",
+    "Gira desde el tronco, no desde el cuello"
+   ],
+   "common_mistake": "Mover los codos sin rotar el tronco.",
+   "alternatives": [
+    "CRUNCH",
+    "RUSSIAN_TWIST"
+   ],
+   "equipment": [
+    "bodyweight"
+   ]
+  },
+  "CRUNCH/REVERSE_CRUNCH": {
+   "name_es": "Crunch inverso",
+   "level": 2,
+   "archetype": "crunch",
+   "movement_pattern": "core",
+   "dose_default": {
+    "type": "reps",
+    "reps": 10
+   },
+   "cues": [
+    "Tumbado, rodillas dobladas sobre la cadera",
+    "Eleva la pelvis llevando las rodillas al pecho",
+    "Baja despacio"
+   ],
+   "common_mistake": "Balancear las piernas con impulso.",
+   "alternatives": [
+    "CRUNCH",
+    "LYING_STRAIGHT_LEG_RAISE"
+   ],
+   "equipment": [
+    "bodyweight"
+   ]
+  },
+  "CRUNCH/MCGILL_CURL_UP": {
+   "name_es": "Curl-up de McGill",
+   "level": 1,
+   "archetype": "crunch",
+   "movement_pattern": "core",
+   "dose_default": {
+    "type": "reps",
+    "reps": 8
+   },
+   "cues": [
+    "Una rodilla doblada y la otra estirada, manos bajo la zona lumbar",
+    "Eleva ligeramente cabeza y hombros",
+    "Mantén unos segundos sin mover la espalda baja"
+   ],
+   "common_mistake": "Elevarse demasiado o arquear la zona lumbar.",
+   "alternatives": [
+    "CRUNCH",
+    "REVERSE_CRUNCH"
+   ],
+   "equipment": [
+    "bodyweight"
+   ]
+  },
+  "LEG_RAISE/LYING_STRAIGHT_LEG_RAISE": {
+   "name_es": "Elevación de piernas tumbado",
+   "level": 2,
+   "archetype": "crunch",
+   "movement_pattern": "core",
+   "dose_default": {
+    "type": "reps",
+    "reps": 10
+   },
+   "cues": [
+    "Tumbado con las piernas estiradas",
+    "Sube las piernas sin despegar la zona lumbar del suelo",
+    "Baja despacio sin tocar el suelo"
+   ],
+   "common_mistake": "Arquear la espalda baja al bajar las piernas.",
+   "alternatives": [
+    "REVERSE_CRUNCH",
+    "QUADRUPED_LEG_RAISE"
+   ],
+   "equipment": [
+    "bodyweight"
+   ]
+  },
+  "LEG_RAISE/QUADRUPED_LEG_RAISE": {
+   "name_es": "Elevación de pierna a cuatro apoyos",
+   "level": 1,
+   "archetype": "quadruped_rotation",
+   "movement_pattern": "core",
+   "dose_default": {
+    "type": "reps",
+    "reps": 10
+   },
+   "cues": [
+    "Cuatro apoyos y abdomen firme",
+    "Estira la pierna hacia atrás a la altura de la cadera",
+    "Baja sin arquear la espalda"
+   ],
+   "common_mistake": "Subir la pierna por encima de la cadera arqueando la espalda.",
+   "alternatives": [
+    "QUADRUPED_HIP_EXTENSION",
+    "FIRE_HYDRANT_KICKS"
+   ],
+   "equipment": [
+    "bodyweight"
+   ]
+  },
+  "CORE/RUSSIAN_TWIST": {
+   "name_es": "Giro ruso",
+   "level": 2,
+   "archetype": "crunch",
+   "movement_pattern": "core",
+   "dose_default": {
+    "type": "reps",
+    "reps": 12
+   },
+   "cues": [
+    "Sentado con el torso inclinado hacia atrás y la espalda recta",
+    "Gira el tronco llevando las manos de lado a lado",
+    "Mira las manos"
+   ],
+   "common_mistake": "Mover solo los brazos sin rotar el tronco.",
+   "alternatives": [
+    "BICYCLE_CRUNCH",
+    "SIDE_BEND"
+   ],
+   "equipment": [
+    "bodyweight"
+   ]
+  },
+  "CORE/SIDE_BEND": {
+   "name_es": "Inclinación lateral con mancuerna",
+   "level": 1,
+   "archetype": "crunch",
+   "movement_pattern": "core",
+   "dose_default": {
+    "type": "reps",
+    "reps": 12
+   },
+   "cues": [
+    "De pie con una mancuerna en una mano",
+    "Inclínate hacia el lado de la mancuerna sin girar",
+    "Vuelve con los oblicuos"
+   ],
+   "common_mistake": "Girar o inclinarse hacia delante en vez de hacia el lado.",
+   "alternatives": [
+    "RUSSIAN_TWIST",
+    "SIDE_PLANK"
+   ],
+   "equipment": [
+    "dumbbell"
+   ]
+  },
+  "CRUNCH/FLUTTER_KICKS": {
+   "name_es": "Patadas de tijera tumbado",
+   "level": 2,
+   "archetype": "crunch",
+   "movement_pattern": "core",
+   "dose_default": {
+    "type": "time",
+    "seconds": 30
+   },
+   "cues": [
+    "Tumbado con la zona lumbar pegada al suelo",
+    "Alterna patadas cortas con las piernas casi estiradas",
+    "Mantén el abdomen firme"
+   ],
+   "common_mistake": "Arquear la espalda baja al bajar las piernas.",
+   "alternatives": [
+    "LYING_STRAIGHT_LEG_RAISE",
+    "REVERSE_CRUNCH"
+   ],
+   "equipment": [
+    "bodyweight"
+   ]
+  },
+  "ROW/BENT_OVER_ROW_WITH_DUMBELL": {
+   "name_es": "Remo inclinado con mancuernas",
+   "level": 2,
+   "archetype": "horizontal_pull",
+   "movement_pattern": "pull",
+   "dose_default": {
+    "type": "reps",
+    "reps": 10
+   },
+   "cues": [
+    "Cadera atrás y espalda recta",
+    "Lleva las mancuernas hacia las costillas",
+    "Junta los omóplatos al final"
+   ],
+   "common_mistake": "Impulsarse con el tronco en vez de tirar con la espalda.",
+   "alternatives": [
+    "CHEST_SUPPORTED_DUMBBELL_ROW",
+    "DUMBBELL_ROW"
+   ],
+   "equipment": [
+    "dumbbell"
+   ]
+  },
+  "ROW/CHEST_SUPPORTED_DUMBBELL_ROW": {
+   "name_es": "Remo con mancuernas apoyado en banco",
+   "level": 1,
+   "archetype": "horizontal_pull",
+   "movement_pattern": "pull",
+   "dose_default": {
+    "type": "reps",
+    "reps": 10
+   },
+   "cues": [
+    "Pecho apoyado en el banco inclinado",
+    "Tira de los codos hacia atrás",
+    "Baja controlando"
+   ],
+   "common_mistake": "Levantar el pecho del banco al tirar.",
+   "alternatives": [
+    "DUMBBELL_ROW",
+    "BENT_OVER_ROW_WITH_DUMBELL"
+   ],
+   "equipment": [
+    "bench",
+    "dumbbell"
+   ]
+  },
+  "ROW/SEATED_CABLE_ROW": {
+   "name_es": "Remo sentado en polea",
+   "level": 1,
+   "archetype": "horizontal_pull",
+   "movement_pattern": "pull",
+   "dose_default": {
+    "type": "reps",
+    "reps": 12
+   },
+   "cues": [
+    "Sentado con la espalda recta",
+    "Tira del agarre hacia el abdomen",
+    "Junta los omóplatos sin encogerte"
+   ],
+   "common_mistake": "Balancear el tronco hacia atrás en cada repetición.",
+   "alternatives": [
+    "CHEST_SUPPORTED_DUMBBELL_ROW",
+    "INVERTED_ROW"
+   ],
+   "equipment": [
+    "cable"
+   ]
+  },
+  "FLYE/INCLINE_REVERSE_FLYE": {
+   "name_es": "Aperturas posteriores en banco inclinado",
+   "level": 2,
+   "archetype": "horizontal_pull",
+   "movement_pattern": "pull",
+   "dose_default": {
+    "type": "reps",
+    "reps": 12
+   },
+   "cues": [
+    "Pecho apoyado en el banco inclinado",
+    "Abre los brazos hacia los lados con los codos ligeramente doblados",
+    "Baja controlando"
+   ],
+   "common_mistake": "Subir los hombros hacia las orejas.",
+   "alternatives": [
+    "BENT_OVER_LATERAL_RAISE",
+    "FLOOR_T_RAISE"
+   ],
+   "equipment": [
+    "bench",
+    "dumbbell"
+   ]
+  },
+  "LATERAL_RAISE/BENT_OVER_LATERAL_RAISE": {
+   "name_es": "Elevación lateral inclinado (deltoides posterior)",
+   "level": 2,
+   "archetype": "lateral_raise",
+   "movement_pattern": "pull",
+   "dose_default": {
+    "type": "reps",
+    "reps": 12
+   },
+   "cues": [
+    "Torso inclinado con la espalda recta",
+    "Abre los brazos hacia los lados",
+    "Baja sin balancear"
+   ],
+   "common_mistake": "Impulsarse con el torso.",
+   "alternatives": [
+    "INCLINE_REVERSE_FLYE",
+    "FLOOR_T_RAISE"
+   ],
+   "equipment": [
+    "dumbbell"
+   ]
+  },
+  "LATERAL_RAISE/WALL_SLIDE": {
+   "name_es": "Deslizamiento en la pared",
+   "level": 1,
+   "archetype": "stretch",
+   "movement_pattern": "mobility",
+   "dose_default": {
+    "type": "reps",
+    "reps": 10
+   },
+   "cues": [
+    "Espalda, cabeza y brazos pegados a la pared",
+    "Desliza los brazos hacia arriba",
+    "Baja sin despegar la espalda"
+   ],
+   "common_mistake": "Arquear la espalda baja para subir más los brazos.",
+   "alternatives": [
+    "FLOOR_Y_RAISE",
+    "SCAPULAR_RETRACTION"
+   ],
+   "equipment": [
+    "bodyweight"
+   ]
+  },
+  "SHOULDER_STABILITY/FLOOR_Y_RAISE": {
+   "name_es": "Elevación en Y boca abajo",
+   "level": 1,
+   "archetype": "lateral_raise",
+   "movement_pattern": "pull",
+   "dose_default": {
+    "type": "reps",
+    "reps": 10
+   },
+   "cues": [
+    "Boca abajo, brazos en Y con los pulgares hacia arriba",
+    "Eleva los brazos sin subir los hombros",
+    "Baja despacio"
+   ],
+   "common_mistake": "Levantar la cabeza o arquear la espalda.",
+   "alternatives": [
+    "FLOOR_T_RAISE",
+    "WALL_SLIDE"
+   ],
+   "equipment": [
+    "bodyweight"
+   ]
+  },
+  "SHOULDER_STABILITY/FLOOR_T_RAISE": {
+   "name_es": "Elevación en T boca abajo",
+   "level": 1,
+   "archetype": "lateral_raise",
+   "movement_pattern": "pull",
+   "dose_default": {
+    "type": "reps",
+    "reps": 10
+   },
+   "cues": [
+    "Boca abajo con los brazos en cruz",
+    "Eleva los brazos juntando los omóplatos",
+    "Baja despacio"
+   ],
+   "common_mistake": "Encoger los hombros hacia las orejas.",
+   "alternatives": [
+    "FLOOR_Y_RAISE",
+    "INCLINE_REVERSE_FLYE"
+   ],
+   "equipment": [
+    "bodyweight"
+   ]
+  },
+  "SHOULDER_STABILITY/BAND_EXTERNAL_ROTATION": {
+   "name_es": "Rotación externa con banda",
+   "level": 1,
+   "archetype": "horizontal_pull",
+   "movement_pattern": "pull",
+   "dose_default": {
+    "type": "reps",
+    "reps": 12
+   },
+   "cues": [
+    "Codo pegado al costado, doblado a 90°",
+    "Gira el antebrazo hacia fuera",
+    "Vuelve despacio"
+   ],
+   "common_mistake": "Separar el codo del cuerpo.",
+   "alternatives": [
+    "FLOOR_T_RAISE",
+    "SCAPULAR_RETRACTION"
+   ],
+   "equipment": [
+    "band"
+   ]
+  },
+  "SHRUG/SCAPULAR_RETRACTION": {
+   "name_es": "Retracción escapular",
+   "level": 1,
+   "archetype": "horizontal_pull",
+   "movement_pattern": "pull",
+   "dose_default": {
+    "type": "reps",
+    "reps": 12
+   },
+   "cues": [
+    "Brazos a los lados y hombros relajados",
+    "Junta los omóplatos hacia atrás y abajo",
+    "Suelta despacio"
+   ],
+   "common_mistake": "Encoger los hombros hacia las orejas.",
+   "alternatives": [
+    "FLOOR_T_RAISE",
+    "PULL_APART"
+   ],
+   "equipment": [
+    "bodyweight"
+   ]
+  },
+  "BANDED_EXERCISES/PULL_APART": {
+   "name_es": "Apertura de banda",
+   "level": 1,
+   "archetype": "horizontal_pull",
+   "movement_pattern": "pull",
+   "dose_default": {
+    "type": "reps",
+    "reps": 15
+   },
+   "cues": [
+    "Banda a la altura del pecho con los brazos estirados",
+    "Abre los brazos juntando los omóplatos",
+    "Vuelve controlando"
+   ],
+   "common_mistake": "Subir los hombros al separar la banda.",
+   "alternatives": [
+    "FLOOR_T_RAISE",
+    "SCAPULAR_RETRACTION"
+   ],
+   "equipment": [
+    "band"
+   ]
+  },
+  "PUSH_UP/KNEELING_PUSH_UP": {
+   "name_es": "Flexiones de rodillas",
+   "level": 1,
+   "archetype": "horizontal_push",
+   "movement_pattern": "push",
+   "dose_default": {
+    "type": "reps",
+    "reps": 8
+   },
+   "cues": [
+    "Manos bajo los hombros y cuerpo recto de rodillas a cabeza",
+    "Baja el pecho hacia el suelo",
+    "Empuja hasta estirar los brazos"
+   ],
+   "common_mistake": "Hundir o levantar la cadera.",
+   "alternatives": [
+    "INCLINE_PUSH_UP",
+    "PUSH_UP"
+   ],
+   "equipment": [
+    "bodyweight"
+   ]
+  },
+  "BENCH_PRESS/INCLINE_DUMBBELL_BENCH_PRESS": {
+   "name_es": "Press inclinado con mancuernas",
+   "level": 2,
+   "archetype": "horizontal_push",
+   "movement_pattern": "push",
+   "dose_default": {
+    "type": "reps",
+    "reps": 10
+   },
+   "cues": [
+    "Banco inclinado y mancuernas a la altura del pecho",
+    "Empuja hacia arriba juntando las mancuernas",
+    "Baja controlando"
+   ],
+   "common_mistake": "Abrir los codos del todo al bajar.",
+   "alternatives": [
+    "DUMBBELL_BENCH_PRESS",
+    "DUMBBELL_FLOOR_PRESS"
+   ],
+   "equipment": [
+    "bench",
+    "dumbbell"
+   ]
+  },
+  "BENCH_PRESS/DUMBBELL_FLOOR_PRESS": {
+   "name_es": "Press de pecho en el suelo con mancuernas",
+   "level": 1,
+   "archetype": "horizontal_push",
+   "movement_pattern": "push",
+   "dose_default": {
+    "type": "reps",
+    "reps": 10
+   },
+   "cues": [
+    "Tumbado con las rodillas dobladas y las mancuernas sobre el pecho",
+    "Empuja hasta estirar los brazos",
+    "Baja hasta que los codos toquen el suelo"
+   ],
+   "common_mistake": "Dejar caer los codos de golpe.",
+   "alternatives": [
+    "DUMBBELL_BENCH_PRESS",
+    "CHEST_PRESS_WITH_BAND"
+   ],
+   "equipment": [
+    "dumbbell"
+   ]
+  },
+  "SHOULDER_PRESS/SEATED_DUMBBELL_SHOULDER_PRESS": {
+   "name_es": "Press de hombros sentado con mancuernas",
+   "level": 2,
+   "archetype": "vertical_push",
+   "movement_pattern": "push",
+   "dose_default": {
+    "type": "reps",
+    "reps": 10
+   },
+   "cues": [
+    "Espalda apoyada y mancuernas a la altura de los hombros",
+    "Empuja hacia arriba sin arquear la espalda",
+    "Baja controlando"
+   ],
+   "common_mistake": "Arquear la zona lumbar al subir.",
+   "alternatives": [
+    "DUMBBELL_SHOULDER_PRESS",
+    "DUMBBELL_LATERAL_RAISE"
+   ],
+   "equipment": [
+    "bench",
+    "dumbbell"
+   ]
+  },
+  "LATERAL_RAISE/DUMBBELL_LATERAL_RAISE": {
+   "name_es": "Elevaciones laterales con mancuernas",
+   "level": 1,
+   "archetype": "lateral_raise",
+   "movement_pattern": "push",
+   "dose_default": {
+    "type": "reps",
+    "reps": 12
+   },
+   "cues": [
+    "Codos ligeramente doblados",
+    "Sube los brazos hasta la altura de los hombros",
+    "Baja despacio"
+   ],
+   "common_mistake": "Balancear el cuerpo para subir las mancuernas.",
+   "alternatives": [
+    "SEATED_LATERAL_RAISE"
+   ],
+   "equipment": [
+    "dumbbell"
+   ]
+  },
+  "TRICEPS_EXTENSION/OVERHEAD_DUMBBELL_TRICEPS_EXTENSION": {
+   "name_es": "Extensión de tríceps sobre la cabeza",
+   "level": 2,
+   "archetype": "triceps_extension",
+   "movement_pattern": "push",
+   "dose_default": {
+    "type": "reps",
+    "reps": 10
+   },
+   "cues": [
+    "Mancuerna sujeta con las dos manos sobre la cabeza",
+    "Baja detrás de la cabeza doblando los codos",
+    "Estira sin abrir los codos"
+   ],
+   "common_mistake": "Abrir los codos hacia los lados.",
+   "alternatives": [
+    "DUMBBELL_KICKBACK",
+    "TRICEPS_EXTENSION_ON_FLOOR"
+   ],
+   "equipment": [
+    "dumbbell"
+   ]
+  },
+  "TRICEPS_EXTENSION/DUMBBELL_KICKBACK": {
+   "name_es": "Patada de tríceps con mancuerna",
+   "level": 1,
+   "archetype": "triceps_extension",
+   "movement_pattern": "push",
+   "dose_default": {
+    "type": "reps",
+    "reps": 12
+   },
+   "cues": [
+    "Torso inclinado y codo pegado al cuerpo",
+    "Estira el brazo hacia atrás",
+    "Baja sin mover el codo"
+   ],
+   "common_mistake": "Balancear el codo en lugar de dejarlo fijo.",
+   "alternatives": [
+    "OVERHEAD_DUMBBELL_TRICEPS_EXTENSION",
+    "TRICEPS_EXTENSION_ON_FLOOR"
+   ],
+   "equipment": [
+    "dumbbell"
+   ]
+  },
+  "PULL_UP/WIDE_GRIP_LAT_PULLDOWN": {
+   "name_es": "Jalón al pecho con agarre ancho",
+   "level": 1,
+   "archetype": "vertical_pull",
+   "movement_pattern": "pull",
+   "dose_default": {
+    "type": "reps",
+    "reps": 10
+   },
+   "cues": [
+    "Sentado con el agarre más ancho que los hombros",
+    "Baja la barra hacia la parte alta del pecho",
+    "Sube controlando"
+   ],
+   "common_mistake": "Inclinarse hacia atrás para tirar con el cuerpo.",
+   "alternatives": [
+    "LAT_PULLDOWN",
+    "STRAIGHT_ARM_PULLDOWN"
+   ],
+   "equipment": [
+    "cable"
+   ]
+  },
+  "PULL_UP/STRAIGHT_ARM_PULLDOWN": {
+   "name_es": "Jalón con brazos rectos",
+   "level": 2,
+   "archetype": "vertical_pull",
+   "movement_pattern": "pull",
+   "dose_default": {
+    "type": "reps",
+    "reps": 12
+   },
+   "cues": [
+    "De pie con los brazos casi estirados",
+    "Baja la barra hasta los muslos",
+    "Sube controlando"
+   ],
+   "common_mistake": "Doblar los codos y convertirlo en un jalón normal.",
+   "alternatives": [
+    "LAT_PULLDOWN",
+    "WIDE_GRIP_LAT_PULLDOWN"
+   ],
+   "equipment": [
+    "cable"
+   ]
+  },
+  "CURL/DUMBBELL_HAMMER_CURL": {
+   "name_es": "Curl martillo con mancuernas",
+   "level": 1,
+   "archetype": "curl",
+   "movement_pattern": "pull",
+   "dose_default": {
+    "type": "reps",
+    "reps": 10
+   },
+   "cues": [
+    "Codos pegados al cuerpo y palmas enfrentadas",
+    "Sube las mancuernas hasta los hombros",
+    "Baja despacio"
+   ],
+   "common_mistake": "Balancear el torso para subir.",
+   "alternatives": [
+    "STANDING_DUMBBELL_BICEPS_CURL",
+    "DUMBBELL_BICEPS_CURL"
+   ],
+   "equipment": [
+    "dumbbell"
+   ]
+  },
+  "SQUAT/DUMBBELL_SQUAT": {
+   "name_es": "Sentadilla con mancuernas",
+   "level": 1,
+   "archetype": "squat",
+   "movement_pattern": "squat",
+   "dose_default": {
+    "type": "reps",
+    "reps": 10
+   },
+   "cues": [
+    "Mancuernas a los lados y pies a la anchura de los hombros",
+    "Baja la cadera atrás y abajo",
+    "Empuja el suelo para subir"
+   ],
+   "common_mistake": "Dejar que las rodillas se vayan hacia dentro.",
+   "alternatives": [
+    "GOBLET_SQUAT",
+    "AIR_SQUAT"
+   ],
+   "equipment": [
+    "dumbbell"
+   ]
+  },
+  "SQUAT/PRISONER_SQUAT": {
+   "name_es": "Sentadilla con manos tras la cabeza",
+   "level": 1,
+   "archetype": "squat",
+   "movement_pattern": "squat",
+   "dose_default": {
+    "type": "reps",
+    "reps": 10
+   },
+   "cues": [
+    "Manos tras la cabeza y codos abiertos",
+    "Baja con el pecho alto",
+    "Sube empujando el suelo"
+   ],
+   "common_mistake": "Tirar del cuello con las manos.",
+   "alternatives": [
+    "AIR_SQUAT",
+    "GOBLET_SQUAT"
+   ],
+   "equipment": [
+    "bodyweight"
+   ]
+  },
+  "SQUAT/SUMO_SQUAT": {
+   "name_es": "Sentadilla sumo",
+   "level": 1,
+   "archetype": "squat",
+   "movement_pattern": "squat",
+   "dose_default": {
+    "type": "reps",
+    "reps": 10
+   },
+   "cues": [
+    "Pies más anchos que los hombros y puntas hacia fuera",
+    "Baja con las rodillas en la dirección de los pies",
+    "Sube apretando los glúteos"
+   ],
+   "common_mistake": "Dejar caer las rodillas hacia dentro.",
+   "alternatives": [
+    "WIDE_STANCE_GOBLET_SQUAT",
+    "GOBLET_SQUAT"
+   ],
+   "equipment": [
+    "bodyweight"
+   ]
+  },
+  "SQUAT/WIDE_STANCE_GOBLET_SQUAT": {
+   "name_es": "Sentadilla goblet con pies abiertos",
+   "level": 1,
+   "archetype": "squat",
+   "movement_pattern": "squat",
+   "dose_default": {
+    "type": "reps",
+    "reps": 10
+   },
+   "cues": [
+    "Mancuerna pegada al pecho y pies abiertos",
+    "Baja entre las piernas con el pecho alto",
+    "Sube empujando el suelo"
+   ],
+   "common_mistake": "Redondear la espalda al bajar.",
+   "alternatives": [
+    "GOBLET_SQUAT",
+    "SUMO_SQUAT"
+   ],
+   "equipment": [
+    "dumbbell"
+   ]
+  },
+  "SQUAT/DUMBBELL_SPLIT_SQUAT": {
+   "name_es": "Sentadilla dividida con mancuernas",
+   "level": 2,
+   "archetype": "lunge",
+   "movement_pattern": "squat",
+   "dose_default": {
+    "type": "reps",
+    "reps": 10
+   },
+   "cues": [
+    "Un pie delante y otro detrás, mancuernas a los lados",
+    "Baja la rodilla de atrás hacia el suelo",
+    "Sube empujando con el pie delantero"
+   ],
+   "common_mistake": "Inclinar el torso hacia delante.",
+   "alternatives": [
+    "DUMBBELL_BULGARIAN_SPLIT_SQUAT",
+    "LUNGE"
+   ],
+   "equipment": [
+    "dumbbell"
+   ]
+  },
+  "SQUAT/DUMBBELL_STEP_UP": {
+   "name_es": "Subida al cajón con mancuernas",
+   "level": 2,
+   "archetype": "squat",
+   "movement_pattern": "squat",
+   "dose_default": {
+    "type": "reps",
+    "reps": 10
+   },
+   "cues": [
+    "Apoya todo el pie en el cajón",
+    "Sube empujando con la pierna de arriba",
+    "Baja controlando"
+   ],
+   "common_mistake": "Impulsarse con la pierna de abajo.",
+   "alternatives": [
+    "STEP_UP",
+    "DUMBBELL_BULGARIAN_SPLIT_SQUAT"
+   ],
+   "equipment": [
+    "box",
+    "dumbbell"
+   ]
+  },
+  "LUNGE/LUNGE": {
+   "name_es": "Zancada con peso corporal",
+   "level": 1,
+   "archetype": "lunge",
+   "movement_pattern": "squat",
+   "dose_default": {
+    "type": "reps",
+    "reps": 10
+   },
+   "cues": [
+    "Da un paso largo al frente",
+    "Baja hasta doblar ambas rodillas a unos 90°",
+    "Empuja con el pie delantero para volver"
+   ],
+   "common_mistake": "Dejar que la rodilla delantera se vaya hacia dentro.",
+   "alternatives": [
+    "DUMBBELL_REVERSE_LUNGE",
+    "WALKING_LUNGE"
+   ],
+   "equipment": [
+    "bodyweight"
+   ]
+  },
+  "LUNGE/WALKING_LUNGE": {
+   "name_es": "Zancada caminando",
+   "level": 2,
+   "archetype": "lunge",
+   "movement_pattern": "squat",
+   "dose_default": {
+    "type": "reps",
+    "reps": 10
+   },
+   "cues": [
+    "Da un paso largo y baja con control",
+    "Mantén el torso erguido",
+    "Avanza alternando las piernas"
+   ],
+   "common_mistake": "Dar pasos demasiado cortos.",
+   "alternatives": [
+    "LUNGE",
+    "DUMBBELL_REVERSE_LUNGE"
+   ],
+   "equipment": [
+    "bodyweight"
+   ]
+  },
+  "LUNGE/SIDE_LUNGE": {
+   "name_es": "Zancada lateral",
+   "level": 2,
+   "archetype": "lunge",
+   "movement_pattern": "squat",
+   "dose_default": {
+    "type": "reps",
+    "reps": 8
+   },
+   "cues": [
+    "Da un paso largo hacia un lado",
+    "Lleva la cadera atrás doblando solo esa rodilla",
+    "Empuja para volver al centro"
+   ],
+   "common_mistake": "Girar el pie o dejar caer la rodilla hacia dentro.",
+   "alternatives": [
+    "CURTSY_LUNGE",
+    "LUNGE"
+   ],
+   "equipment": [
+    "bodyweight"
+   ]
+  },
+  "LUNGE/CURTSY_LUNGE": {
+   "name_es": "Zancada cruzada",
+   "level": 2,
+   "archetype": "lunge",
+   "movement_pattern": "squat",
+   "dose_default": {
+    "type": "reps",
+    "reps": 8
+   },
+   "cues": [
+    "Cruza una pierna por detrás de la otra",
+    "Baja manteniendo el torso erguido",
+    "Empuja para volver"
+   ],
+   "common_mistake": "Dejar caer la rodilla delantera hacia dentro.",
+   "alternatives": [
+    "LUNGE",
+    "SIDE_LUNGE"
+   ],
+   "equipment": [
+    "bodyweight"
+   ]
+  },
+  "CALF_RAISE/STANDING_DUMBBELL_CALF_RAISE": {
+   "name_es": "Elevación de talones con mancuernas",
+   "level": 1,
+   "archetype": "stretch",
+   "movement_pattern": "squat",
+   "dose_default": {
+    "type": "reps",
+    "reps": 15
+   },
+   "cues": [
+    "Mancuernas a los lados y apoyo en la punta del pie",
+    "Sube los talones lo más alto posible",
+    "Baja despacio"
+   ],
+   "common_mistake": "Rebotar sin controlar la bajada.",
+   "alternatives": [
+    "STANDING_CALF_RAISE",
+    "SINGLE_LEG_STANDING_CALF_RAISE"
+   ],
+   "equipment": [
+    "dumbbell"
+   ]
+  },
+  "CALF_RAISE/SINGLE_LEG_STANDING_CALF_RAISE": {
+   "name_es": "Elevación de talón a una pierna",
+   "level": 2,
+   "archetype": "stretch",
+   "movement_pattern": "squat",
+   "dose_default": {
+    "type": "reps",
+    "reps": 12
+   },
+   "cues": [
+    "Apóyate con una mano si lo necesitas",
+    "Sube sobre la punta de un pie",
+    "Baja despacio"
+   ],
+   "common_mistake": "Doblar la rodilla para subir más.",
+   "alternatives": [
+    "STANDING_CALF_RAISE",
+    "STANDING_DUMBBELL_CALF_RAISE"
+   ],
+   "equipment": [
+    "bodyweight"
+   ]
+  },
+  "SHRUG/DUMBBELL_SHRUG": {
+   "name_es": "Encogimiento de hombros con mancuernas",
+   "level": 1,
+   "archetype": "carry",
+   "movement_pattern": "pull",
+   "dose_default": {
+    "type": "reps",
+    "reps": 12
+   },
+   "cues": [
+    "Mancuernas a los lados y brazos estirados",
+    "Sube los hombros hacia las orejas",
+    "Baja despacio sin rotar"
+   ],
+   "common_mistake": "Girar los hombros hacia delante o atrás.",
+   "alternatives": [
+    "FARMERS_CARRY",
+    "SCAPULAR_RETRACTION"
+   ],
+   "equipment": [
+    "dumbbell"
+   ]
+  }
+ }
 }

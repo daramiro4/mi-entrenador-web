@@ -138,3 +138,66 @@ export function buildCuratedReview(catalog: Catalog): string {
   }
   return out.join("\n");
 }
+
+/* ------------------------------------------------------------------ Informe de contenido (fase 3) */
+
+const SECTION_ORDER = [
+  "Movilidad",
+  "Glúteo y cadera",
+  "Bisagra e isquiotibiales",
+  "Core",
+  "Espalda alta y hombros",
+  "Empuje",
+  "Tirón vertical y bíceps",
+  "Sentadilla y zancada",
+  "Pantorrilla",
+] as const;
+
+export function sectionOf(e: Pick<CatalogExercise, "garmin_category" | "garmin_name" | "movement_pattern">): (typeof SECTION_ORDER)[number] {
+  const c = e.garmin_category;
+  if (c === "WARM_UP") return "Movilidad";
+  if (c === "LATERAL_RAISE" && e.garmin_name === "WALL_SLIDE") return "Espalda alta y hombros";
+  if (c === "HIP_RAISE" || c === "HIP_STABILITY" || (c === "BANDED_EXERCISES" && e.garmin_name === "GLUTE_BRIDGE")) return "Glúteo y cadera";
+  if (c === "DEADLIFT" || c === "LEG_CURL" || (c === "BANDED_EXERCISES" && e.garmin_name === "DEADLIFT")) return "Bisagra e isquiotibiales";
+  if (c === "PLANK" || c === "CRUNCH" || c === "LEG_RAISE" || c === "CORE") return "Core";
+  if (c === "ROW" || c === "FLYE" || c === "SHOULDER_STABILITY" || c === "SHRUG" || (c === "BANDED_EXERCISES" && e.garmin_name === "PULL_APART")) return "Espalda alta y hombros";
+  if (c === "LATERAL_RAISE") return e.movement_pattern === "pull" ? "Espalda alta y hombros" : "Empuje";
+  if (c === "PUSH_UP" || c === "BENCH_PRESS" || c === "SHOULDER_PRESS" || c === "TRICEPS_EXTENSION") return "Empuje";
+  if (c === "PULL_UP" || c === "CURL") return "Tirón vertical y bíceps";
+  if (c === "CALF_RAISE") return "Pantorrilla";
+  return "Sentadilla y zancada";
+}
+
+const doseText = (d: CatalogExercise["dose_default"]) => (!d ? "—" : d.type === "time" ? `${d.seconds} s` : `${d.reps} reps`);
+
+/** Informe para revisar el contenido de la fase 3: los ejercicios con contenido propuesto (borradores, aún no 'reviewed'). */
+export function buildContentReview(catalog: Catalog): string {
+  const drafts = catalog.exercises.filter((e) => !e.legacy_slug && e.cues.length > 0);
+  const out: string[] = [
+    "# Contenido propuesto (fase 3) — para revisar",
+    "",
+    "> GENERADO (`npm run gen:exercise-catalog`) desde `data/exercise-overrides.json`. **Todo es borrador**: `review_status = draft`, `plan_eligible = false`.",
+    "> El nombre en español está en estado `proposed`: se marca `reviewed` en `data/exercise-names-es.csv`. Para cambiar cualquier otro dato, edita el override y regenera.",
+    "",
+    `**${drafts.length} ejercicios** priorizados para alguien sedentario que conduce mucho y entrena por salud, con gimnasio, mancuernas y peso corporal. Sin consejos médicos ni contraindicaciones.`,
+    "",
+  ];
+  for (const section of SECTION_ORDER) {
+    const list = drafts.filter((e) => sectionOf(e) === section);
+    if (list.length === 0) continue;
+    out.push(`## ${section} (${list.length})`, "", "| Ejercicio | Clave de Garmin | Nivel | Material | Dosis | Arquetipo |", "|---|---|---|---|---|---|");
+    for (const e of list) out.push(`| ${e.name_es} | \`${e.garmin_category}/${e.garmin_name}\` | ${e.level} | ${e.equipment.join(", ")} | ${doseText(e.dose_default)} | ${e.archetype} |`);
+    out.push("");
+  }
+  out.push("## Fichas completas", "");
+  for (const section of SECTION_ORDER) {
+    for (const e of drafts.filter((x) => sectionOf(x) === section)) {
+      out.push(`### ${e.name_es}`);
+      out.push(`\`${e.garmin_category}/${e.garmin_name}\` · ${section} · nivel ${e.level} · ${e.equipment.join(", ")} · ${doseText(e.dose_default)} · animación: ${e.archetype}`);
+      out.push("");
+      e.cues.forEach((c, i) => out.push(`${i + 1}. ${c}`));
+      out.push("", `**Error común:** ${e.common_mistake}`, `**Alternativas:** ${e.alternatives.map((a) => catalog.exercises.find((x) => x.garmin_name === a)?.name_es ?? a).join(" · ")}`, "");
+    }
+  }
+  return out.join("\n");
+}

@@ -17,7 +17,14 @@ cleanup() { docker rm -f "$NAME" >/dev/null 2>&1 || true; }
 trap cleanup EXIT
 
 docker run -d --rm --name "$NAME" -e POSTGRES_PASSWORD=test "$IMAGE" >/dev/null
-for _ in $(seq 1 40); do docker exec "$NAME" pg_isready -U postgres >/dev/null 2>&1 && break; sleep 1; done
+# El entrypoint de postgres arranca, inicializa y REINICIA el servidor: esperar a varias consultas reales seguidas (no solo a pg_isready).
+OKS=0
+for _ in $(seq 1 90); do
+  if docker exec "$NAME" psql -U postgres -tAc "select 1" >/dev/null 2>&1; then OKS=$((OKS + 1)); else OKS=0; fi
+  [ "$OKS" -ge 3 ] && break
+  sleep 1
+done
+[ "$OKS" -ge 3 ] || { echo "El Postgres de prueba no arrancó"; exit 1; }
 
 psql_q() { docker exec -i "$NAME" psql -U postgres -v ON_ERROR_STOP=1 -tA -c "$1"; }
 psql_f() { docker exec -i "$NAME" psql -U postgres -v ON_ERROR_STOP=1 -q -f - < "$1" >/dev/null; }

@@ -1,7 +1,7 @@
 # Biblioteca de ejercicios (catálogo de Garmin)
 
 Catálogo de los ejercicios que el reloj acepta en un entreno de fuerza (categoría + nombre de ejercicio), con metadatos
-para el módulo de fuerza y, más adelante, ficha animada. **Estado: Fase 1 (datos) hecha y Fase 2 (motor de animación) en la PARADA 2.** Contenido y UI (fases 3-4) no están hechas. La migración está probada en local e **sin aplicar** en producción: ver `docs/exercise-cutover-plan.md`.
+para el módulo de fuerza y, más adelante, ficha animada. **Estado: Fase 1 (datos) y Fase 2 (motor de animación) hechas; Fase 3 (contenido) en la PARADA 3.** La UI (fase 4) no está hecha. La migración está probada en local e **sin aplicar** en producción: ver `docs/exercise-cutover-plan.md`.
 
 ## Cifras reales (2026-11-12)
 
@@ -95,3 +95,19 @@ SVG puro, sin librerías de animación. Código en `lib/exercises/rig/` (puro, c
 - **Mapa** `animation-map.ts`: ejercicio de Garmin → arquetipo + parámetros (hoy 6 ejercicios). Sin entrada = sin animación.
 - Los rigs viven en código; `exercise_animations` / `exercises.animation_id` de la base de datos quedan sin usar hasta la Fase 4.
 - Los pasos numerados de un rig solo existen si hay técnica verificada: la rotación torácica usa exactamente las 3 claves de su ficha curada; los arquetipos genéricos no traen pasos.
+
+## Contenido priorizado (Fase 3)
+
+**80 ejercicios** en borrador, escritos en `data/exercise-overrides.json` (se aplican encima de lo importado; regenerar no los pisa) y listados para revisión en
+`docs/exercise-content-review.md` (generado, con tabla por zona y ficha completa de cada uno). Zonas: movilidad torácica, de cadera y cuello (18) · glúteo y
+estabilidad de cadera (11) · bisagra e isquiotibiales (5) · core (12) · espalda alta y hombros (11) · empuje (7) · tirón vertical y bíceps (3) · sentadilla y zancada (10) · pantorrilla y trapecio (3).
+Perfil: sedentario que conduce mucho, entrena por salud, con gimnasio, mancuernas, banda y peso corporal. Sin olímpicos ni pliométricos.
+
+Cada ejercicio trae: nombre en español, nivel (1-3), arquetipo de animación previsto, dosis, 1-3 claves en imperativo, error común y 1-2 alternativas (que existen en el catálogo).
+**Sin consejos médicos ni contraindicaciones** (un test lo vigila). `review_status = draft` y `plan_eligible = false` para todos: solo los marcas `reviewed` tú.
+
+- **Nombres en español:** el nombre propuesto queda en estado `proposed`; cuando lo apruebes, márcalo `reviewed` en `data/exercise-names-es.csv` (esa revisión manda sobre cualquier propuesta o corrección y sobrevive a regenerar).
+  Cobertura actual: 41 curados + 80 propuestos + 203 automáticos = **20,9 %**; el resto sigue en inglés a propósito.
+- **Arquetipo (`archetype`)**: tipo de animación previsto. Solo 3 de los 17 tienen rig (`squat`, `hip_hinge`, `quadruped_rotation`); el resto está `pending`. Asignar arquetipo NO crea la animación:
+  las entradas ejecutables siguen siendo `lib/exercises/animation-map.ts` (hoy 6 ejercicios).
+- Los músculos de estos 80 son los de Exercises.json (`muscles_source = exercises_json`); no se han tocado.

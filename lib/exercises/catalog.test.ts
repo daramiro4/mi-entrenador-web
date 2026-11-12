@@ -19,11 +19,13 @@ import {
   type RawRow,
 } from "./catalog";
 import { CATEGORY_ES, translateName } from "./names-es";
-import { buildCuratedReview, INTENT_EN } from "./curated-review";
+import { buildContentReview, buildCuratedReview, INTENT_EN, sectionOf } from "./curated-review";
+import { ARCHETYPES } from "./rig/archetypes";
 
 const DATA = "data/garmin-exercises.json";
 const NAMES = "data/exercise-names-es.csv";
 const REVIEW_DOC = "docs/curated-mapping-review.md";
+const CONTENT_DOC = "docs/exercise-content-review.md";
 
 function load(): Catalog {
   const gc = JSON.parse(readFileSync("data/sources/garminconnect-exercises.json", "utf8")) as { source: string; rows: RawRow[] };
@@ -58,12 +60,14 @@ describe("catálogo de ejercicios (generado)", () => {
       writeFileSync(NAMES, csv);
       writeFileSync(MIGRATION_FILE, sql);
       writeFileSync(REVIEW_DOC, review);
+      writeFileSync(CONTENT_DOC, buildContentReview(catalog));
     }
     expect(readFileSync(DATA, "utf8")).toBe(json);
     expect(readFileSync(NAMES, "utf8")).toBe(csv);
     expect(readFileSync(MIGRATION_FILE, "utf8")).toBe(sql);
     expect(readFileSync(REVIEW_DOC, "utf8")).toBe(review);
     expect(readFileSync(ROLLBACK_FILE, "utf8")).toBe(down);
+    expect(readFileSync(CONTENT_DOC, "utf8")).toBe(buildContentReview(catalog));
   });
 
   it("claves únicas y todas las categorías existen", () => {
@@ -106,13 +110,19 @@ describe("catálogo de ejercicios (generado)", () => {
     expect(e.dose_default).toEqual({ type: "time", seconds: 40 });
   });
 
-  it("solo las fichas curadas son 'reviewed'; el resto es borrador y no lleva técnica inventada", () => {
+  it("solo las fichas curadas son 'reviewed'; el resto es borrador, nunca elegible para el plan", () => {
     for (const e of catalog.exercises.filter((x) => !x.legacy_slug)) {
       expect(e.review_status).toBe("draft");
-      expect(e.level).toBeNull();
-      expect(e.cues).toEqual([]);
-      expect(e.common_mistake).toBeNull();
+      expect(e.plan_eligible).toBe(false);
       expect(e.contraindications).toEqual([]);
+    }
+  });
+
+  it("los ejercicios SIN contenido propuesto no llevan técnica inventada", () => {
+    for (const e of catalog.exercises.filter((x) => !x.legacy_slug && x.cues.length === 0)) {
+      expect(e.level).toBeNull();
+      expect(e.common_mistake).toBeNull();
+      expect(e.alternatives).toEqual([]);
     }
   });
 
@@ -123,10 +133,14 @@ describe("catálogo de ejercicios (generado)", () => {
     }
   });
 
+  const overrideKeys = new Set(Object.keys((JSON.parse(readFileSync("data/exercise-overrides.json", "utf8")) as { overrides: Record<string, unknown> }).overrides));
+
   it("equipo conservador: 'bodyweight' solo con BODY_WEIGHT en la clave, categoría de calentamiento o ficha curada; sin pista → 'unknown'", () => {
     for (const e of catalog.exercises) {
       if (!e.equipment.includes("bodyweight")) continue;
-      const ok = e.legacy_slug !== null || /BODY_?WEIGHT/.test(e.garmin_name) || e.garmin_category === "WARM_UP";
+      // También si una corrección manual lo afirma explícitamente (data/exercise-overrides.json).
+      const manual = overrideKeys.has(`${e.garmin_category}/${e.garmin_name}`);
+      const ok = e.legacy_slug !== null || /BODY_?WEIGHT/.test(e.garmin_name) || e.garmin_category === "WARM_UP" || manual;
       expect(ok, `${e.garmin_category}/${e.garmin_name}`).toBe(true);
     }
     expect(catalog.exercises.some((e) => e.equipment.includes("unknown"))).toBe(true);
@@ -265,7 +279,19 @@ describe("overrides manuales", () => {
     expect(e.primary_muscles).toEqual(["LOWER_BACK"]);
     expect(e.muscles_source).toBe("manual");
     expect(e.name_es).toBe("Rotación de tórax");
+    expect(e.name_es_status).toBe("proposed"); // una propuesta hasta que se marque 'reviewed' en el CSV
+  });
+
+  it("una revisión en el CSV ('reviewed') manda sobre la propuesta de un override", () => {
+    const csv = parseReviewedNames("garmin_category,garmin_name,name_en,name_es,status\nWARM_UP,THORACIC_ROTATION,Thoracic Rotation,Giro del tórax,reviewed\n");
+    const c = buildCatalog({ ...base, reviewedNames: csv, overrides: { "WARM_UP/THORACIC_ROTATION": { name_es: "Rotación de tórax" } } });
+    const e = find(c, "THORACIC_ROTATION");
+    expect(e.name_es).toBe("Giro del tórax");
     expect(e.name_es_status).toBe("reviewed");
+  });
+
+  it("una alternativa inexistente en un override hace fallar el generador", () => {
+    expect(() => buildCatalog({ ...base, overrides: { "WARM_UP/THORACIC_ROTATION": { alternatives: ["NO_EXISTE"] } } })).toThrow(/alternativa/);
   });
 
   it("un override a un ejercicio inexistente o con un campo no permitido falla", () => {
@@ -286,5 +312,94 @@ describe("overrides manuales", () => {
     const c = buildCatalog({ ...base, fitUnknown: new Set(["SQUAT/GOBLET_SQUAT"]) });
     expect(find(c, "GOBLET_SQUAT").fit_sdk_known).toBe(false);
     expect(find(c, "THORACIC_ROTATION").fit_sdk_known).toBe(true);
+  });
+});
+
+describe("contenido priorizado (fase 3): 80 ejercicios en borrador", () => {
+  const catalog = load();
+  const drafts = catalog.exercises.filter((e) => !e.legacy_slug && e.cues.length > 0);
+  const MEDICAL = /lesi[oó]n|dolor|m[eé]dic|terapeut|fisio|patolog|hernia|diagn[oó]st|prevenir|proteger|rehabilit|tratamiento|cura\b|enfermedad|contraindic/i;
+
+  it("son exactamente 80, todos borradores no elegibles para el plan", () => {
+    expect(drafts).toHaveLength(80);
+    for (const e of drafts) {
+      expect(e.review_status).toBe("draft");
+      expect(e.plan_eligible).toBe(false);
+    }
+  });
+
+  it("cada uno trae nombre propuesto en español, nivel, arquetipo, dosis, patrón y material conocido", () => {
+    for (const e of drafts) {
+      const id = `${e.garmin_category}/${e.garmin_name}`;
+      expect(e.name_es_status, id).toBe("proposed");
+      expect([1, 2, 3], id).toContain(e.level);
+      expect(Object.keys(ARCHETYPES), id).toContain(e.archetype);
+      expect(e.dose_default, id).not.toBeNull();
+      expect(e.movement_pattern, id).not.toBeNull();
+      expect(e.equipment, id).not.toContain("unknown");
+    }
+  });
+
+  it("claves: 1 a 3, cortas, en imperativo (empiezan en mayúscula) y sin repetirse", () => {
+    for (const e of drafts) {
+      const id = `${e.garmin_category}/${e.garmin_name}`;
+      expect(e.cues.length, id).toBeGreaterThanOrEqual(1);
+      expect(e.cues.length, id).toBeLessThanOrEqual(3);
+      expect(new Set(e.cues).size, id).toBe(e.cues.length);
+      for (const c of e.cues) {
+        expect(c.length, `${id}: «${c}»`).toBeLessThanOrEqual(72);
+        expect(c[0], `${id}: «${c}»`).toBe(c[0].toUpperCase());
+        expect(c.endsWith("."), `${id}: «${c}» sin punto final (son frases cortas)`).toBe(false);
+      }
+    }
+  });
+
+  it("error común con punto final y 1-2 alternativas que existen y no son el propio ejercicio", () => {
+    const names = new Set(catalog.exercises.map((e) => e.garmin_name));
+    for (const e of drafts) {
+      const id = `${e.garmin_category}/${e.garmin_name}`;
+      expect(e.common_mistake, id).toMatch(/\.$/);
+      expect(e.alternatives.length, id).toBeGreaterThanOrEqual(1);
+      expect(e.alternatives.length, id).toBeLessThanOrEqual(2);
+      for (const a of e.alternatives) {
+        expect(names.has(a), `${id} → ${a}`).toBe(true);
+        expect(a, id).not.toBe(e.garmin_name);
+      }
+    }
+  });
+
+  it("sin consejos médicos ni contraindicaciones inventadas", () => {
+    for (const e of drafts) {
+      const text = [e.name_es, ...e.cues, e.common_mistake ?? ""].join(" | ");
+      expect(text, `${e.garmin_category}/${e.garmin_name}`).not.toMatch(MEDICAL);
+      expect(e.contraindications).toEqual([]);
+    }
+  });
+
+  it("los nombres en español no se repiten entre ejercicios con contenido (curados + propuestos)", () => {
+    const names = catalog.exercises.filter((e) => e.legacy_slug || e.cues.length > 0).map((e) => e.name_es.toLowerCase());
+    const dup = names.filter((n, i) => names.indexOf(n) !== i);
+    expect(dup).toEqual([]);
+  });
+
+  it("cubre las zonas prioritarias: movilidad, glúteo, bisagra, core, espalda alta, empuje, tirón, sentadilla/zancada", () => {
+    const by = new Map<string, number>();
+    for (const e of drafts) by.set(sectionOf(e), (by.get(sectionOf(e)) ?? 0) + 1);
+    for (const [section, min] of [["Movilidad", 15], ["Glúteo y cadera", 8], ["Bisagra e isquiotibiales", 4], ["Core", 10], ["Espalda alta y hombros", 8], ["Empuje", 6], ["Sentadilla y zancada", 8]] as const) {
+      expect(by.get(section) ?? 0, section).toBeGreaterThanOrEqual(min);
+    }
+  });
+
+  it("incluye el material del perfil: peso corporal, mancuernas, banda y gimnasio; nada de olímpicos ni pliométricos", () => {
+    const eq = new Set(drafts.flatMap((e) => e.equipment));
+    for (const need of ["bodyweight", "dumbbell", "band", "cable", "bench"]) expect(eq.has(need), need).toBe(true);
+    expect(drafts.filter((e) => ["OLYMPIC_LIFT", "PLYO"].includes(e.garmin_category))).toEqual([]);
+  });
+
+  it("los arquetipos asignados que tienen rig listo coinciden con el mapa de animaciones", () => {
+    const ready = Object.entries(ARCHETYPES).filter(([, v]) => v.status === "ready").map(([k]) => k);
+    expect(ready.length).toBeGreaterThan(0);
+    const withRig = drafts.filter((e) => ready.includes(e.archetype ?? ""));
+    expect(withRig.length).toBeGreaterThan(0); // hay borradores que podrán animarse con los rigs ya hechos
   });
 });
