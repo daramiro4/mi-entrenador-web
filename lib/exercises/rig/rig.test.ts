@@ -314,3 +314,25 @@ describe("arquetipos y mapa de animaciones", () => {
     expect(hasAnimation("PLANK", "SIDE_PLANK")).toBe(false);
   });
 });
+
+describe("las 41 animaciones de la rutina", () => {
+  it("ningún hueso se deforma más de un 3 % (salvo los marcados como escorzo) y todos los bucles cierran", async () => {
+    for (const key of Object.keys(ANIMATION_MAP)) {
+      const [category, ...rest] = key.split("/");
+      const rig = (await loadRigFor(category, rest.join("/")))!;
+      const v = validateRig(rig);
+      const foreshortened = new Set(rig.bones.filter((b) => b.foreshortened).map((b) => b.id));
+      for (const [bone, change] of Object.entries(v.maxBoneChange)) {
+        if (!foreshortened.has(bone)) expect(change, `${key} · ${bone}`).toBeLessThanOrEqual(0.03);
+      }
+      expect(v.ok, key).toBe(true);
+    }
+  });
+
+  it("todos los ejercicios con extremidades de los dos lados o unilaterales tienen el botón de espejo coherente", async () => {
+    const lunge = (await loadRigFor("LUNGE", "DUMBBELL_LUNGE"))!;
+    const squat = (await loadRigFor("SQUAT", "AIR_SQUAT"))!;
+    expect(lunge.unilateral).toBe(true);
+    expect(squat.unilateral).toBeFalsy();
+  });
+});

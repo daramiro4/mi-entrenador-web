@@ -93,7 +93,7 @@ SVG puro, sin librerías de animación. Código en `lib/exercises/rig/` (puro, c
   `prefers-reduced-motion` muestra la pose inicial estática), `ExerciseStaticPoses` (ficha de respaldo: pose inicial y final estáticas + músculo + dosis, sin técnica inventada).
 - **Herramienta** `/dev/rigs` (solo con `next dev`; 404 en producción): fotogramas, reproductor, editor (arrastrar articulaciones, marcar escorzos, validar en vivo, exportar JSON).
 - **Arquetipos** (`rig/archetypes/`): 17 previstos; **listos 3** (`squat`, `hip_hinge`, `quadruped_rotation`); el resto `pending`. Cada uno se carga **bajo demanda** (import dinámico).
-- **Mapa** `animation-map.ts`: ejercicio de Garmin → arquetipo + parámetros (hoy 6 ejercicios). Sin entrada = sin animación.
+- **Mapa** `animation-map.ts`: ejercicio de Garmin → arquetipo + parámetros (hoy 42 ejercicios: los 41 de la rutina de fuerza + sentadilla con barra). Sin entrada = sin animación.
 - Los rigs viven en código; `exercise_animations` / `exercises.animation_id` de la base de datos quedan sin usar hasta la Fase 4.
 - Los pasos numerados de un rig solo existen si hay técnica verificada: la rotación torácica usa exactamente las 3 claves de su ficha curada; los arquetipos genéricos no traen pasos.
 
@@ -110,7 +110,7 @@ Cada ejercicio trae: nombre en español, nivel (1-3), arquetipo de animación pr
 - **Nombres en español:** el nombre propuesto queda en estado `proposed`; cuando lo apruebes, márcalo `reviewed` en `data/exercise-names-es.csv` (esa revisión manda sobre cualquier propuesta o corrección y sobrevive a regenerar).
   Cobertura actual: 41 curados + 80 propuestos + 203 automáticos = **20,9 %**; el resto sigue en inglés a propósito.
 - **Arquetipo (`archetype`)**: tipo de animación previsto. Solo 3 de los 17 tienen rig (`squat`, `hip_hinge`, `quadruped_rotation`); el resto está `pending`. Asignar arquetipo NO crea la animación:
-  las entradas ejecutables siguen siendo `lib/exercises/animation-map.ts` (hoy 6 ejercicios).
+  las entradas ejecutables siguen siendo `lib/exercises/animation-map.ts` (hoy 42 ejercicios).
 - Los músculos de estos 80 son los de Exercises.json (`muscles_source = exercises_json`); no se han tocado.
 
 ## Interfaz (Fase 4)

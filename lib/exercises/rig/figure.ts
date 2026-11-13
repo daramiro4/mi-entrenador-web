@@ -1,6 +1,6 @@
 import { BODY, ik2, polar } from "./fk";
-import { STANDING_BONES, type Joints } from "./skeleton";
-import { GROUND_Y, type Bone, type Vec } from "./types";
+import { loopProfile, sampleLoop, squatLikePhases, STANDING_BONES, type Joints } from "./skeleton";
+import { GROUND_Y, type Bone, type Highlight, type Implement, type Phase, type Rig, type Vec } from "./types";
 
 /**
  * Constructor de cuerpo para los arquetipos nuevos: se fijan la cadera, el ángulo del tronco y dónde quedan los pies/manos, y la
@@ -128,3 +128,38 @@ export function chestPoint(hip: Vec, torso: number, along = 16, out = 15): Vec {
 
 /** Suavizado cúbico 0..1. */
 export const ease = (x: number): number => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
+
+/** Ensambla un rig estándar a partir de una cinemática `at(m)`: bucle muestreado, fases por defecto (arriba/baja/abajo/sube) y resalte. */
+export function rigOf(o: {
+  id: string;
+  title_es: string;
+  bones: Bone[];
+  at: (m: number) => Joints;
+  labels: { start: string; down: string; bottom: string; up: string };
+  opacity?: [number, number, number, number];
+  implements?: Implement[];
+  highlight: Highlight;
+  loop_ms?: number;
+  unilateral?: boolean;
+  markers?: string[];
+  profile?: (t: number) => number;
+  steps?: number;
+  phases?: Phase[];
+  stroke_scale?: number;
+}): Rig {
+  return {
+    id: o.id,
+    title_es: o.title_es,
+    view: "side",
+    loop_ms: o.loop_ms ?? 6000,
+    unilateral: o.unilateral,
+    bones: o.bones,
+    interpolation: "linear",
+    poses: sampleLoop(o.at, o.steps ?? 72, o.profile ?? loopProfile),
+    phases: o.phases ?? squatLikePhases(o.labels, o.opacity ?? [0.15, 0.55, 0.9, 0.6]),
+    implements: o.implements,
+    highlight: o.highlight,
+    markers: o.markers,
+    stroke_scale: o.stroke_scale,
+  };
+}

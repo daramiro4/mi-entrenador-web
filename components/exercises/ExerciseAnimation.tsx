@@ -41,9 +41,20 @@ export function ExerciseAnimation({
   const [playing, setPlaying] = useState(autoPlay);
   const [mirror, setMirror] = useState(false);
   const elapsed = useRef(0);
+  const rootRef = useRef<HTMLElement | null>(null);
+  // Solo se anima mientras está a la vista: dentro de un <details> cerrado o fuera de pantalla no gasta CPU ni batería.
+  const [visible, setVisible] = useState(true);
 
   useEffect(() => {
-    if (!playing || reduced) return;
+    const el = rootRef.current;
+    if (!el || typeof IntersectionObserver === "undefined") return;
+    const io = new IntersectionObserver(([entry]) => setVisible(entry.isIntersecting));
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!playing || reduced || !visible) return;
     let raf = 0;
     let last = performance.now();
     const tick = (now: number) => {
@@ -54,7 +65,7 @@ export function ExerciseAnimation({
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [playing, reduced, rig.loop_ms]);
+  }, [playing, reduced, visible, rig.loop_ms]);
 
   const shown = reduced ? 0 : t;
   const joints = evalRig(rig, shown);
@@ -66,7 +77,7 @@ export function ExerciseAnimation({
   const activeStep = steps.reduce((acc, s, i) => (s.phaseIndex <= phaseIndex ? i : acc), 0);
 
   return (
-    <section className={className} aria-label={`Animación: ${rig.title_es}`}>
+    <section ref={rootRef} className={className} aria-label={`Animación: ${rig.title_es}`}>
       <div className="data-surface !p-3 sm:!p-4">
         <p className={compact ? "min-h-6 text-center font-display text-lg" : "min-h-7 text-center font-display text-2xl"} aria-hidden="true">
           {phase?.label_es}

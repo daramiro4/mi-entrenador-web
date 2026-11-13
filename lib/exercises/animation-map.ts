@@ -30,6 +30,35 @@ export const ANIMATION_MAP: Record<string, AnimationEntry> = {
   "LEG_CURL/GOOD_MORNING": { archetype: "hip_hinge", params: { variant: "good_morning" } },
   "DEADLIFT/SINGLE_LEG_ROMANIAN_DEADLIFT_WITH_DUMBBELL": { archetype: "hip_hinge", params: { variant: "single_leg" } },
   "CARRY/FARMERS_CARRY": { archetype: "carry", params: { title_es: "Paseo del granjero" } },
+  // Empujes
+  "BENCH_PRESS/DUMBBELL_BENCH_PRESS": { archetype: "horizontal_push", params: { variant: "bench_press" } },
+  "PUSH_UP/CHEST_PRESS_WITH_BAND": { archetype: "horizontal_push", params: { variant: "band_press" } },
+  "PUSH_UP/PUSH_UP": { archetype: "horizontal_push", params: { variant: "pushup" } },
+  "PUSH_UP/INCLINE_PUSH_UP": { archetype: "horizontal_push", params: { variant: "incline_pushup", title_es: "Flexiones inclinadas" } },
+  "SHOULDER_PRESS/DUMBBELL_SHOULDER_PRESS": { archetype: "vertical_push", params: {} },
+  // Tirones
+  "ROW/DUMBBELL_ROW": { archetype: "horizontal_pull", params: { variant: "dumbbell_row" } },
+  "BANDED_EXERCISES/ROW": { archetype: "horizontal_pull", params: { variant: "band_row" } },
+  "ROW/INVERTED_ROW": { archetype: "horizontal_pull", params: { variant: "inverted_row" } },
+  "ROW/BANDED_FACE_PULLS": { archetype: "horizontal_pull", params: { variant: "face_pull" } },
+  "PULL_UP/LAT_PULLDOWN": { archetype: "vertical_pull", params: { variant: "lat_pulldown" } },
+  "PULL_UP/BAND_ASSISTED_PULL_UP": { archetype: "vertical_pull", params: { variant: "pull_up" } },
+  "CURL/STANDING_DUMBBELL_BICEPS_CURL": { archetype: "curl", params: {} },
+  // Puentes
+  "HIP_RAISE/BARBELL_HIP_THRUST_ON_FLOOR": { archetype: "bridge_hip_thrust", params: { variant: "glute_bridge" } },
+  "HIP_RAISE/SINGLE_LEG_HIP_RAISE": { archetype: "bridge_hip_thrust", params: { variant: "single_leg" } },
+  "HIP_RAISE/BARBELL_HIP_THRUST_WITH_BENCH": { archetype: "bridge_hip_thrust", params: { variant: "hip_thrust" } },
+  // Core
+  "PLANK/PLANK": { archetype: "plank_isometric", params: {} },
+  "HIP_STABILITY/DEAD_BUG": { archetype: "dead_bug", params: {} },
+  "HIP_STABILITY/QUADRUPED_WITH_LEG_LIFT": { archetype: "bird_dog", params: {} },
+  "HYPEREXTENSION/SUPERMAN_FROM_FLOOR": { archetype: "superman", params: {} },
+  "CORE/CABLE_CORE_PRESS": { archetype: "pallof", params: { title_es: "Press Pallof" } },
+  // Movilidad
+  "WARM_UP/STRETCH_CAT_COW": { archetype: "cat_cow", params: {} },
+  "WARM_UP/STRETCH_LUNGING_HIP_FLEXOR": { archetype: "stretch", params: { variant: "hip_flexor" } },
+  "WARM_UP/STRETCH_NECK": { archetype: "stretch", params: { variant: "neck_retraction" } },
+  "WARM_UP/STRETCH_PECTORAL": { archetype: "stretch", params: { variant: "doorway_chest" } },
 };
 
 export const animationKey = (category: string, name: string): string => `${category}/${name}`;

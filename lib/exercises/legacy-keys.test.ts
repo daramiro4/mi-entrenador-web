@@ -21,13 +21,11 @@ describe("LEGACY_CATALOG_KEY", () => {
     expect(catalogKeyForSlug("no-existe")).toBeNull();
   });
 
-  it("los ejercicios con animación nueva dentro de la rutina son los esperados (la animación solo existe si hay rig)", () => {
-    const animados = EXERCISES.filter((ex) => {
-      const key = catalogKeyForSlug(ex.slug)!;
-      const [cat, ...rest] = key.split("/");
-      return hasAnimation(cat, rest.join("/"));
-    }).map((e) => e.slug).sort();
-    // Al añadir un rig a ANIMATION_MAP para un ejercicio de la rutina, este test falla a propósito: actualiza la lista.
-    expect(animados).toEqual(["peso-muerto-barra", "peso-muerto-rumano", "rotacion-toracica", "sentadilla-goblet", "sentadilla-peso-corporal"]);
+  it("los 41 ejercicios de la rutina tienen animación (la animación solo existe si hay rig en ANIMATION_MAP)", () => {
+    const sinAnimacion = EXERCISES.filter((ex) => {
+      const [cat, ...rest] = catalogKeyForSlug(ex.slug)!.split("/");
+      return !hasAnimation(cat, rest.join("/"));
+    }).map((e) => e.slug);
+    expect(sinAnimacion).toEqual([]);
   });
 });
