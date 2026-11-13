@@ -465,7 +465,151 @@ export type Database = {
           },
         ]
       }
+      exercise_animations: {
+        Row: {
+          archetype: string
+          id: string
+          loop_ms: number
+          rig: Json
+          view: string
+        }
+        Insert: {
+          archetype: string
+          id?: string
+          loop_ms?: number
+          rig: Json
+          view?: string
+        }
+        Update: {
+          archetype?: string
+          id?: string
+          loop_ms?: number
+          rig?: Json
+          view?: string
+        }
+        Relationships: []
+      }
+      exercise_categories: {
+        Row: {
+          garmin_category: string
+          name_en: string
+          name_es: string
+        }
+        Insert: {
+          garmin_category: string
+          name_en: string
+          name_es: string
+        }
+        Update: {
+          garmin_category?: string
+          name_en?: string
+          name_es?: string
+        }
+        Relationships: []
+      }
       exercises: {
+        Row: {
+          alternatives: string[]
+          animation_id: string | null
+          archetype: string | null
+          common_mistake: string | null
+          contraindications: string[]
+          cues: Json
+          dose_default: Json | null
+          equipment: string[]
+          fit_sdk_known: boolean
+          garmin_category: string
+          garmin_name: string
+          id: string
+          leg_load: string | null
+          legacy_slug: string | null
+          level: number | null
+          movement_pattern: string | null
+          muscles_source: string | null
+          name_en: string
+          name_es: string
+          name_es_status: string
+          plan_eligible: boolean
+          primary_muscles: string[]
+          review_status: string
+          secondary_muscles: string[]
+          source: string
+          unilateral: boolean
+        }
+        Insert: {
+          alternatives?: string[]
+          animation_id?: string | null
+          archetype?: string | null
+          common_mistake?: string | null
+          contraindications?: string[]
+          cues?: Json
+          dose_default?: Json | null
+          equipment?: string[]
+          fit_sdk_known?: boolean
+          garmin_category: string
+          garmin_name: string
+          id?: string
+          leg_load?: string | null
+          legacy_slug?: string | null
+          level?: number | null
+          movement_pattern?: string | null
+          muscles_source?: string | null
+          name_en: string
+          name_es: string
+          name_es_status?: string
+          plan_eligible?: boolean
+          primary_muscles?: string[]
+          review_status?: string
+          secondary_muscles?: string[]
+          source: string
+          unilateral?: boolean
+        }
+        Update: {
+          alternatives?: string[]
+          animation_id?: string | null
+          archetype?: string | null
+          common_mistake?: string | null
+          contraindications?: string[]
+          cues?: Json
+          dose_default?: Json | null
+          equipment?: string[]
+          fit_sdk_known?: boolean
+          garmin_category?: string
+          garmin_name?: string
+          id?: string
+          leg_load?: string | null
+          legacy_slug?: string | null
+          level?: number | null
+          movement_pattern?: string | null
+          muscles_source?: string | null
+          name_en?: string
+          name_es?: string
+          name_es_status?: string
+          plan_eligible?: boolean
+          primary_muscles?: string[]
+          review_status?: string
+          secondary_muscles?: string[]
+          source?: string
+          unilateral?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exercises_animation_id_fkey"
+            columns: ["animation_id"]
+            isOneToOne: false
+            referencedRelation: "exercise_animations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "exercises_garmin_category_fkey"
+            columns: ["garmin_category"]
+            isOneToOne: false
+            referencedRelation: "exercise_categories"
+            referencedColumns: ["garmin_category"]
+          },
+        ]
+      }
+      exercises_legacy: {
         Row: {
           alternatives: string[]
           common_error_es: string | null

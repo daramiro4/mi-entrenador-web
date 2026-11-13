@@ -1,12 +1,14 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "@/lib/supabase/database.types";
 import type { Dose } from "./catalog";
 import type { CategoryRow, ExerciseDetail, ExerciseListRow } from "./ui-types";
 
 /**
- * Acceso al catálogo NUEVO (tablas exercise_categories / exercises de la migración 20261112120000, aún sin aplicar en producción).
- * Los tipos generados de Supabase (lib/supabase/database.types.ts) son los del esquema antiguo, así que aquí se usa un cliente
- * sin tipos y se valida/convierte cada fila. TRAS EL CORTE: regenerar database.types.ts y tipar estas consultas (ver docs/exercise-cutover-plan.md).
+ * Acceso al catálogo (tablas exercise_categories / exercises, migración 20261112120000, aplicada en producción).
+ * Las consultas van tipadas con lib/supabase/database.types.ts; cada fila se sigue convirtiendo a mano a los tipos de la UI
+ * (arrays/jsonb/enums de texto) para no fiarse de más de lo que garantiza la base de datos.
  */
+type TypedClient = SupabaseClient<Database>;
 const LIST_COLUMNS = "id,garmin_category,garmin_name,name_es,name_en,equipment,primary_muscles,level,review_status,archetype";
 const PAGE = 1000; // PostgREST limita a 1.000 filas por petición: se pagina
 
@@ -52,24 +54,22 @@ export function toDetail(raw: Record<string, unknown>): ExerciseDetail {
 
 export type CatalogResult<T> = { ok: true; data: T } | { ok: false; error: string };
 
-export async function fetchCatalogList(supabase: unknown): Promise<CatalogResult<{ rows: ExerciseListRow[]; categories: CategoryRow[] }>> {
-  const db = supabase as SupabaseClient;
+export async function fetchCatalogList(db: TypedClient): Promise<CatalogResult<{ rows: ExerciseListRow[]; categories: CategoryRow[] }>> {
   const rows: ExerciseListRow[] = [];
   for (let from = 0; ; from += PAGE) {
     const { data, error } = await db.from("exercises").select(LIST_COLUMNS).order("garmin_category").order("garmin_name").range(from, from + PAGE - 1);
     if (error) return { ok: false, error: error.message };
-    for (const raw of data ?? []) rows.push(toListRow(raw as Record<string, unknown>));
+    for (const raw of data ?? []) rows.push(toListRow(raw));
     if (!data || data.length < PAGE) break;
   }
   if (rows.length > 0 && !rows[0].garmin_category) return { ok: false, error: "La tabla exercises no tiene el esquema nuevo (migración pendiente)." };
   const { data: cats, error: catError } = await db.from("exercise_categories").select("garmin_category,name_es,name_en").order("name_es");
   if (catError) return { ok: false, error: catError.message };
-  return { ok: true, data: { rows, categories: (cats ?? []) as CategoryRow[] } };
+  return { ok: true, data: { rows, categories: (cats ?? []) satisfies CategoryRow[] } };
 }
 
-export async function fetchExerciseDetail(supabase: unknown, id: string): Promise<CatalogResult<ExerciseDetail | null>> {
-  const db = supabase as SupabaseClient;
+export async function fetchExerciseDetail(db: TypedClient, id: string): Promise<CatalogResult<ExerciseDetail | null>> {
   const { data, error } = await db.from("exercises").select("*").eq("id", id).maybeSingle();
   if (error) return { ok: false, error: error.message };
-  return { ok: true, data: data ? toDetail(data as Record<string, unknown>) : null };
+  return { ok: true, data: data ? toDetail(data) : null };
 }

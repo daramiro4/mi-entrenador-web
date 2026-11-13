@@ -1,7 +1,7 @@
 # Plan de corte: tabla `exercises` → catálogo nuevo
 
-Estado: **la migración NO está aplicada en producción.** Se aplicará en un único despliegue, junto con el código que lee el esquema
-nuevo, al final de la Fase 4. Esta página es el inventario de lo que toca la tabla hoy y el plan para hacer el corte sin riesgo.
+Estado: **migración APLICADA en producción el 2026-11-13** (ver «Ejecución real» al final), antes de desplegar el código que lee el esquema
+nuevo. Esta página es el inventario de lo que tocaba la tabla y el plan del corte.
 
 ## 1. Inventario: qué lee o escribe `exercises` hoy (auditado 2026-11-12)
 
@@ -65,3 +65,28 @@ la base de datos es compatible con ambos. Solo el paso de deshacer la base de da
 - Retirar `lib/strength/seed.ts`, `seed.test.ts` y el script `seed:strength` (la migración histórica del seed no se toca).
 - Decidir si el módulo de fuerza pasa a leer el catálogo de la base de datos. Mientras no, `library.ts` sigue siendo la fuente del motor y
   un test garantiza que las 41 fichas curadas del catálogo son exactamente las de `library.ts`.
+
+## 5. Ejecución real del corte (2026-11-13)
+Lo que se hizo, y en qué se desvió del plan de §3:
+
+- **Sin rama de Supabase** (decisión del usuario: de pago, el plan de la organización es gratuito). La prueba previa fue la local en Docker
+  (`scripts/test-exercise-migration.sh`: ida, vuelta e ida otra vez, OK sobre el commit final).
+- **Aplicada por lotes, no con `supabase db push`.** La CLI no pudo conectar (no puede crear su rol temporal: `permission denied to alter role`) y
+  la contraseña de la base de datos no debe pasar por el chat. El archivo pesa 600 KB, demasiado para una sola llamada `apply_migration`, así que se
+  aplicó por la herramienta SQL del MCP en 14 transacciones: (1) esquema + 47 categorías (`begin…commit`), (2) 1.432 ejercicios «simples»
+  en 8 lotes con un formato JSON compacto que la base de datos expande (`jsonb_array_elements`; el generador del formato compacto no se versiona,
+  es un transporte, no la fuente), (3) 121 ejercicios con ficha completa en 3 lotes. Entre lotes la base de datos queda con las tablas nuevas a medio llenar,
+  lo que es inocuo porque ningún código desplegado las lee (§2).
+- **Verificación de equivalencia** (la que sustituye a «aplicar el archivo tal cual»): el mismo transporte se aplicó antes en un Postgres desechable junto a la
+  migración real y el hash de contenido coincidió; en producción, tras el último lote, el hash de contenido de `exercises` (orden `COLLATE "C"`, sin `id`)
+  es `1553 2fd257abfba6958c381cf7872d060d86`, idéntico al de la migración real. OJO al comparar hashes entre servidores: el orden de `string_agg` depende del
+  *collation* (Supabase usa `en_US.UTF-8`); sin `COLLATE "C"` el hash sale distinto aunque el contenido sea el mismo.
+- Comprobaciones posteriores en producción: `exercises`=1.553 · `exercise_categories`=47 · `exercises_legacy`=41 (hash idéntico al previo al corte, `caa88821…`) ·
+  `plan_eligible`=41 · `fit_sdk_known=false`=59 · `muscles_source` nulo=52 · alternativas rotas=0 · RLS en las 3 tablas · `authenticated` solo `SELECT` y lee 1.553/47 ·
+  `anon` recibe `permission denied`. Los avisos del linter de seguridad son los mismos de antes (nada nuevo).
+- **Historial de migraciones**: registrada a mano en `supabase_migrations.schema_migrations` (`20261112120000 exercise_catalog`), para que repo y remoto coincidan.
+  Antes se renombró `security_hardening` a la versión real del remoto (`20261110003825`).
+- No se ejecutó `supabase/rls_checks.sql` en producción (inserta usuarios de prueba): se hicieron las lecturas equivalentes arriba.
+- Copia de seguridad: no se volcó `exercises` a un archivo porque la propia migración la conserva como `exercises_legacy` (hash idéntico antes y después) y el seed
+  histórico del repo la regenera.
+- `lib/supabase/database.types.ts` regenerado (se conservó su `PostgrestVersion`) y las consultas de `lib/exercises/data.ts` ya van tipadas.
