@@ -5,7 +5,7 @@ import { useState, useTransition } from "react";
 import { loadMoreActivitiesAction } from "@/app/dashboard/activity-feed-actions";
 import { getActivityTypeCircleClass, getActivityTypeLabel } from "@/lib/labels";
 import type { ActivityRow, StrengthSessionRow } from "@/lib/types";
-import { strengthActivityTss } from "@/lib/strength/tss";
+import { loadBasedTss } from "@/lib/strength/tss";
 
 const MONTH_LABELS = [
   "ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic",
@@ -27,7 +27,7 @@ function primaryStat(activity: ActivityRow, exerciseCount: number): string | nul
   if (activity.activity_type === "strength") {
     const parts: string[] = [];
     if (exerciseCount > 0) parts.push(`${exerciseCount} ejercicio${exerciseCount === 1 ? "" : "s"}`);
-    const tss = strengthActivityTss(activity);
+    const tss = loadBasedTss(activity);
     if (tss) parts.push(`${tss.estimated ? "≈" : ""}${Math.round(tss.tss)} TSS`);
     return parts.length > 0 ? parts.join(" · ") : null;
   }
@@ -40,7 +40,9 @@ function primaryStat(activity: ActivityRow, exerciseCount: number): string | nul
   if (activity.tss != null) {
     return `${Math.round(activity.tss)} TSS`;
   }
-  return null;
+  // Sin potencia ni TSS (p. ej. "otros"): se muestra la carga de Garmin como TSS estimado, que es lo que suma a la semana.
+  const est = loadBasedTss(activity);
+  return est ? `≈${Math.round(est.tss)} TSS` : null;
 }
 
 export function ActivityFeed({

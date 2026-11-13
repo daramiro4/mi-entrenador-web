@@ -97,9 +97,23 @@ describe("TSS de fuerza (estimado)", () => {
       { tss: 25, activity_type: "strength", source: "mi-entrenador-web", date: "2026-11-02" },
     ])).toBe(20);
   });
-  it("no toca ciclismo ni 'otros': el training_load solo se usa en fuerza", () => {
-    expect(sumTss([{ tss: null, training_load: 50, activity_type: "cycling" }])).toBe(0);
-    expect(sumTss([{ tss: null, training_load: 50, activity_type: "other" }])).toBe(0);
+  it("cuenta TODO lo que se hace, esté o no en el plan: también 'otros' y bici sin zonas, con su carga de Garmin", () => {
+    expect(sumTss([{ tss: null, training_load: 11.7, activity_type: "other", date: "2026-11-10" }])).toBe(12);
+    expect(sumTss([{ tss: null, training_load: 50, activity_type: "cycling" }])).toBe(50);
+  });
+  it("la bici sin potencia usa primero las zonas de pulso y solo si no hay zonas, la carga", () => {
+    const zones = { z1: 0, z2: 1800, z3: 0, z4: 0, z5: 0 }; // 25
+    expect(sumTss([{ tss: null, training_load: 80, activity_type: "cycling", hr_zone_seconds: zones }])).toBe(25);
+  });
+  it("sin tss ni carga no inventa nada (0)", () => {
+    expect(sumTss([{ tss: null, training_load: null, activity_type: "other" }])).toBe(0);
+  });
+  it("una semana mezcla todo: bici con potencia + fuerza no planificada + otra actividad", () => {
+    expect(sumTss([
+      { tss: 50, activity_type: "cycling", date: "2026-11-09" },
+      { tss: null, training_load: 20.1, activity_type: "strength", source: "garmin", date: "2026-11-12" },
+      { tss: null, training_load: 11.7, activity_type: "other", date: "2026-11-13" },
+    ])).toBe(82);
   });
   it("el objetivo semanal incluye la fuerza planificada como bloque propio y avisa de que es estimado", () => {
     const week = [

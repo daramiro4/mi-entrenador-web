@@ -1,7 +1,7 @@
 import type { ActivityRow, PlannedSession, StrengthSessionRow } from "./types";
 import { addDays, getWeekdayIndex } from "./week";
 import { estimateHrTss, HR_TSS_PER_HOUR } from "./hr-zones";
-import { plannedStrengthTssForSession, strengthActivityTss } from "./strength/tss";
+import { plannedStrengthTssForSession, loadBasedTss } from "./strength/tss";
 
 /** Provisional (configurable): % del TSS planificado para contar una semana en la racha. */
 export const STREAK_MIN_PCT = 85;
@@ -16,8 +16,9 @@ const WEEKDAY_NAME = ["lunes", "martes", "miércoles", "jueves", "viernes", "sá
  * Bici sin potenciómetro (p. ej. la sesión extra del gimnasio por pulso): Garmin no da TSS, así que se
  * estima desde los minutos por zona de pulso (`estimateHrTss`) para que también sume a la semana.
  *
- * Fuerza: Garmin tampoco da TSS (no hay potencia); se estima con el `training_load` de Garmin 1:1 (`strengthActivityTss`).
- * Un `tss` ya guardado (RPE al terminar el entreno en la web) manda sobre el `training_load`.
+ * Todo lo demás (fuerza, "otros"…): Garmin tampoco da TSS sin potencia; se estima con el `training_load` de Garmin 1:1
+ * (`loadBasedTss`). Cuenta TODO lo que se hace, esté o no en el plan. Un `tss` ya guardado (RPE al terminar el entreno en la web)
+ * manda sobre el `training_load`.
  */
 export function sumTss(
   activities: Array<
@@ -27,7 +28,7 @@ export function sumTss(
 ): number {
   const garminStrengthDays = new Set(
     activities
-      .filter((a) => a.activity_type === "strength" && a.source !== "mi-entrenador-web" && strengthActivityTss(a) !== null)
+      .filter((a) => a.activity_type === "strength" && a.source !== "mi-entrenador-web" && loadBasedTss(a) !== null)
       .map((a) => a.date)
   );
   return Math.round(
@@ -35,10 +36,10 @@ export function sumTss(
       const duplicate =
         a.source === "mi-entrenador-web" && a.activity_type === "strength" && garminStrengthDays.has(a.date);
       if (duplicate) return acc;
-      if (a.activity_type === "strength") return acc + (strengthActivityTss(a)?.tss ?? 0);
-      const hasTss = a.tss != null && a.tss > 0;
-      const estimated = a.activity_type === "cycling" && !hasTss ? estimateHrTss(a.hr_zone_seconds) : null;
-      return acc + (hasTss ? a.tss! : (estimated ?? 0));
+      if (a.tss != null && a.tss > 0) return acc + a.tss;
+      // Bici sin potencia: primero el TSS por zonas de pulso (afinado), y si no hay zonas, la carga de Garmin.
+      const byZones = a.activity_type === "cycling" ? estimateHrTss(a.hr_zone_seconds) : null;
+      return acc + (byZones ?? loadBasedTss(a)?.tss ?? 0);
     }, 0)
   );
 }

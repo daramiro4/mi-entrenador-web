@@ -13,7 +13,7 @@ import { getValidPostponeDates } from "@/lib/postpone";
 import { getValidRedistributionDates } from "@/lib/redistribute";
 import { formatHrZoneMinutes } from "@/lib/hr-zones";
 import { describeHrAdjustment } from "@/lib/hr-adjustment";
-import { plannedStrengthTssForSession, strengthActivityTss } from "@/lib/strength/tss";
+import { plannedStrengthTssForSession, loadBasedTss } from "@/lib/strength/tss";
 import { SendToGarminButton } from "./SendToGarminButton";
 
 const GARMIN_SEND_TYPES = new Set(["quality", "z2"]);
@@ -26,7 +26,7 @@ function activityStats(
   const stats: { label: string; value: string }[] = [];
 
   // Fuerza: Garmin no da TSS; se estima con su training_load (marcado con «≈») y se compara con el objetivo estimado de la sesión.
-  const strength = activity.activity_type === "strength" ? strengthActivityTss(activity) : null;
+  const strength = activity.activity_type === "strength" ? loadBasedTss(activity) : null;
   const tssValue = strength ? strength.tss : activity.tss;
   if (tssValue != null) {
     const approx = strength?.estimated ? "≈" : "";

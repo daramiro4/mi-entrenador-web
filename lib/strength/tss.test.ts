@@ -3,8 +3,8 @@ import {
   DEFAULT_PLANNED_STRENGTH_MINUTES,
   plannedStrengthTss,
   plannedStrengthTssForSession,
-  STRENGTH_LOAD_TO_TSS,
-  strengthActivityTss,
+  LOAD_TO_TSS,
+  loadBasedTss,
   strengthTss,
 } from "./tss";
 
@@ -16,24 +16,24 @@ describe("strengthTss (RPE)", () => {
   });
 });
 
-describe("strengthActivityTss (sesión hecha)", () => {
+describe("loadBasedTss (sesión hecha)", () => {
   it("el factor de partida es 1:1", () => {
-    expect(STRENGTH_LOAD_TO_TSS).toBe(1);
+    expect(LOAD_TO_TSS).toBe(1);
   });
   it("un tss ya guardado (RPE) manda sobre el training_load y no es estimado", () => {
-    expect(strengthActivityTss({ tss: 30, training_load: 99 })).toEqual({ tss: 30, estimated: false });
+    expect(loadBasedTss({ tss: 30, training_load: 99 })).toEqual({ tss: 30, estimated: false });
   });
   it("sin tss usa el training_load de Garmin 1:1 y lo marca como estimado", () => {
-    expect(strengthActivityTss({ tss: null, training_load: 36.6 })).toEqual({ tss: 36.6, estimated: true });
+    expect(loadBasedTss({ tss: null, training_load: 36.6 })).toEqual({ tss: 36.6, estimated: true });
   });
   it("acepta el training_load como texto numérico (numeric de Postgres)", () => {
-    expect(strengthActivityTss({ tss: null, training_load: "20.05" })).toEqual({ tss: 20.05, estimated: true });
+    expect(loadBasedTss({ tss: null, training_load: "20.05" })).toEqual({ tss: 20.05, estimated: true });
   });
   it("no inventa: sin tss ni carga (o carga 0/inválida) devuelve null", () => {
-    expect(strengthActivityTss({ tss: null, training_load: null })).toBeNull();
-    expect(strengthActivityTss({ tss: 0, training_load: 0 })).toBeNull();
-    expect(strengthActivityTss({ training_load: "x" })).toBeNull();
-    expect(strengthActivityTss({})).toBeNull();
+    expect(loadBasedTss({ tss: null, training_load: null })).toBeNull();
+    expect(loadBasedTss({ tss: 0, training_load: 0 })).toBeNull();
+    expect(loadBasedTss({ training_load: "x" })).toBeNull();
+    expect(loadBasedTss({})).toBeNull();
   });
 });
 

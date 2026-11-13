@@ -18,21 +18,21 @@ export function strengthTss(durationMin: number, rpe: number): number {
 export const DEFAULT_PLANNED_RPE = 6;
 
 /**
- * TSS de una sesión de fuerza HECHA que viene del reloj — PROVISIONAL, constantes configurables.
- * La fuerza no tiene potencia, así que el TSS no se mide: se estima. Prioridad:
+ * TSS de una actividad HECHA que no tiene potencia (fuerza, "otros", bici sin potenciómetro ni zonas…) — PROVISIONAL, constantes configurables.
+ * Se cuenta TODO lo que se hace, esté o no en el plan: no se mide, se estima. Prioridad:
  *   1. `tss` ya guardado (p. ej. el de strengthTss con RPE al terminar el entreno en la web).
- *   2. `training_load` de Garmin × STRENGTH_LOAD_TO_TSS (1:1 de partida; es la misma carga que ya alimenta el ACWR).
+ *   2. `training_load` de Garmin × LOAD_TO_TSS (1:1 de partida; es la misma carga que ya alimenta el ACWR).
  *   3. nada → null (no se inventa).
  */
-export const STRENGTH_LOAD_TO_TSS = 1;
+export const LOAD_TO_TSS = 1;
 
-export function strengthActivityTss(a: {
+export function loadBasedTss(a: {
   tss?: number | null;
   training_load?: number | string | null;
 }): { tss: number; estimated: boolean } | null {
   if (a.tss != null && a.tss > 0) return { tss: a.tss, estimated: false };
   const load = a.training_load == null ? NaN : Number(a.training_load);
-  if (Number.isFinite(load) && load > 0) return { tss: load * STRENGTH_LOAD_TO_TSS, estimated: true };
+  if (Number.isFinite(load) && load > 0) return { tss: load * LOAD_TO_TSS, estimated: true };
   return null;
 }
 
