@@ -14,7 +14,7 @@ export function WeekHeader({
 }: {
   completedTss: number;
   targetTss: number;
-  /** El objetivo se estimó por duración (semana de reaclimatación, sin TSS planificado). */
+  /** El objetivo incluye sesiones estimadas (fuerza o reaclimatación, sin TSS planificado). */
   targetIsEstimate?: boolean;
   /** Fracción (0-1) del TSS del bloque cumplido desde el último test de FTP, o null si no aplica. */
   blockPct?: number | null;
@@ -51,7 +51,7 @@ export function WeekHeader({
       )}
       {targetIsEstimate && (
         <p className="mt-1.5 text-xs text-label-2">
-          Objetivo estimado: semana de reaclimatación, en Z2 suave (sin contar el test de rampa).
+          Objetivo estimado: incluye sesiones sin TSS planificado (fuerza, reaclimatación). El test de rampa no cuenta.
         </p>
       )}
       {redistribution && <p className="mt-2 text-xs text-label-2">{redistribution}</p>}

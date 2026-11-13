@@ -1,4 +1,5 @@
 import type { PlannedSession } from "./types";
+import { plannedStrengthTssForSession } from "./strength/tss";
 
 export interface ProgressSignal {
   targetTss: number;
@@ -17,10 +18,12 @@ export function computeProgressSignal(sessionsSinceLastTest: PlannedSession[]): 
   let completedTss = 0;
 
   for (const session of sessionsSinceLastTest) {
-    if (session.planned_tss == null) continue;
-    targetTss += session.planned_tss;
+    // La fuerza no lleva planned_tss en la base de datos: su objetivo se estima al leer (cuenta como bloque propio).
+    const target = session.planned_tss ?? plannedStrengthTssForSession(session);
+    if (target == null) continue;
+    targetTss += target;
     if (session.status === "done") {
-      completedTss += session.planned_tss;
+      completedTss += target;
     }
   }
 

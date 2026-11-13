@@ -39,8 +39,9 @@ describe("buildWeeklyNarrativePrompt", () => {
     const prompt = buildWeeklyNarrativePrompt(week, "2026-08-31");
 
     expect(prompt).toContain("2026-08-31");
-    expect(prompt).toContain("TSS objetivo: 405");
-    expect(prompt).toContain("TSS cumplido: 190 (47%)");
+    // La fuerza hecha cuenta con su objetivo estimado (34 TSS): 405 + 34 de objetivo, 190 + 34 de cumplido.
+    expect(prompt).toContain("TSS objetivo: 439");
+    expect(prompt).toContain("TSS cumplido: 224 (51%)");
     expect(prompt).toContain("Sesiones hechas: Z2, Z2, Fuerza");
     expect(prompt).toContain("Sesiones saltadas: Calidad");
     expect(prompt).toContain("Sesiones degradadas por fatiga: Calidad");

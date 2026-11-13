@@ -5,6 +5,7 @@ import { useState, useTransition } from "react";
 import { loadMoreActivitiesAction } from "@/app/dashboard/activity-feed-actions";
 import { getActivityTypeCircleClass, getActivityTypeLabel } from "@/lib/labels";
 import type { ActivityRow, StrengthSessionRow } from "@/lib/types";
+import { strengthActivityTss } from "@/lib/strength/tss";
 
 const MONTH_LABELS = [
   "ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic",
@@ -24,7 +25,11 @@ function formatExercise(row: StrengthSessionRow): string {
 
 function primaryStat(activity: ActivityRow, exerciseCount: number): string | null {
   if (activity.activity_type === "strength") {
-    return exerciseCount > 0 ? `${exerciseCount} ejercicio${exerciseCount === 1 ? "" : "s"}` : null;
+    const parts: string[] = [];
+    if (exerciseCount > 0) parts.push(`${exerciseCount} ejercicio${exerciseCount === 1 ? "" : "s"}`);
+    const tss = strengthActivityTss(activity);
+    if (tss) parts.push(`${tss.estimated ? "≈" : ""}${Math.round(tss.tss)} TSS`);
+    return parts.length > 0 ? parts.join(" · ") : null;
   }
   if (activity.avg_power != null && activity.tss != null) {
     return `${Math.round(activity.avg_power)} W · ${Math.round(activity.tss)} TSS`;

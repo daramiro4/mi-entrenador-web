@@ -83,3 +83,40 @@ describe("objetivo semanal con reaclimatación", () => {
     expect(plannedTssIsEstimated([{ planned_tss: 50 }])).toBe(false);
   });
 });
+
+describe("TSS de fuerza (estimado)", () => {
+  it("suma el training_load de Garmin 1:1 cuando no hay tss", () => {
+    expect(sumTss([{ tss: null, training_load: 36.6, activity_type: "strength", source: "garmin", date: "2026-11-02" }])).toBe(37);
+  });
+  it("un tss guardado (RPE al terminar el entreno) manda sobre el training_load", () => {
+    expect(sumTss([{ tss: 30, training_load: 99, activity_type: "strength", source: "garmin", date: "2026-11-02" }])).toBe(30);
+  });
+  it("no cuenta dos veces: la de Garmin con carga estimada anula la de la app del mismo día", () => {
+    expect(sumTss([
+      { tss: null, training_load: 20, activity_type: "strength", source: "garmin", date: "2026-11-02" },
+      { tss: 25, activity_type: "strength", source: "mi-entrenador-web", date: "2026-11-02" },
+    ])).toBe(20);
+  });
+  it("no toca ciclismo ni 'otros': el training_load solo se usa en fuerza", () => {
+    expect(sumTss([{ tss: null, training_load: 50, activity_type: "cycling" }])).toBe(0);
+    expect(sumTss([{ tss: null, training_load: 50, activity_type: "other" }])).toBe(0);
+  });
+  it("el objetivo semanal incluye la fuerza planificada como bloque propio y avisa de que es estimado", () => {
+    const week = [
+      { planned_tss: 60, session_type: "z2" as const, status: "planned" as const },
+      { planned_tss: 90, session_type: "quality" as const, status: "planned" as const },
+      { planned_tss: null, session_type: "strength" as const, status: "planned" as const },
+    ];
+    expect(sumPlannedTss(week)).toBe(184); // 150 de bici + 34 de fuerza
+    expect(plannedTssIsEstimated(week)).toBe(true);
+    expect(plannedTssIsEstimated(week.slice(0, 2))).toBe(false);
+  });
+  it("una fuerza saltada sale del objetivo (no se puede redistribuir a bici)", () => {
+    expect(sumPlannedTss([{ planned_tss: null, session_type: "strength", status: "skipped" }])).toBe(0);
+    expect(sessionTargetTss({ planned_tss: null, session_type: "strength", status: "skipped" })).toEqual({ tss: 0, estimated: false });
+  });
+  it("si una fuerza ya trae planned_tss, se respeta y no es estimada", () => {
+    expect(sessionTargetTss({ planned_tss: 25, session_type: "strength", status: "planned" })).toEqual({ tss: 25, estimated: false });
+  });
+});
+

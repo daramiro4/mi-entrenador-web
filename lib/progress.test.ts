@@ -40,3 +40,22 @@ describe("computeProgressSignal", () => {
     expect(computeProgressSignal([])).toEqual({ targetTss: 0, completedTss: 0, pct: null });
   });
 });
+
+describe("computeProgressSignal con fuerza", () => {
+  const strength = (status: PlannedSessionStatus, id: string): PlannedSession => ({ ...mk(null, status, id), session_type: "strength" });
+
+  it("la fuerza cuenta con su objetivo estimado: hecha suma a cumplido y a objetivo", () => {
+    const s = computeProgressSignal([mk(100, "done", "a"), strength("done", "b")]);
+    expect(s.targetTss).toBeCloseTo(134.1);
+    expect(s.completedTss).toBeCloseTo(134.1);
+  });
+  it("la fuerza pendiente suma al objetivo pero no al cumplido; la saltada no cuenta", () => {
+    const s = computeProgressSignal([mk(100, "done", "a"), strength("planned", "b"), strength("skipped", "c")]);
+    expect(s.targetTss).toBeCloseTo(134.1);
+    expect(s.completedTss).toBe(100);
+  });
+  it("una z2 sin planned_tss (reaclimatación) sigue sin contar", () => {
+    expect(computeProgressSignal([mk(null, "done", "a")]).pct).toBeNull();
+  });
+});
+

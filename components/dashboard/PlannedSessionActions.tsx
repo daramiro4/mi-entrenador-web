@@ -13,6 +13,7 @@ import { getValidPostponeDates } from "@/lib/postpone";
 import { getValidRedistributionDates } from "@/lib/redistribute";
 import { formatHrZoneMinutes } from "@/lib/hr-zones";
 import { describeHrAdjustment } from "@/lib/hr-adjustment";
+import { plannedStrengthTssForSession, strengthActivityTss } from "@/lib/strength/tss";
 import { SendToGarminButton } from "./SendToGarminButton";
 
 const GARMIN_SEND_TYPES = new Set(["quality", "z2"]);
@@ -24,13 +25,15 @@ function activityStats(
   if (!activity) return [];
   const stats: { label: string; value: string }[] = [];
 
-  if (activity.tss != null) {
+  // Fuerza: Garmin no da TSS; se estima con su training_load (marcado con «≈») y se compara con el objetivo estimado de la sesión.
+  const strength = activity.activity_type === "strength" ? strengthActivityTss(activity) : null;
+  const tssValue = strength ? strength.tss : activity.tss;
+  if (tssValue != null) {
+    const approx = strength?.estimated ? "≈" : "";
+    const target = session.planned_tss ?? plannedStrengthTssForSession(session);
     stats.push({
       label: "TSS",
-      value:
-        session.planned_tss != null
-          ? `${Math.round(activity.tss)} / ${session.planned_tss}`
-          : `${Math.round(activity.tss)}`,
+      value: target != null ? `${approx}${Math.round(tssValue)} / ${Math.round(target)}` : `${approx}${Math.round(tssValue)}`,
     });
   }
   if (activity.normalized_power != null) {

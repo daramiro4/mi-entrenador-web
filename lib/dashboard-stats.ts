@@ -1,6 +1,7 @@
 import type { ActivityRow, PlannedSession, StrengthSessionRow } from "./types";
 import { addDays, getWeekdayIndex } from "./week";
 import { estimateHrTss, HR_TSS_PER_HOUR } from "./hr-zones";
+import { plannedStrengthTssForSession, strengthActivityTss } from "./strength/tss";
 
 /** Provisional (configurable): % del TSS planificado para contar una semana en la racha. */
 export const STREAK_MIN_PCT = 85;
@@ -14,15 +15,19 @@ const WEEKDAY_NAME = ["lunes", "martes", "miércoles", "jueves", "viernes", "sá
  *
  * Bici sin potenciómetro (p. ej. la sesión extra del gimnasio por pulso): Garmin no da TSS, así que se
  * estima desde los minutos por zona de pulso (`estimateHrTss`) para que también sume a la semana.
+ *
+ * Fuerza: Garmin tampoco da TSS (no hay potencia); se estima con el `training_load` de Garmin 1:1 (`strengthActivityTss`).
+ * Un `tss` ya guardado (RPE al terminar el entreno en la web) manda sobre el `training_load`.
  */
 export function sumTss(
   activities: Array<
-    Pick<ActivityRow, "tss"> & Partial<Pick<ActivityRow, "date" | "activity_type" | "source" | "hr_zone_seconds">>
+    Pick<ActivityRow, "tss"> &
+      Partial<Pick<ActivityRow, "date" | "activity_type" | "source" | "hr_zone_seconds" | "training_load">>
   >
 ): number {
   const garminStrengthDays = new Set(
     activities
-      .filter((a) => a.activity_type === "strength" && a.source !== "mi-entrenador-web" && (a.tss ?? 0) > 0)
+      .filter((a) => a.activity_type === "strength" && a.source !== "mi-entrenador-web" && strengthActivityTss(a) !== null)
       .map((a) => a.date)
   );
   return Math.round(
@@ -30,6 +35,7 @@ export function sumTss(
       const duplicate =
         a.source === "mi-entrenador-web" && a.activity_type === "strength" && garminStrengthDays.has(a.date);
       if (duplicate) return acc;
+      if (a.activity_type === "strength") return acc + (strengthActivityTss(a)?.tss ?? 0);
       const hasTss = a.tss != null && a.tss > 0;
       const estimated = a.activity_type === "cycling" && !hasTss ? estimateHrTss(a.hr_zone_seconds) : null;
       return acc + (hasTss ? a.tss! : (estimated ?? 0));
@@ -37,15 +43,18 @@ export function sumTss(
   );
 }
 
-type PlannedTssInput = Pick<PlannedSession, "planned_tss"> & Partial<Pick<PlannedSession, "session_type" | "notes">>;
+type PlannedTssInput = Pick<PlannedSession, "planned_tss"> & Partial<Pick<PlannedSession, "session_type" | "notes" | "status">>;
 
 /**
  * TSS objetivo de una sesión. Las z2 de la ventana de reaclimatación no llevan `planned_tss` (decisión 5)
  * pero sí `notes.duration_minutes`: se estiman con el TSS/h de Z2 para que la semana tenga un objetivo
  * visible. El test de rampa (quality sin TSS) no se estima. Devuelve `estimated: true` en ese caso.
+ * La fuerza planificada también se estima (`plannedStrengthTssForSession`): cuenta en el objetivo como bloque propio.
  */
 export function sessionTargetTss(session: PlannedTssInput): { tss: number; estimated: boolean } {
   if (session.planned_tss != null) return { tss: session.planned_tss, estimated: false };
+  const strength = plannedStrengthTssForSession(session);
+  if (strength != null) return { tss: strength, estimated: true };
   const minutes = (session.notes as { duration_minutes?: unknown } | null | undefined)?.duration_minutes;
   if (session.session_type === "z2" && typeof minutes === "number" && minutes > 0) {
     return { tss: (minutes / 60) * HR_TSS_PER_HOUR.z2, estimated: true };

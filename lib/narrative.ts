@@ -31,8 +31,8 @@ export function buildWeeklyNarrativePrompt(
 Eres un entrenador personal de ciclismo. Resume brevemente (máximo 120 palabras), en tono motivador, directo y sin lenguaje técnico, cómo fue la semana de entrenamiento que empezó el ${weekStartDate}.
 
 Datos de la semana:
-- TSS objetivo: ${targetTss}
-- TSS cumplido: ${completedTss}${pct != null ? ` (${Math.round(pct * 100)}%)` : ""}
+- TSS objetivo: ${Math.round(targetTss)}
+- TSS cumplido: ${Math.round(completedTss)}${pct != null ? ` (${Math.round(pct * 100)}%)` : ""}
 - Sesiones hechas: ${listSessionTypes(done)}
 - Sesiones saltadas: ${listSessionTypes(skipped)}
 - Sesiones degradadas por fatiga: ${listSessionTypes(degraded)}

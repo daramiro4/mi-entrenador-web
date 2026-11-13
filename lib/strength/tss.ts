@@ -16,3 +16,46 @@ export function strengthTss(durationMin: number, rpe: number): number {
 
 /** RPE por defecto para estimar el TSS previsto antes de entrenar. */
 export const DEFAULT_PLANNED_RPE = 6;
+
+/**
+ * TSS de una sesión de fuerza HECHA que viene del reloj — PROVISIONAL, constantes configurables.
+ * La fuerza no tiene potencia, así que el TSS no se mide: se estima. Prioridad:
+ *   1. `tss` ya guardado (p. ej. el de strengthTss con RPE al terminar el entreno en la web).
+ *   2. `training_load` de Garmin × STRENGTH_LOAD_TO_TSS (1:1 de partida; es la misma carga que ya alimenta el ACWR).
+ *   3. nada → null (no se inventa).
+ */
+export const STRENGTH_LOAD_TO_TSS = 1;
+
+export function strengthActivityTss(a: {
+  tss?: number | null;
+  training_load?: number | string | null;
+}): { tss: number; estimated: boolean } | null {
+  if (a.tss != null && a.tss > 0) return { tss: a.tss, estimated: false };
+  const load = a.training_load == null ? NaN : Number(a.training_load);
+  if (Number.isFinite(load) && load > 0) return { tss: load * STRENGTH_LOAD_TO_TSS, estimated: true };
+  return null;
+}
+
+/**
+ * TSS OBJETIVO de una sesión de fuerza planificada. La fuerza cuenta en el objetivo semanal como bloque propio (no desplaza TSS de
+ * bici), pero su `planned_tss` en la base de datos se queda en null a propósito: así "Saltar" no ofrece mover TSS de fuerza a un día
+ * de bici (decisión 3) y la capa adaptativa no la recorta por TSS. Este valor se calcula al leer.
+ * 50 min a RPE 6 ≈ 34 TSS: cerca de la media real (training_load medio 37 en sesiones de ~54 min).
+ */
+export const DEFAULT_PLANNED_STRENGTH_MINUTES = 50;
+
+export function plannedStrengthTss(durationMin: number = DEFAULT_PLANNED_STRENGTH_MINUTES): number {
+  return strengthTss(durationMin, DEFAULT_PLANNED_RPE);
+}
+
+/** Objetivo estimado de una sesión de fuerza planificada sin `planned_tss`; null si no aplica (otro tipo, ya tiene TSS o está saltada). */
+export function plannedStrengthTssForSession(session: {
+  session_type?: string;
+  status?: string;
+  planned_tss: number | null;
+  notes?: unknown;
+}): number | null {
+  if (session.session_type !== "strength" || session.planned_tss != null || session.status === "skipped") return null;
+  const minutes = (session.notes as { duration_minutes?: unknown } | null | undefined)?.duration_minutes;
+  return plannedStrengthTss(typeof minutes === "number" && minutes > 0 ? minutes : undefined);
+}
