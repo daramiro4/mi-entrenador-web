@@ -45,14 +45,14 @@ export interface Phase {
   muscle_opacity?: number;
 }
 
-export type ImplementKind = "dumbbell" | "barbell" | "bench" | "band";
+export type ImplementKind = "dumbbell" | "barbell" | "bench" | "band" | "bar" | "kettlebell";
 
 export interface Implement {
   kind: ImplementKind;
   /** Articulación a la que va unido (mancuerna/barra/banda). El banco usa `at` como esquina izquierda sobre el suelo. */
   at?: JointName;
   offset?: Vec;
-  /** Banda: punto fijo (anclaje) o articulación del otro extremo. */
+  /** Banda o barra/línea (pared, barra de dominadas, plataforma): punto fijo o articulación del otro extremo. */
   to?: Vec | JointName;
   /** Banco: [ancho, alto]. Mancuerna: largo de la barra. */
   size?: Vec | number;

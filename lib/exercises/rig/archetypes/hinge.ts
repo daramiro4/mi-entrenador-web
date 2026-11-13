@@ -1,11 +1,14 @@
 import { sampleLoop, squatLikePhases, standingBody, straightArm, STANDING_BONES, type Joints } from "../skeleton";
 import type { Implement, Rig } from "../types";
+import { buildGoodMorning, buildKettlebellDeadlift, buildSingleLegDeadlift } from "./hinge-variants";
 
 /** Arquetipo BISAGRA DE CADERA (peso muerto rumano / buenos días): la cadera va atrás, las rodillas casi fijas y el tronco se inclina. */
 export interface HingeParams {
   /** 0..1: recorrido (1 = tronco casi paralelo al suelo). */
   depth?: number;
   implement?: "none" | "dumbbells" | "barbell";
+  /** Variantes con otra geometría (ver hinge-variants.ts). */
+  variant?: "kettlebell_deadlift" | "good_morning" | "single_leg";
   /** Flexión de rodilla constante (grados); más alta = peso muerto convencional. */
   kneeBend?: number;
   title_es?: string;
@@ -26,6 +29,9 @@ function hingeJoints(d: number, kneeBend: number): Joints {
 }
 
 export function buildHinge(params: HingeParams = {}): Rig {
+  if (params.variant === "kettlebell_deadlift") return buildKettlebellDeadlift(params);
+  if (params.variant === "good_morning") return buildGoodMorning(params);
+  if (params.variant === "single_leg") return buildSingleLegDeadlift(params);
   const depth = Math.min(1, Math.max(0.3, params.depth ?? 1));
   const implement = params.implement ?? "none";
   const kneeBend = params.kneeBend ?? 8;

@@ -277,13 +277,20 @@ describe("rigs incluidos", () => {
 });
 
 describe("arquetipos y mapa de animaciones", () => {
-  it("hay 17 arquetipos previstos y 3 listos", () => {
-    expect(Object.keys(ARCHETYPES)).toHaveLength(17);
-    expect([...READY_ARCHETYPES].sort()).toEqual(["hip_hinge", "quadruped_rotation", "squat"]);
+  it("hay al menos los 17 arquetipos previstos y los tres primeros están listos", () => {
+    expect(Object.keys(ARCHETYPES).length).toBeGreaterThanOrEqual(17);
+    for (const id of ["squat", "hip_hinge", "quadruped_rotation"] as const) expect(READY_ARCHETYPES).toContain(id);
+  });
+
+  it("cada arquetipo marcado como listo construye un rig válido con sus parámetros por defecto", async () => {
+    for (const id of READY_ARCHETYPES) {
+      const rig = await buildArchetype(id);
+      expect(validateRig(rig).ok, id).toBe(true);
+    }
   });
 
   it("un arquetipo pendiente falla con un mensaje claro", async () => {
-    await expect(buildArchetype("lunge")).rejects.toThrow(/no implementado/);
+    await expect(buildArchetype("jump_cardio")).rejects.toThrow(/no implementado/);
   });
 
   it("toda clave del mapa existe en el catálogo de Garmin y apunta a un arquetipo listo", () => {

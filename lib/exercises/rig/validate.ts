@@ -30,6 +30,7 @@ export function validateRig(rig: Rig): { ok: boolean; issues: RigIssue[]; maxBon
   }
   for (const m of rig.markers ?? []) if (!jointSet.has(m)) err(`Marcador: articulación inexistente "${m}".`);
   for (const imp of rig.implements ?? []) if (imp.at && !jointSet.has(imp.at)) err(`Implemento ${imp.kind}: articulación inexistente "${imp.at}".`);
+  for (const imp of rig.implements ?? []) if (typeof imp.to === "string" && !jointSet.has(imp.to)) err(`Implemento ${imp.kind}: articulación inexistente "${imp.to}".`);
   for (const [a, b] of rig.highlight?.segments.map((s) => [s[0], s[1]] as const) ?? []) {
     if (!jointSet.has(a) || !jointSet.has(b)) err(`Resalte: articulación inexistente (${a}, ${b}).`);
   }

@@ -54,7 +54,18 @@ export function RigStage({
       const [w, h] = Array.isArray(imp.size) ? imp.size : [150, 28];
       return <rect key={i} x={p[0]} y={GROUND_Y - h} width={w} height={h} rx={6} fill="var(--surface-2)" stroke="var(--separator)" strokeWidth={2} />;
     }
+    if (imp.kind === "kettlebell") {
+      return (
+        <g key={i}>
+          <path d={`M ${p[0] - 6} ${p[1] - 6} q 6 -12 12 0`} fill="none" stroke="var(--label-2)" strokeWidth={3} strokeLinecap="round" />
+          <circle cx={p[0]} cy={p[1] + 3} r={11} fill="var(--accent)" />
+        </g>
+      );
+    }
     const to = point(imp.to);
+    if (imp.kind === "bar") {
+      return <line key={i} x1={p[0]} y1={p[1]} x2={to[0]} y2={to[1]} stroke="var(--label-2)" strokeWidth={5} strokeLinecap="round" />;
+    }
     return <line key={i} x1={p[0]} y1={p[1]} x2={to[0]} y2={to[1]} stroke="var(--accent)" strokeWidth={3} strokeDasharray="6 4" strokeLinecap="round" />;
   };
 

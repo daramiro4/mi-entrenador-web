@@ -1,12 +1,15 @@
 import { BODY } from "../fk";
 import { armTo, sampleLoop, squatLikePhases, standingBody, straightArm, STANDING_BONES, type Joints } from "../skeleton";
 import type { Implement, Rig, Vec } from "../types";
+import { buildLegPress, buildWallSit } from "./squat-variants";
 
 /** Arquetipo SENTADILLA (vista lateral). La profundidad y el material son parámetros; los huesos conservan su longitud (FK). */
 export interface SquatParams {
   /** 0..1: profundidad (1 = muslos paralelos al suelo). */
   depth?: number;
   implement?: "none" | "goblet" | "dumbbells_sides" | "barbell_back";
+  /** Variantes con otra geometría (ver squat-variants.ts). `box` = sentadilla a la caja (mismo movimiento, con un cajón detrás). */
+  variant?: "box" | "wall_sit" | "leg_press";
   title_es?: string;
   /** Duración del bucle en ms. */
   loop_ms?: number;
@@ -47,7 +50,11 @@ function implementsFor(implement: NonNullable<SquatParams["implement"]>): Implem
 }
 
 export function buildSquat(params: SquatParams = {}): Rig {
-  const depth = Math.min(1, Math.max(0.3, params.depth ?? 1));
+  if (params.variant === "wall_sit" || params.variant === "leg_press") {
+    // Import estático ligero: son funciones puras pequeñas; el arquetipo completo sigue cargándose bajo demanda.
+    return params.variant === "wall_sit" ? buildWallSit(params) : buildLegPress(params);
+  }
+  const depth = Math.min(1, Math.max(0.3, params.depth ?? (params.variant === "box" ? 0.95 : 1)));
   const implement = params.implement ?? "none";
   return {
     id: `squat:${implement}`,
@@ -57,8 +64,13 @@ export function buildSquat(params: SquatParams = {}): Rig {
     bones: STANDING_BONES,
     interpolation: "linear",
     poses: sampleLoop((m) => squatJoints(m * depth, implement)),
-    phases: squatLikePhases({ start: "De pie", down: "Baja", bottom: "Abajo", up: "Sube" }, [0.15, 0.55, 0.9, 0.6]),
-    implements: implementsFor(implement),
+    phases: squatLikePhases(
+      params.variant === "box"
+        ? { start: "De pie", down: "Cadera atrás hacia la caja", bottom: "Toca la caja", up: "Sube empujando el suelo" }
+        : { start: "De pie", down: "Baja", bottom: "Abajo", up: "Sube" },
+      [0.15, 0.55, 0.9, 0.6],
+    ),
+    implements: [...implementsFor(implement), ...(params.variant === "box" ? ([{ kind: "bench", offset: [146, 0], size: [82, 54] }] as Implement[]) : [])],
     highlight: { label_es: "Cuádriceps y glúteos", segments: [["hip", "knee", 34], ["hip", "back", 22]] },
   };
 }

@@ -18,6 +18,18 @@ export const ANIMATION_MAP: Record<string, AnimationEntry> = {
   "SQUAT/BARBELL_BACK_SQUAT": { archetype: "squat", params: { implement: "barbell_back", title_es: "Sentadilla con barra" } },
   "DEADLIFT/ROMANIAN_DEADLIFT": { archetype: "hip_hinge", params: { implement: "dumbbells", kneeBend: 8, title_es: "Peso muerto rumano" } },
   "DEADLIFT/BARBELL_DEADLIFT": { archetype: "hip_hinge", params: { implement: "barbell", kneeBend: 24, title_es: "Peso muerto con barra" } },
+  "LUNGE/DUMBBELL_LUNGE": { archetype: "lunge", params: { variant: "forward", title_es: "Zancada" } },
+  "LUNGE/DUMBBELL_REVERSE_LUNGE": { archetype: "lunge", params: { variant: "reverse", title_es: "Zancada hacia atrás" } },
+  "LUNGE/DUMBBELL_BULGARIAN_SPLIT_SQUAT": { archetype: "lunge", params: { variant: "bulgarian", title_es: "Sentadilla búlgara" } },
+  "SQUAT/STEP_UP": { archetype: "step_up", params: { title_es: "Subida al cajón" } },
+  "SQUAT/SQUAT": { archetype: "squat", params: { variant: "box", implement: "none", title_es: "Sentadilla a la caja" } },
+  "SQUAT/BODY_WEIGHT_WALL_SQUAT": { archetype: "squat", params: { variant: "wall_sit" } },
+  "SQUAT/LEG_PRESS": { archetype: "squat", params: { variant: "leg_press" } },
+  "CALF_RAISE/STANDING_CALF_RAISE": { archetype: "calf_raise", params: { title_es: "Elevación de talones" } },
+  "DEADLIFT/KETTLEBELL_DEADLIFT": { archetype: "hip_hinge", params: { variant: "kettlebell_deadlift" } },
+  "LEG_CURL/GOOD_MORNING": { archetype: "hip_hinge", params: { variant: "good_morning" } },
+  "DEADLIFT/SINGLE_LEG_ROMANIAN_DEADLIFT_WITH_DUMBBELL": { archetype: "hip_hinge", params: { variant: "single_leg" } },
+  "CARRY/FARMERS_CARRY": { archetype: "carry", params: { title_es: "Paseo del granjero" } },
 };
 
 export const animationKey = (category: string, name: string): string => `${category}/${name}`;
