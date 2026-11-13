@@ -40,7 +40,8 @@ export function PrefsForm({ initial, onDone }: { initial: Prefs; onDone?: () => 
           options={[1, 2, 3, 4].map((n) => ({ value: n, label: String(n) }))} />
       </fieldset>
       <fieldset className="grid gap-2">
-        <legend className="mb-1 text-sm font-medium">Minutos por sesión</legend>
+        <legend className="mb-1 text-sm font-medium">Minutos de ejercicios por sesión</legend>
+        <p className="-mt-1 mb-1 text-xs text-label-2">Se suman 10 min de cardio en cinta al empezar.</p>
         <SingleChoice name="Minutos por sesión" value={prefs.session_minutes} onChange={(v) => setPrefs({ ...prefs, session_minutes: v })}
           options={SESSION_MINUTE_OPTIONS.map((n) => ({ value: n, label: `${n} min` }))} />
       </fieldset>

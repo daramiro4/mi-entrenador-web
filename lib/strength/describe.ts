@@ -7,7 +7,7 @@ export function describeLine(e: BlockExercise, block?: Pick<WorkoutBlock, "round
   else parts.push(`${e.sets > 1 ? `${e.sets} × ` : ""}${e.reps ?? 10} reps`);
   if (e.weight_kg != null) parts.push(`${e.weight_kg} kg`);
   else if (e.mode === "reps") parts.push("carga a elegir");
-  if (block?.rounds && !e.rep_scheme) parts.push(`× ${block.rounds} rondas`);
+  if (block?.rounds && block.rounds > 1 && !e.rep_scheme) parts.push(`× ${block.rounds} rondas`);
   return parts.join(" · ");
 }
 

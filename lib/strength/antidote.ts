@@ -6,6 +6,9 @@ import type { BlockExercise, GeneratedWorkout } from "./workout-types";
  * Antídoto de conducción: rutina FIJA (sin IA) de ~6 min de movilidad y activación
  * para contrarrestar horas sentado. Se registra como actividad de carga mínima.
  */
+/** Nombre con el que se guarda la rutina; sirve para distinguirla de las rutinas de fuerza. */
+export const ANTIDOTE_NAME = "Antídoto de conducción";
+
 export const DRIVING_ANTIDOTE_STEPS: Array<{ slug: string; seconds: number }> = [
   { slug: "gato-camello", seconds: 60 },
   { slug: "flexor-cadera", seconds: 60 },
@@ -22,12 +25,12 @@ export function drivingAntidote(): GeneratedWorkout & { tss: number } {
   });
   const total = exercises.reduce((a, e) => a + (e.seconds ?? 0) + e.rest_s, 0);
   return {
-    name: "Antídoto de conducción",
+    name: ANTIDOTE_NAME,
     format: "circuito",
     duration_min: Math.round(total / 60),
     requested_min: 6,
     intensity: "suave",
-    blocks: [{ kind: "main", title: "Movilidad y activación", rounds: 1, exercises }],
+    blocks: [{ kind: "main", title: "Movilidad y activación", exercises }],
     tss: MINIMAL_LOAD_TSS,
   };
 }

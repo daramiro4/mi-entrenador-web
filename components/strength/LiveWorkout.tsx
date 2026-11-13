@@ -2,13 +2,14 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import Link from "next/link";
-import { ArrowLeftRight, Check, Minus, Plus, X } from "lucide-react";
+import { ArrowLeftRight, Check, Footprints, Minus, Plus, X } from "lucide-react";
 import { Button, LinkButton } from "@/components/ui/Button";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import { SingleChoice } from "@/components/ui/Choice";
 import { ExerciseFigure } from "./ExerciseFigure";
 import { EffortCard } from "./EffortCard";
 import { finishWorkoutAction, logSetAction, saveProgressAction } from "@/app/fuerza/entreno/actions";
+import { ANTIDOTE_NAME } from "@/lib/strength/antidote";
 import { EXERCISE_BY_SLUG } from "@/lib/strength/library";
 import { buildSteps, effectiveSlug, weightStep, type SetLog } from "@/lib/strength/steps";
 import type { StrengthProgress, StrengthWorkoutRecord } from "@/lib/strength/data";
@@ -41,6 +42,9 @@ export function LiveWorkout({
   const [error, setError] = useState<string | null>(null);
   const [pending, start] = useTransition();
   const finishing = idx >= steps.length;
+  // El antídoto de conducción vive en su propia sección (/movilidad), no en Fuerza.
+  const isAntidote = workout.name === ANTIDOTE_NAME;
+  const backHref = isAntidote ? "/movilidad" : "/fuerza";
   const lastSaved = useRef<string>("");
 
   useEffect(() => {
@@ -49,6 +53,7 @@ export function LiveWorkout({
   }, []);
 
   const step = steps[idx];
+  const isCardio = !!step?.cardio;
   const block = step ? workout.blocks[step.blockIdx] : null;
   const line = step && block ? block.exercises[step.exIdx] : null;
   const slug = line ? effectiveSlug(line.slug, swaps) : null;
@@ -109,6 +114,13 @@ export function LiveWorkout({
     });
   }
 
+  /** Cardio en cinta: no registra series, solo pasa al siguiente paso. */
+  function completeCardio() {
+    const next = idx + 1;
+    go(next);
+    persist(next, done, swaps);
+  }
+
   function swapTo(alt: string) {
     if (!line) return;
     const nextSwaps = { ...swaps, [line.slug]: alt };
@@ -127,8 +139,8 @@ export function LiveWorkout({
       <Shell title="¡Hecho!">
         <div className="grid gap-4">
           <p className="text-lg">Buen trabajo. Carga de la sesión: <span className="metric font-semibold">{finished.tss} TSS</span>.</p>
-          <EffortCard workoutId={workout.id} workoutName={workout.name} />
-          <LinkButton href="/fuerza" variant="secondary">Volver a Fuerza</LinkButton>
+          {!isAntidote && <EffortCard workoutId={workout.id} workoutName={workout.name} />}
+          <LinkButton href={backHref} variant="secondary">{isAntidote ? "Volver a Movilidad" : "Volver a Fuerza"}</LinkButton>
         </div>
       </Shell>
     );
@@ -166,13 +178,17 @@ export function LiveWorkout({
   }
 
   const nextWork = steps.slice(idx + 1).find((s) => s.kind === "work");
-  const nextName = nextWork ? EXERCISE_BY_SLUG[effectiveSlug(workout.blocks[nextWork.blockIdx].exercises[nextWork.exIdx].slug, swaps)]?.name_es : null;
+  const nextName = nextWork
+    ? nextWork.cardio
+      ? "Cardio en cinta"
+      : EXERCISE_BY_SLUG[effectiveSlug(workout.blocks[nextWork.blockIdx].exercises[nextWork.exIdx].slug, swaps)]?.name_es
+    : null;
   const alts = line ? (alternatives[line.slug] ?? []) : [];
 
   return (
     <div className="fixed inset-0 z-40 flex flex-col bg-bg">
       <header className="glass-bar flex items-center justify-between px-4 py-3" style={{ paddingTop: "max(12px, env(safe-area-inset-top))" }}>
-        <Link href="/fuerza" aria-label="Salir (se guarda tu progreso)" className="flex h-11 w-11 items-center justify-center rounded-full bg-fill">
+        <Link href={backHref} aria-label="Salir (se guarda tu progreso)" className="flex h-11 w-11 items-center justify-center rounded-full bg-fill">
           <X size={20} strokeWidth={1.75} aria-hidden="true" />
         </Link>
         <div className="text-center">
@@ -192,6 +208,15 @@ export function LiveWorkout({
             <Button variant="secondary" onClick={() => setRestLeft((r) => (r ?? 0) + 15)}>+15 s</Button>
             <Button variant="secondary" onClick={() => go(idx + 1)}>Saltar descanso</Button>
           </div>
+        </div>
+      ) : isCardio ? (
+        <div className="flex flex-1 flex-col items-center justify-center gap-4 px-6 text-center">
+          <Footprints size={44} strokeWidth={1.5} aria-hidden="true" className="text-accent" />
+          <h1 className="text-2xl font-semibold" style={{ letterSpacing: "-0.025em" }}>Cardio en cinta</h1>
+          <p className="metric text-7xl font-semibold" role="timer" aria-live="off">{mmss(workLeft ?? step?.seconds ?? 0)}</p>
+          <p className="max-w-xs text-label-2">Ritmo cómodo: puedes hablar sin ahogarte (zona 2). Activa piernas y corazón antes de las series.</p>
+          {workLeft === 0 && <p className="text-sm font-medium text-accent">¡Listo! Pasa a los ejercicios.</p>}
+          {nextName && <p className="text-xs text-label-2">Siguiente: {nextName}</p>}
         </div>
       ) : (
         <div className="flex flex-1 flex-col overflow-y-auto px-4 pb-4">
@@ -242,8 +267,8 @@ export function LiveWorkout({
 
       {step?.kind === "work" && (
         <div className="glass-bar px-4 pt-3" style={{ paddingBottom: "max(16px, env(safe-area-inset-bottom))" }}>
-          <Button className="w-full !min-h-14 text-base" onClick={completeSet}>
-            <Check size={22} strokeWidth={1.75} aria-hidden="true" className="mr-2" /> Serie hecha
+          <Button className="w-full !min-h-14 text-base" onClick={isCardio ? completeCardio : completeSet}>
+            <Check size={22} strokeWidth={1.75} aria-hidden="true" className="mr-2" /> {isCardio ? "Cardio hecho" : "Serie hecha"}
           </Button>
         </div>
       )}

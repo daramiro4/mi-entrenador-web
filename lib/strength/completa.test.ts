@@ -25,8 +25,8 @@ describe("Fuerza completa", () => {
     expect(SELECTABLE_FORMATS.map((f) => f.slug)).toEqual(["completa"]);
   });
 
-  it("siempre genera una rutina válida a 30, 45 y 60 min (200 semillas)", () => {
-    for (const minutes of [30, 45, 60]) {
+  it("siempre genera una rutina válida a 30 y 45 min de ejercicios (200 semillas)", () => {
+    for (const minutes of [30, 45]) {
       for (let seed = 1; seed <= 200; seed++) {
         const r = generateWorkout(input({ minutes, seed }));
         expect(r.workout, `${minutes} min semilla ${seed}: ${JSON.stringify(r.attempts)}`).not.toBeNull();
@@ -34,12 +34,12 @@ describe("Fuerza completa", () => {
     }
   });
 
-  it("5-7 ejercicios, 3 series cada uno y todos los grupos musculares", () => {
+  it("5-6 ejercicios, 3 series cada uno y todos los grupos musculares", () => {
     for (let seed = 1; seed <= 50; seed++) {
-      const w = generateWorkout(input({ seed, minutes: 60 })).workout!;
+      const w = generateWorkout(input({ seed, minutes: 45 })).workout!;
       const exs = mainExercises(w.blocks);
       expect(exs.length).toBeGreaterThanOrEqual(5);
-      expect(exs.length).toBeLessThanOrEqual(7);
+      expect(exs.length).toBeLessThanOrEqual(6);
       expect(exs.every((e) => e.sets === 3)).toBe(true);
       const patterns = new Set(exs.map((e) => e.pattern));
       for (const p of ["hinge", "squat", "pull", "push", "core"]) expect(patterns.has(p as never), p).toBe(true);
@@ -49,10 +49,39 @@ describe("Fuerza completa", () => {
     }
   });
 
-  it("el calentamiento incluye movilidad de cadera o torácica (postura de conductor)", () => {
+  it("empieza con 10 min de cardio en cinta y ya no lleva movilidad (esa rutina vive aparte, en /movilidad)", () => {
     const w = generateWorkout(input()).workout!;
-    const warm = w.blocks.find((b) => b.kind === "warmup")!.exercises.map((e) => e.slug);
-    expect(warm.some((s) => s === "flexor-cadera" || s === "rotacion-toracica")).toBe(true);
+    expect(w.blocks.map((b) => b.kind)).toEqual(["cardio", "main"]);
+    const cardio = w.blocks[0];
+    expect(cardio.cap_min).toBe(10);
+    expect(cardio.exercises).toEqual([]);
+    expect(w.blocks.some((b) => b.kind === "warmup")).toBe(false);
+    expect(w.blocks.flatMap((b) => b.exercises).some((e) => e.pattern === "mobility")).toBe(false);
+  });
+
+  it("con 45 min de ejercicios la sesión dura unos 55 min (10 de cardio + 45) y lleva 5 o 6 ejercicios", () => {
+    for (let seed = 1; seed <= 100; seed++) {
+      const w = generateWorkout(input({ seed, minutes: 45 })).workout!;
+      expect(w.requested_min).toBe(55);
+      expect(w.duration_min).toBeGreaterThanOrEqual(50);
+      expect(w.duration_min).toBeLessThanOrEqual(60);
+    }
+  });
+
+  it("el entreno en vivo empieza por un paso de cardio de 10 min sin series ni descanso", () => {
+    const w = generateWorkout(input()).workout!;
+    const steps = buildSteps(w);
+    expect(steps[0]).toMatchObject({ kind: "work", cardio: true, seconds: 600, setsTotal: 1, blockIdx: 0 });
+    expect(steps[1].kind).toBe("work");
+    expect(steps[1].cardio).toBeUndefined();
+    expect(steps.filter((s) => s.cardio)).toHaveLength(1);
+  });
+
+  it("en el reloj, el primer paso es la cinta (RUN_INDOOR / TREADMILL) por tiempo: 600 s", () => {
+    const w = generateWorkout(input()).workout!;
+    const first = buildGarminWorkout(w).payload.workoutSegments[0].workoutSteps[0];
+    expect(first).toMatchObject({ type: "ExecutableStepDTO", category: "RUN_INDOOR", exerciseName: "TREADMILL", endConditionValue: 600 });
+    expect((first.endCondition as { conditionTypeKey: string }).conditionTypeKey).toBe("time");
   });
 
   it("varía los ejercicios entre días consecutivos (A/B/C)", () => {

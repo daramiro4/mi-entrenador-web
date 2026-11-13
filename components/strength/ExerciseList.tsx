@@ -1,3 +1,4 @@
+import { Footprints } from "lucide-react";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { Chip } from "@/components/ui/Chip";
 import { ExerciseCard } from "./ExerciseCard";
@@ -12,11 +13,23 @@ export function ExerciseList({ blocks }: { blocks: WorkoutBlock[] }) {
     <GlassCard aria-labelledby="ej-title">
       <h2 id="ej-title" className="text-lg font-semibold">Ejercicios</h2>
       <div className="mt-4 grid gap-3">
-        {blocks.map((b) => (
+        {blocks.map((b) =>
+          b.kind === "cardio" ? (
+            <div key={b.kind}>
+              <p className="mb-2 text-xs text-label-2">{b.title}</p>
+              <div className="tile flex min-h-14 items-center justify-between gap-2 px-4 py-3">
+                <span>
+                  <span className="block font-medium">Cinta · {b.cap_min ?? 10} min</span>
+                  <span className="block text-sm text-label-2">Ritmo cómodo, puedes hablar sin ahogarte (zona 2)</span>
+                </span>
+                <Footprints size={20} strokeWidth={1.75} aria-hidden="true" className="shrink-0 text-label-2" />
+              </div>
+            </div>
+          ) : (
           <div key={b.kind}>
             <p className="mb-2 text-xs text-label-2">
               {b.title}
-              {b.rounds ? ` · ${b.rounds} rondas` : ""}
+              {b.rounds && b.rounds > 1 ? ` · ${b.rounds} rondas` : ""}
               {b.cap_min ? ` · ${b.cap_min} min` : ""}
             </p>
             <ul className="grid gap-2">

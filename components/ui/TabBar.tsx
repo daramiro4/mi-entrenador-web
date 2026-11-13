@@ -1,8 +1,8 @@
 import Link from "next/link";
-import { Activity, CalendarDays, Dumbbell, LineChart } from "lucide-react";
+import { Activity, CalendarDays, Dumbbell, LineChart, PersonStanding } from "lucide-react";
 import { NAV_ITEMS, type NavKey } from "./nav-items";
 
-const ICONS = { hoy: Activity, plan: CalendarDays, fuerza: Dumbbell, progreso: LineChart } as const;
+const ICONS = { hoy: Activity, plan: CalendarDays, fuerza: Dumbbell, movilidad: PersonStanding, progreso: LineChart } as const;
 
 /** Tab bar inferior de vidrio (móvil). */
 export function TabBar({ active }: { active: NavKey | null }) {

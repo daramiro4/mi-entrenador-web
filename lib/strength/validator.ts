@@ -29,8 +29,8 @@ export function validateWorkout(w: GeneratedWorkout, ctx: ValidationContext): Va
   const errors: string[] = [];
   const allowed = new Set<Equipment>([...ctx.prefs.equipment, "bodyweight"]);
 
-  const warm = w.blocks.find((b) => b.kind === "warmup");
-  if (!warm || warm.exercises.length < 2) errors.push("Falta el calentamiento (mínimo 2 ejercicios).");
+  const cardio = w.blocks.find((b) => b.kind === "cardio");
+  if (!cardio || (cardio.cap_min ?? 0) < 5) errors.push("Falta el cardio en cinta de activación (mínimo 5 min).");
 
   const setsByPattern: Record<string, number> = {};
   const main = w.blocks.filter((b) => b.kind === "main");

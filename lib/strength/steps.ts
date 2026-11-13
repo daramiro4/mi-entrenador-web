@@ -15,6 +15,8 @@ export interface Step {
   reps?: number;
   seconds?: number;
   rest_s?: number;
+  /** Paso de cardio en cinta: cuenta atrás, sin ejercicio de la biblioteca ni series que registrar. */
+  cardio?: boolean;
 }
 
 /**
@@ -25,6 +27,10 @@ export interface Step {
 export function buildSteps(w: Pick<GeneratedWorkout, "format" | "blocks">): Step[] {
   const steps: Step[] = [];
   w.blocks.forEach((b, bi) => {
+    if (b.kind === "cardio") {
+      steps.push({ kind: "work", key: `${bi}:cardio`, blockIdx: bi, exIdx: 0, setNo: 1, setsTotal: 1, round: 1, roundsTotal: 1, seconds: (b.cap_min ?? 10) * 60, cardio: true });
+      return;
+    }
     const exs = b.exercises;
     const push = (e: BlockExercise, ei: number, round: number, roundsTotal: number, setNo: number, setsTotal: number, reps?: number) => {
       steps.push({

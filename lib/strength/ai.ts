@@ -20,7 +20,7 @@ export function buildAiPrompt(input: GenerateInput): string {
     (p) => `${p}: ${pool.filter((e) => e.pattern === p).map((e) => e.slug).join(", ") || "(ninguno)"}`
   );
   return `Eres un entrenador de fuerza por salud para una persona que pasa muchas horas sentada y conduciendo.
-Formato pedido: ${FORMAT_BY_SLUG[input.format].name_es}. Duración: ${input.prefs.session_minutes} min. Nivel ${input.prefs.level}/3.
+Formato pedido: ${FORMAT_BY_SLUG[input.format].name_es}. Duración de los ejercicios: ${input.prefs.session_minutes} min (aparte, 10 min de cardio en cinta). Nivel ${input.prefs.level}/3.
 Elige entre 4 y 7 ejercicios SOLO de esta lista de slugs (por patrón):
 ${byPattern.join("\n")}
 Reglas: incluye siempre un ejercicio de "hinge" y uno de "core"; al menos tantos de "pull" como de "push"; evita repetir los usados recientemente: ${input.recentSlugs.join(", ") || "ninguno"}.

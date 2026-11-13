@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getWorkoutById, type StrengthProgress } from "@/lib/strength/data";
+import { ANTIDOTE_NAME } from "@/lib/strength/antidote";
 import { applyResults } from "@/lib/strength/steps";
 import { MINIMAL_LOAD_TSS, strengthTss } from "@/lib/strength/tss";
 import type { Json } from "@/lib/supabase/database.types";
@@ -76,7 +77,7 @@ export async function finishWorkoutAction(
     const { supabase, user } = await requireUser();
     const w = await getWorkoutById(supabase, user.id, workoutId);
     if (!w) return { ok: false, error: "Rutina no encontrada" };
-    const isAntidote = w.name === "Antídoto de conducción";
+    const isAntidote = w.name === ANTIDOTE_NAME;
     const progress = w.progress;
     const blocks = progress ? applyResults(w.blocks, progress.done, progress.swaps) : w.blocks;
     const minutes = Math.min(Math.max(Math.round(input.elapsed_min), 3), Math.round(w.duration_min * 1.5));

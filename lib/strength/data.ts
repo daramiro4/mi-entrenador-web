@@ -15,7 +15,7 @@ export function isMissingTable(error: { code?: string; message?: string } | null
 
 export const DEFAULT_PREFS: Prefs = {
   days_per_week: 2,
-  session_minutes: 30,
+  session_minutes: 45,
   equipment: ["bodyweight"],
   level: 1,
   limitations: [],

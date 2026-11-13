@@ -13,16 +13,16 @@ import type {
 export const ENGINE = {
   SEC_PER_REP: 3,
   TRANSITION_S: 10,
-  WARMUP_SECONDS: 40,
-  WARMUP_REST_S: 5,
+  /** Cardio en cinta de activación al empezar la rutina (minutos). Se suma a los minutos de ejercicios de las preferencias. */
+  CARDIO_MIN: 10,
   MIN_EXERCISES: 4,
   MAX_EXERCISES: 7,
   MAX_ATTEMPTS: 3,
   /** Orden de prioridad de patrones (pull ≥ push siempre; bisagra y core siempre). */
   PATTERN_ORDER: ["hinge", "pull", "push", "core", "squat", "pull", "carry"] as Pattern[],
-  /** Fuerza completa: 5 a 7 ejercicios (hinge, pierna, tirón, empuje, core, tirón extra, acarreo). */
+  /** Fuerza completa: 5 o 6 ejercicios (bisagra, pierna, tirón, empuje, core, tirón extra). Antes llegaba a 7 con un acarreo y la sesión se hacía larga. */
   COMPLETA_MIN_EXERCISES: 5,
-  COMPLETA_MAX_EXERCISES: 7,
+  COMPLETA_MAX_EXERCISES: 6,
   COMPLETA_SETS: 3,
   COMPLETA_PATTERN_ORDER: ["hinge", "squat", "pull", "push", "core", "pull", "carry"] as Pattern[],
   /** Ejercicios de poco valor como trabajo principal de fuerza: solo si no hay otro del patrón. */
@@ -119,6 +119,10 @@ const exSeconds = (e: BlockExercise, repsOverride?: number) =>
 export function estimateMinutes(w: Pick<GeneratedWorkout, "format" | "blocks">): number {
   let seconds = 0;
   for (const b of w.blocks) {
+    if (b.kind === "cardio") {
+      seconds += (b.cap_min ?? ENGINE.CARDIO_MIN) * 60;
+      continue;
+    }
     if (b.kind !== "main") {
       seconds += b.exercises.reduce((a, e) => a + (e.seconds ?? 40) * e.sets + e.rest_s, 0);
       continue;
@@ -197,23 +201,9 @@ function buildMain(format: FormatSlug, exercises: Exercise[], input: GenerateInp
   return { kind: "main", title: format === "circuito" ? "Circuito" : "Contrarreloj", rounds: best, round_rest_s: roundRest, exercises: lines };
 }
 
-function buildWarmup(main: Exercise[], input: GenerateInput): WorkoutBlock {
-  const blocked = blockedAreas(input);
-  const wanted = ["gato-camello", "rotacion-toracica"];
-  if (main.some((e) => e.pattern === "hinge" || e.pattern === "squat")) wanted.push("flexor-cadera");
-  else if (main.some((e) => e.pattern === "push")) wanted.push("estiramiento-pectoral");
-  const exs = wanted
-    .map((s) => EXERCISE_BY_SLUG[s])
-    .filter((e) => e && !e.contraindications.some((c) => blocked.has(c)));
-  const safe = exs.length >= 2 ? exs : [EXERCISE_BY_SLUG["flexor-cadera"], EXERCISE_BY_SLUG["rotacion-toracica"]].filter((e) => !e.contraindications.some((c) => blocked.has(c)));
-  return {
-    kind: "warmup",
-    title: "Calentamiento",
-    exercises: safe.map((e) => ({
-      slug: e.slug, name: e.name_es, pattern: e.pattern, mode: "time", sets: 1,
-      seconds: ENGINE.WARMUP_SECONDS, weight_kg: null, rest_s: ENGINE.WARMUP_REST_S,
-    })),
-  };
+/** Cardio en cinta de activación: sustituye al calentamiento de movilidad (esa rutina ahora vive aparte, en /movilidad). */
+function buildCardio(): WorkoutBlock {
+  return { kind: "cardio", title: "Cardio en cinta", cap_min: ENGINE.CARDIO_MIN, exercises: [] };
 }
 
 function intensityFor(input: GenerateInput): Intensity {
@@ -231,16 +221,15 @@ function pickName(input: GenerateInput, rand: () => number): string {
 
 /** Construye una rutina a partir de ejercicios ya elegidos (p. ej. por la capa IA). Las cargas siguen siendo del motor. */
 export function generateFromExercises(input: GenerateInput, exs: Exercise[], name?: string): GeneratedWorkout {
-  const warmup = buildWarmup(exs, input);
-  const warmMin = estimateMinutes({ format: input.format, blocks: [warmup] });
-  const main = buildMain(input.format, exs, input, Math.max(8, input.prefs.session_minutes - warmMin));
+  const cardio = buildCardio();
+  const main = buildMain(input.format, exs, input, Math.max(8, input.prefs.session_minutes));
   const w: GeneratedWorkout = {
     name: name ?? pickName(input, rng(input.seed)),
     format: input.format,
     duration_min: 0,
-    requested_min: input.prefs.session_minutes,
+    requested_min: input.prefs.session_minutes + ENGINE.CARDIO_MIN,
     intensity: intensityFor(input),
-    blocks: [warmup, main],
+    blocks: [cardio, main],
   };
   w.duration_min = estimateMinutes(w);
   return w;
@@ -250,7 +239,9 @@ export function generateFromExercises(input: GenerateInput, exs: Exercise[], nam
 export function generateOnce(input: GenerateInput, attempt: number): GeneratedWorkout {
   const rand = rng(input.seed + attempt * 7919);
   const conservative = attempt >= ENGINE.MAX_ATTEMPTS;
+  // `session_minutes` = minutos de ejercicios; el total pedido suma el cardio en cinta.
   const target = input.prefs.session_minutes;
+  const totalTarget = target + ENGINE.CARDIO_MIN;
   let best: GeneratedWorkout | null = null;
   let bestDiff = Infinity;
   const completa = input.format === "completa";
@@ -261,19 +252,17 @@ export function generateOnce(input: GenerateInput, attempt: number): GeneratedWo
 
   for (const [, exs] of picks) {
     if (exs.length < 3) continue;
-    const warmup = buildWarmup(exs, input);
-    const warmMin = estimateMinutes({ format: input.format, blocks: [warmup] });
-    const main = buildMain(input.format, exs, input, Math.max(8, target - warmMin));
+    const main = buildMain(input.format, exs, input, Math.max(8, target));
     const w: GeneratedWorkout = {
       name: pickName(input, rand),
       format: input.format,
       duration_min: 0,
-      requested_min: target,
+      requested_min: totalTarget,
       intensity: intensityFor(input),
-      blocks: [warmup, main],
+      blocks: [buildCardio(), main],
     };
     w.duration_min = estimateMinutes(w);
-    const diff = Math.abs(w.duration_min - target);
+    const diff = Math.abs(w.duration_min - totalTarget);
     if (diff < bestDiff) { best = w; bestDiff = diff; }
   }
   if (!best) throw new Error("No hay ejercicios elegibles con el equipamiento y limitaciones indicados.");

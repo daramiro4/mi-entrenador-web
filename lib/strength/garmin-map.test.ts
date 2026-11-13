@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { buildGarminWorkout, countSteps, type GarminStep } from "./garmin-map";
+import { readFileSync } from "node:fs";
+import { buildGarminWorkout, CARDIO_GARMIN, countSteps, type GarminStep } from "./garmin-map";
 import { generateWorkout } from "./engine";
 import { EXERCISES } from "./library";
 import { GARMIN_OVERRIDES } from "./garmin-overrides";
@@ -28,7 +29,7 @@ describe("mapeo a Garmin (dry-run)", () => {
       const all = flat(payload.workoutSegments[0].workoutSteps);
       const orders = all.map((s) => s.stepOrder);
       expect(new Set(orders).size).toBe(orders.length); // stepOrder único
-      expect(countSteps(payload.workoutSegments[0].workoutSteps)).toBeGreaterThan(5);
+      expect(countSteps(payload.workoutSegments[0].workoutSteps)).toBeGreaterThan(3);
       for (const s of all.filter((x) => x.type === "ExecutableStepDTO" && (x.stepType as { stepTypeKey: string }).stepTypeKey === "interval")) {
         expect(s.category).toMatch(/^[A-Z_]+$/);
         expect(typeof s.endConditionValue).toBe("number");
@@ -36,7 +37,7 @@ describe("mapeo a Garmin (dry-run)", () => {
     }
   });
   it("fuerza completa: un grupo 'N series' por ejercicio (ejercicio + descanso), como el editor de Garmin", () => {
-    const w = generateWorkout({ ...input("completa"), prefs: { ...input("completa").prefs, session_minutes: 60 } }).workout!;
+    const w = generateWorkout({ ...input("completa"), prefs: { ...input("completa").prefs, session_minutes: 45 } }).workout!;
     const { payload } = buildGarminWorkout(w);
     const top = payload.workoutSegments[0].workoutSteps;
     const groups = top.filter((s) => s.type === "RepeatGroupDTO");
@@ -51,10 +52,11 @@ describe("mapeo a Garmin (dry-run)", () => {
       expect((inner[1].stepType as { stepTypeKey: string }).stepTypeKey).toBe("rest");
       expect(inner[1].endConditionValue as number).toBeGreaterThanOrEqual(60);
     }
-    // calentamiento (3 pasos por tiempo) antes de los bloques de series
-    expect(top.slice(0, 3).every((s) => s.type === "ExecutableStepDTO")).toBe(true);
+    // el cardio en cinta (1 paso por tiempo) va antes de los bloques de series
+    expect(top[0].type).toBe("ExecutableStepDTO");
+    expect(top.slice(1).every((s) => s.type === "RepeatGroupDTO")).toBe(true);
     // pasos totales mucho menores que con series planas
-    expect(top.length).toBeLessThanOrEqual(3 * 2 + main.length);
+    expect(top.length).toBe(1 + main.length);
   });
   it("las correcciones del catálogo existen en el formato esperado y se aplican", () => {
     for (const [slug, [cat, ex]] of Object.entries(GARMIN_OVERRIDES)) {
@@ -97,3 +99,13 @@ describe("mapeo a Garmin (dry-run)", () => {
     expect(s).not.toMatch(/password|token|secret|@/i);
   });
 });
+
+describe("cardio en cinta en el reloj", () => {
+  it("RUN_INDOOR/TREADMILL existe en el catálogo de Garmin y el FIT SDK lo conoce", () => {
+    const cat = JSON.parse(readFileSync("data/garmin-exercises.json", "utf8")) as { exercises: { garmin_category: string; garmin_name: string; fit_sdk_known: boolean }[] };
+    const e = cat.exercises.find((x) => x.garmin_category === CARDIO_GARMIN[0] && x.garmin_name === CARDIO_GARMIN[1]);
+    expect(e, `${CARDIO_GARMIN.join("/")} no está en el catálogo`).toBeDefined();
+    expect(e!.fit_sdk_known).toBe(true);
+  });
+});
+

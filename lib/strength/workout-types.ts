@@ -28,11 +28,12 @@ export interface BlockExercise {
 }
 
 export interface WorkoutBlock {
-  kind: "warmup" | "main" | "cooldown";
+  /** `cardio` = cardio en cinta de activación (solo `cap_min`, sin ejercicios). `warmup` queda para leer rutinas antiguas. */
+  kind: "cardio" | "warmup" | "main" | "cooldown";
   title: string;
   /** Rondas del bloque (circuito/EMOM/contrarreloj). */
   rounds?: number;
-  /** Límite de tiempo (AMRAP) en minutos. */
+  /** Límite de tiempo (AMRAP) en minutos; en el bloque `cardio`, su duración. */
   cap_min?: number;
   /** Descanso entre rondas en segundos (circuito/contrarreloj). */
   round_rest_s?: number;
@@ -54,6 +55,7 @@ export interface GeneratedWorkout {
 
 export interface Prefs {
   days_per_week: number;
+  /** Minutos de EJERCICIOS (el bloque de fuerza). Los 10 min de cardio en cinta se suman aparte. */
   session_minutes: number;
   equipment: Equipment[];
   level: 1 | 2 | 3;

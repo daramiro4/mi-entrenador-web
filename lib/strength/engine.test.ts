@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { generateWorkout, isEligible, estimateMinutes } from "./engine";
+import { ENGINE, generateWorkout, isEligible, estimateMinutes } from "./engine";
 import { EXERCISE_BY_SLUG, EXERCISES } from "./library";
 import { FORMATS } from "./formats";
 import { validateWorkout } from "./validator";
@@ -19,14 +19,16 @@ describe("motor de reglas", () => {
   it("genera rutinas válidas para todos los formatos, niveles y duraciones habituales", () => {
     for (const f of FORMATS) {
       for (const level of [1, 2, 3] as const) {
-        for (const minutes of f.slug === "completa" ? [30, 45, 60] : [20, 30, 45]) {
+        for (const minutes of f.slug === "completa" ? [30, 45] : [20, 30] /* los demás formatos ya no se ofrecen y no llegan a 45 min + cardio */) {
           const r = generateWorkout(input({ format: f.slug, prefs: prefs({ level, session_minutes: minutes }) }));
           expect(r.workout, `${f.slug} L${level} ${minutes}min: ${JSON.stringify(r.attempts)}`).not.toBeNull();
           const w = r.workout!;
           const main = w.blocks.find((b) => b.kind === "main")!;
           const patterns = new Set(main.exercises.map((e) => e.pattern));
           expect(patterns.has("hinge") && patterns.has("core")).toBe(true);
-          expect(Math.abs(w.duration_min - minutes) / minutes).toBeLessThanOrEqual(0.15);
+          // `session_minutes` son los minutos de ejercicios; el total suma los 10 min de cardio en cinta.
+          const total = minutes + ENGINE.CARDIO_MIN;
+          expect(Math.abs(w.duration_min - total) / total).toBeLessThanOrEqual(0.15);
         }
       }
     }
@@ -96,10 +98,10 @@ describe("validador", () => {
     w.blocks[1].exercises[0].slug = "no-existe";
     expect(validateWorkout(w, ctx).errors.join()).toMatch(/inexistente/);
   });
-  it("rechaza si falta el calentamiento", () => {
+  it("rechaza si falta el cardio en cinta", () => {
     const w = base();
-    w.blocks = w.blocks.filter((b) => b.kind !== "warmup");
-    expect(validateWorkout(w, ctx).errors.join()).toMatch(/calentamiento/);
+    w.blocks = w.blocks.filter((b) => b.kind !== "cardio");
+    expect(validateWorkout(w, ctx).errors.join()).toMatch(/cardio/);
   });
   it("rechaza contraindicaciones y equipamiento no disponible", () => {
     const w = base();

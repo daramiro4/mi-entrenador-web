@@ -92,7 +92,25 @@ function repeatGroup(order: Counter, iterations: number, build: () => GarminStep
   };
 }
 
+/** Cardio en cinta: un paso por tiempo con el ejercicio "Treadmill" (categoría RUN_INDOOR) del catálogo de Garmin. */
+export const CARDIO_GARMIN = ["RUN_INDOOR", "TREADMILL"] as const;
+
+function cardioStep(order: Counter, b: WorkoutBlock): GarminStep {
+  return {
+    type: "ExecutableStepDTO",
+    stepOrder: order.next(),
+    stepType: STEP.interval,
+    endCondition: END_TIME,
+    endConditionValue: (b.cap_min ?? 10) * 60,
+    targetType: NO_TARGET,
+    category: CARDIO_GARMIN[0],
+    exerciseName: CARDIO_GARMIN[1],
+    description: "Cardio en cinta · ritmo cómodo",
+  };
+}
+
 function blockSteps(format: FormatSlug, b: WorkoutBlock, order: Counter, unmapped: string[], notes: string[]): GarminStep[] {
+  if (b.kind === "cardio") return [cardioStep(order, b)];
   const exs = b.exercises;
   const lineSteps = (e: BlockExercise, o: Counter, repsOverride?: number, asMinute = false): GarminStep[] => {
     const timed = e.mode === "time";

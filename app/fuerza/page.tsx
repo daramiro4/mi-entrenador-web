@@ -8,10 +8,10 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { WorkoutStudio } from "@/components/strength/WorkoutStudio";
 import { ExerciseList } from "@/components/strength/ExerciseList";
 import { PatternProgress, patternVolume } from "@/components/strength/PatternProgress";
-import { DrivingAntidoteCard } from "@/components/strength/DrivingAntidoteCard";
 import { EffortCard } from "@/components/strength/EffortCard";
 import { PrefsForm } from "@/components/strength/PrefsForm";
 import { PrefsPanel } from "@/components/strength/PrefsPanel";
+import { ANTIDOTE_NAME } from "@/lib/strength/antidote";
 import { DEFAULT_PREFS, getPrefs, getRecentWorkouts } from "@/lib/strength/data";
 import { addDays, todayISODate } from "@/lib/week";
 import { garminSendEnabled } from "@/lib/strength/garmin-send";
@@ -40,7 +40,8 @@ export default async function FuerzaPage() {
     );
   }
 
-  const workouts = recent.rows.filter((w) => !(w.name === "Antídoto de conducción"));
+  // El antídoto de conducción tiene su propia sección (/movilidad): no cuenta como rutina de fuerza.
+  const workouts = recent.rows.filter((w) => w.name !== ANTIDOTE_NAME);
   const todays =
     workouts.find((w) => w.date === today && w.status !== "skipped") ?? workouts.find((w) => w.status !== "done" && w.status !== "skipped") ?? null;
   const lastDoneNoEffort = workouts.find((w) => w.status === "done" && !w.felt) ?? null;
@@ -73,7 +74,6 @@ export default async function FuerzaPage() {
           <div className="grid content-start gap-6">
             {lastDoneNoEffort && <EffortCard workoutId={lastDoneNoEffort.id} workoutName={lastDoneNoEffort.name} />}
             <PatternProgress volume={volume} />
-            <DrivingAntidoteCard />
             <PrefsPanel prefs={prefs} />
           </div>
         </div>

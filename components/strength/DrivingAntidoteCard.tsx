@@ -18,7 +18,7 @@ export function DrivingAntidoteCard() {
         <h2 id="ant-title" className="text-lg font-semibold">Antídoto de conducción</h2>
       </div>
       <p className="mt-2 text-sm text-label-2">
-        6 minutos de movilidad y activación para compensar las horas sentado: espalda, cadera, pecho, cuello y glúteos.
+        6 minutos de movilidad y activación para compensar las horas sentado: espalda, cadera, pecho, cuello y glúteos. Se hace en casa, sin material ni gimnasio.
       </p>
       <div className="mt-4">
         <Button
