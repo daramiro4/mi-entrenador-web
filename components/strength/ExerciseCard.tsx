@@ -1,11 +1,11 @@
 import { Watch, AlertTriangle, Repeat } from "lucide-react";
 import { Chip } from "@/components/ui/Chip";
-import { PosePair } from "./PoseFigure";
+import { ExerciseFigure } from "./ExerciseFigure";
 import { EXERCISE_BY_SLUG } from "@/lib/strength/library";
 import { EQUIPMENT_LABEL, LEVEL_LABEL, PATTERN_LABEL } from "@/lib/strength/labels";
 import type { Exercise } from "@/lib/strength/types";
 
-/** Ficha del ejercicio: posturas, claves de técnica, error común, alternativas y envío al reloj. */
+/** Ficha del ejercicio: animación (o posturas), claves de técnica, error común, alternativas y envío al reloj. */
 export function ExerciseCard({ exercise, bare = false }: { exercise: Exercise; bare?: boolean }) {
   const alts = exercise.alternatives.map((s) => EXERCISE_BY_SLUG[s]?.name_es).filter(Boolean);
   return (
@@ -20,7 +20,7 @@ export function ExerciseCard({ exercise, bare = false }: { exercise: Exercise; b
           ))}
         </div>
       </header>
-      <PosePair name={exercise.name_es} a={exercise.pose_a} b={exercise.pose_b} labels={exercise.pose_labels} />
+      <ExerciseFigure exercise={exercise} variant="card" />
       <section aria-label="Claves de técnica">
         <h4 className="text-sm font-medium">Claves de técnica</h4>
         <ul className="mt-1 list-disc pl-5 text-sm text-label-2">

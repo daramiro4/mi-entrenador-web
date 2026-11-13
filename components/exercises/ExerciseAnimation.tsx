@@ -23,12 +23,15 @@ export function ExerciseAnimation({
   rig,
   autoPlay = true,
   showSteps = true,
+  compact = false,
   className,
   below,
 }: {
   rig: Rig;
   autoPlay?: boolean;
   showSteps?: boolean;
+  /** Versión baja para el entreno en vivo: escenario limitado en altura y rótulo de fase más pequeño. */
+  compact?: boolean;
   className?: string;
   /** Contenido entre el escenario y los pasos numerados (metadatos, título, dosis…). */
   below?: React.ReactNode;
@@ -65,7 +68,7 @@ export function ExerciseAnimation({
   return (
     <section className={className} aria-label={`Animación: ${rig.title_es}`}>
       <div className="data-surface !p-3 sm:!p-4">
-        <p className="min-h-7 text-center font-display text-2xl" aria-hidden="true">
+        <p className={compact ? "min-h-6 text-center font-display text-lg" : "min-h-7 text-center font-display text-2xl"} aria-hidden="true">
           {phase?.label_es}
         </p>
         <RigStage
@@ -74,7 +77,7 @@ export function ExerciseAnimation({
           muscleOpacity={opacity}
           mirror={mirror}
           label={`${rig.title_es}. Fase: ${phase?.label_es ?? ""}`}
-          className="mx-auto h-auto w-full max-w-xl"
+          className={compact ? "mx-auto h-auto max-h-[26vh] w-full max-w-xl" : "mx-auto h-auto w-full max-w-xl"}
         />
         <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
           <p className="text-sm text-label-2">

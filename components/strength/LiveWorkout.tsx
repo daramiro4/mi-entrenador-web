@@ -6,7 +6,7 @@ import { ArrowLeftRight, Check, Minus, Plus, X } from "lucide-react";
 import { Button, LinkButton } from "@/components/ui/Button";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import { SingleChoice } from "@/components/ui/Choice";
-import { PoseLoop } from "./PoseFigure";
+import { ExerciseFigure } from "./ExerciseFigure";
 import { EffortCard } from "./EffortCard";
 import { finishWorkoutAction, logSetAction, saveProgressAction } from "@/app/fuerza/entreno/actions";
 import { EXERCISE_BY_SLUG } from "@/lib/strength/library";
@@ -195,8 +195,8 @@ export function LiveWorkout({
         </div>
       ) : (
         <div className="flex flex-1 flex-col overflow-y-auto px-4 pb-4">
-          <div className="mx-auto mt-2 flex min-h-0 w-full max-w-sm flex-1 items-center justify-center" style={{ maxHeight: "38vh" }}>
-            {ex && <PoseLoop name={ex.name_es} a={ex.pose_a} b={ex.pose_b} labels={ex.pose_labels} />}
+          <div className="mx-auto mt-2 flex min-h-0 w-full max-w-sm flex-1 items-center justify-center" style={{ maxHeight: "44vh" }}>
+            {ex && <ExerciseFigure exercise={ex} variant="live" />}
           </div>
           <h1 className="mt-2 text-center text-2xl font-semibold" style={{ letterSpacing: "-0.025em" }}>{ex?.name_es}</h1>
           <p className="mt-1 text-center text-label-2">
