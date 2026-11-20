@@ -9,7 +9,7 @@ import {
 } from "@/app/dashboard/planned-session-actions";
 import { PLANNED_SESSION_STATUS_LABEL, SESSION_TYPE_LABEL } from "@/lib/labels";
 import type { ActivityRow, HrZoneSeconds, PlannedSession, StrengthSessionRow } from "@/lib/types";
-import { getValidPostponeDates } from "@/lib/postpone";
+import { getValidMoveTargets } from "@/lib/postpone";
 import { getValidRedistributionDates } from "@/lib/redistribute";
 import { formatHrZoneMinutes } from "@/lib/hr-zones";
 import { describeHrAdjustment } from "@/lib/hr-adjustment";
@@ -181,7 +181,9 @@ export function PlannedSessionActions({
     );
   }
 
-  const postponeDates = getValidPostponeDates(weekSessions, session, today);
+  const moveTargets = getValidMoveTargets(weekSessions, session, today);
+  const movedFrom = typeof session.notes?.moved_from === "string" ? session.notes.moved_from : null;
+  const isPast = session.date < today;
   const redistributeDates = getValidRedistributionDates(weekSessions, session, today);
 
   const handleSkipClick = () => {
@@ -195,6 +197,12 @@ export function PlannedSessionActions({
   return (
     <div className={wrapperClass}>
       {!embedded && <span className="text-sm text-paper">{SESSION_TYPE_LABEL[session.session_type]}</span>}
+      {isPast && (
+        <p className="text-xs text-label-2">
+          Sin hacer ({formatDayLabel(session.date)}). Márcala hecha, sáltala o muévela a hoy u otro día.
+        </p>
+      )}
+      {movedFrom && !isPast && <p className="text-xs text-label-2">Movida desde {formatDayLabel(movedFrom)}.</p>}
 
       {mode === "idle" && (
         <div className="flex flex-wrap items-center gap-2">
@@ -219,11 +227,11 @@ export function PlannedSessionActions({
           </button>
           <button
             type="button"
-            disabled={isPending || postponeDates.length === 0}
+            disabled={isPending || moveTargets.length === 0}
             onClick={() => setMode("postponing")}
             className="inline-flex min-h-11 items-center rounded-full bg-surface-2 px-4 text-sm font-medium text-label hover:brightness-110 disabled:pointer-events-none disabled:opacity-40 cursor-pointer"
           >
-            Posponer
+            Mover
           </button>
         </div>
       )}
@@ -232,7 +240,7 @@ export function PlannedSessionActions({
         <div className="space-y-2">
           <p className="text-xs text-fog">Mover a:</p>
           <div className="flex flex-wrap gap-2">
-            {postponeDates.map((date) => (
+            {moveTargets.map(({ date, swapWith }) => (
               <button
                 key={date}
                 type="button"
@@ -240,9 +248,14 @@ export function PlannedSessionActions({
                 onClick={() =>
                   runAction(() => postponePlannedSessionAction(session.id, date))
                 }
-                className="inline-flex min-h-11 items-center rounded-full bg-surface-2 px-4 text-sm font-medium text-label hover:brightness-110 disabled:pointer-events-none disabled:opacity-40 cursor-pointer font-mono"
+                className="inline-flex min-h-11 flex-col items-center justify-center rounded-full bg-surface-2 px-4 text-sm font-medium text-label hover:brightness-110 disabled:pointer-events-none disabled:opacity-40 cursor-pointer font-mono"
               >
-                {formatDayLabel(date)}
+                <span>{date === today ? `Hoy · ${formatDayLabel(date)}` : formatDayLabel(date)}</span>
+                {swapWith && (
+                  <span className="text-[10px] font-normal text-label-2">
+                    cambia con {SESSION_TYPE_LABEL[swapWith.session_type]}
+                  </span>
+                )}
               </button>
             ))}
             <button
@@ -254,6 +267,11 @@ export function PlannedSessionActions({
               Cancelar
             </button>
           </div>
+          {isPast && moveTargets.some((t) => t.swapWith) && (
+            <p className="text-xs text-label-2">
+              Si eliges un día con otra sesión, esa pasará a {formatDayLabel(session.date)} (ya pasado) y quedará sin hacer, por si quieres volver a moverla.
+            </p>
+          )}
         </div>
       )}
 

@@ -202,6 +202,52 @@ export async function postponePlannedSession(
   }
 }
 
+/**
+ * Mueve `session` a `target.date`. Si ese día tenía una sesión de descanso se elimina (como al posponer); si tenía
+ * otra sesión sin hacer, se INTERCAMBIAN (la otra pasa al día de origen). Ambas guardan `notes.moved_from`.
+ */
+export async function movePlannedSession(
+  supabase: TypedSupabaseClient,
+  userId: string,
+  session: PlannedSession,
+  target: { date: string; swapWith: PlannedSession | null; restSessionId: string | null }
+): Promise<void> {
+  const setDate = async (s: PlannedSession, date: string, from: string) => {
+    const { error } = await supabase
+      .from("planned_sessions")
+      .update({ date, notes: { ...(s.notes ?? {}), moved_from: from } as unknown as Json })
+      .eq("id", s.id)
+      .eq("user_id", userId);
+    if (error) throw new Error(`No se pudo mover la sesión: ${error.message}`);
+  };
+
+  if (target.swapWith) {
+    // Primero la otra (al día que se libera); si falla la segunda, se deshace la primera para no dejar dos sesiones el mismo día.
+    await setDate(target.swapWith, session.date, target.date);
+    try {
+      await setDate(session, target.date, session.date);
+    } catch (e) {
+      await supabase
+        .from("planned_sessions")
+        .update({ date: target.swapWith.date, notes: (target.swapWith.notes ?? null) as unknown as Json })
+        .eq("id", target.swapWith.id)
+        .eq("user_id", userId);
+      throw e;
+    }
+    return;
+  }
+
+  if (target.restSessionId) {
+    const { error } = await supabase
+      .from("planned_sessions")
+      .delete()
+      .eq("id", target.restSessionId)
+      .eq("user_id", userId);
+    if (error) throw new Error(`No se pudo liberar el día de descanso: ${error.message}`);
+  }
+  await setDate(session, target.date, session.date);
+}
+
 export async function insertPlannedSessions(
   supabase: TypedSupabaseClient,
   userId: string,

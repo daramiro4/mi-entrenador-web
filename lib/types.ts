@@ -47,6 +47,8 @@ export interface PlannedSessionNotes {
   /** Presente cuando saltar esta sesión movió su TSS a otra — bloquea "deshacer". */
   /** Evaluación por pulso de esta Z2 una vez hecha (lib/hr-adjustment.ts); su presencia evita reevaluar. */
   hr_adjustment?: HrAdjustmentRecord;
+  /** Día original (YYYY-MM-DD) si la sesión se movió a mano a otra fecha; se muestra en el panel del día. */
+  moved_from?: string;
   redistributed_to_session_id?: string;
   redistributed_tss?: number;
   [key: string]: unknown;

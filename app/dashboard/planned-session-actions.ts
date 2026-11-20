@@ -6,12 +6,12 @@ import { createClient } from "@/lib/supabase/server";
 import {
   getPlannedSessionById,
   getPlannedSessionsForWeek,
-  postponePlannedSession,
+  movePlannedSession,
   setPlannedSessionTss,
   skipPlannedSessionWithRedistribution,
   updatePlannedSessionStatus,
 } from "@/lib/planned-sessions";
-import { getValidPostponeDates } from "@/lib/postpone";
+import { getValidMoveTargets } from "@/lib/postpone";
 import { getValidRedistributionDates } from "@/lib/redistribute";
 import { getMondayOfWeek, todayISODate } from "@/lib/week";
 
@@ -153,23 +153,19 @@ export async function postponePlannedSessionAction(
     user.id,
     getMondayOfWeek(session.date)
   );
-  const validDates = getValidPostponeDates(weekSessions, session, todayISODate());
-
-  if (!validDates.includes(newDate)) {
-    return { ok: false, error: "Ese día ya no está disponible para posponer." };
+  // Se revalida en el servidor con los datos actuales: el cliente pudo quedarse con la semana desactualizada.
+  const target = getValidMoveTargets(weekSessions, session, todayISODate()).find((t) => t.date === newDate);
+  if (!target) {
+    return { ok: false, error: "Ese día ya no está disponible para mover la sesión." };
   }
 
-  const conflictingRest = weekSessions.find(
-    (s) => s.date === newDate && s.session_type === "rest"
-  );
+  const restSession = weekSessions.find((s) => s.date === newDate && s.session_type === "rest");
 
-  await postponePlannedSession(
-    supabase,
-    user.id,
-    plannedSessionId,
-    newDate,
-    conflictingRest?.id ?? null
-  );
+  await movePlannedSession(supabase, user.id, session, {
+    date: target.date,
+    swapWith: target.swapWith,
+    restSessionId: restSession?.id ?? null,
+  });
   revalidatePath("/dashboard");
   return { ok: true, error: null };
 }

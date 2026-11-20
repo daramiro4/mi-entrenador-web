@@ -1,7 +1,7 @@
 import type { ExtraSessionVariant } from "./extra-session";
 import type { PlannedSession } from "./types";
 import { hrAdjustedFtp } from "./hr-adjustment";
-import { resolveBaseFtp } from "./ftp-base";
+import { resolveBaseFtp, type FtpSource } from "./ftp-base";
 
 export interface SendToGarminResult {
   ok: boolean;
@@ -23,17 +23,34 @@ export interface GarminWorkoutPreview {
   steps: GarminWorkoutStepPreview[];
 }
 
+/** De dónde salen las zonas de una sesión: lo que la vista previa usa para explicarse (solo sesiones del plan, no la extra por pulso). */
+export interface GarminPreviewContext {
+  date: string;
+  session_type: "quality" | "z2";
+  planned_tss: number | null;
+  /** Duración fija de las Z2 de reaclimatación (sin TSS planificado). */
+  duration_minutes: number | null;
+  /** FTP con el que el servicio calcula los vatios (ya con los descuentos). */
+  ftp_watts: number | null;
+  ftp_source: FtpSource | null;
+  /** Descuento de reaclimatación aplicado, en fracción negativa (-0.15 = -15 %); 0 si no se aplicó. */
+  reacclimatization_discount_pct: number;
+  /** Descuento por pulso aplicado, en % (8 = -8 %); 0 si no se aplicó. */
+  hr_discount_pct: number;
+}
+
 export interface PreviewGarminResult {
   ok: boolean;
   error: string | null;
   preview: GarminWorkoutPreview | null;
+  context?: GarminPreviewContext | null;
 }
 
 /** session_type que sí tienen contenido de potencia traducible a un workout de Garmin. */
 const GARMIN_SUPPORTED_SESSION_TYPES = new Set(["quality", "z2"]);
 
 type GarminPayloadResult =
-  | { ok: true; payload: Record<string, unknown> }
+  | { ok: true; payload: Record<string, unknown>; context: GarminPreviewContext }
   | { ok: false; error: string };
 
 /** Contexto de FTP de la cuenta para calcular zonas: medido, provisional y descuento por pulso vigente. */
@@ -81,8 +98,24 @@ function buildGarminPayload(session: PlannedSession, ftp: FtpContext): GarminPay
       ? hrAdjustedFtp(effectiveFtpWatts, ftp.hrDiscountPct)
       : effectiveFtpWatts;
 
+  const hrApplied = session.session_type === "z2" && ftp.hrDiscountPct > 0;
+  const reaclimatization =
+    session.session_type === "z2" && base.source === "measured"
+      ? Math.min(0, session.notes?.reacclimatization_discount_pct ?? 0)
+      : 0;
+
   return {
     ok: true,
+    context: {
+      date: session.date,
+      session_type: session.session_type as "quality" | "z2",
+      planned_tss: session.planned_tss,
+      duration_minutes: durationMinutes,
+      ftp_watts: ftpForZones,
+      ftp_source: base.source,
+      reacclimatization_discount_pct: reaclimatization,
+      hr_discount_pct: hrApplied ? ftp.hrDiscountPct : 0,
+    },
     payload: {
       date: session.date,
       session_type: session.session_type,
@@ -161,7 +194,8 @@ export async function previewPlannedSessionForGarmin(
 ): Promise<PreviewGarminResult> {
   const built = buildGarminPayload(session, ftp);
   if (!built.ok) return { ok: false, error: built.error, preview: null };
-  return previewGarminPayload(built.payload);
+  const result = await previewGarminPayload(built.payload);
+  return { ...result, context: built.context };
 }
 
 export async function sendPlannedSessionToGarmin(

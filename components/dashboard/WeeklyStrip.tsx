@@ -57,7 +57,8 @@ export function WeeklyStrip({
           const isToday = state === "today" || date === today;
           const isSelectable = !!session && session.session_type !== "rest";
           const isSelected = !!session && session.id === selectedId;
-          const stateText = DAY_STATE_LABEL[state];
+          const isMissed = state === "pending" && date < today;
+          const stateText = isMissed ? "Sin hacer" : DAY_STATE_LABEL[state];
 
           return (
             <button
@@ -83,7 +84,7 @@ export function WeeklyStrip({
                 {state === "done" ? (
                   <Check size={16} strokeWidth={2.5} aria-hidden="true" className="text-accent" />
                 ) : (
-                  <span className="hidden sm:inline">{STATE_TEXT[state] ?? ""}</span>
+                  <span className="hidden sm:inline">{isMissed ? "Sin hacer" : STATE_TEXT[state] ?? ""}</span>
                 )}
               </span>
             </button>
