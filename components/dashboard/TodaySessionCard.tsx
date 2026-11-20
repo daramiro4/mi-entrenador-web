@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { LinkButton } from "@/components/ui/Button";
-import { SyncGarminButton } from "@/components/dashboard/SyncGarminButton";
 import { ExtraSessionButton } from "@/components/dashboard/ExtraSessionButton";
 import { SendToGarminButton } from "@/components/dashboard/SendToGarminButton";
 import { PlannedSessionActions } from "@/components/dashboard/PlannedSessionActions";
@@ -121,7 +120,6 @@ export function TodaySessionCard({
         </div>
       )}
       <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-separator pt-4">
-        <SyncGarminButton />
         <ExtraSessionButton />
         <Link href="/workouts" className="inline-flex min-h-11 items-center px-3 text-sm text-accent">
           Plantillas de entreno

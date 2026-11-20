@@ -5,6 +5,7 @@ import { DailyHealthCard } from "@/components/dashboard/DailyHealthCard";
 import { HrvBandChart } from "@/components/dashboard/HrvBandChart";
 import { demoHrv } from "@/lib/demo-data";
 import { addDays } from "@/lib/week";
+import { SyncGarminButton } from "@/components/dashboard/SyncGarminButton";
 import { TodaySessionCard } from "@/components/dashboard/TodaySessionCard";
 import { WeeklyStrip } from "@/components/dashboard/WeeklyStrip";
 import { WeekHeader } from "@/components/dashboard/WeekHeader";
@@ -22,8 +23,11 @@ export default function PreviewHoy() {
   return (
     <AppShell active="hoy">
       <header className="mb-6">
-        <p className="text-sm text-label-2 first-letter:uppercase">domingo 1 de noviembre</p>
-        <h1 className="text-3xl font-semibold sm:text-4xl" style={{ letterSpacing: "-0.025em" }}>{greeting(9, "David")}</h1>
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+          <p className="font-mono text-xs uppercase tracking-wider text-label-2">domingo 1 nov</p>
+          <SyncGarminButton compact />
+        </div>
+        <h1 className="mt-2 text-3xl font-semibold sm:text-4xl" style={{ letterSpacing: "-0.025em" }}>{greeting(9, "David")}</h1>
       </header>
       <div className="grid gap-6 lg:grid-cols-2">
         <StatusCard fatigueIndex={fx.fatigue} />

@@ -23,6 +23,7 @@ import {
   groupStrengthSessionsByActivityId,
 } from "@/lib/strength-sessions";
 import { computeProgressSignal } from "@/lib/progress";
+import { SyncGarminButton } from "@/components/dashboard/SyncGarminButton";
 import { buildFitnessTrendPoints } from "@/lib/fitness-trend";
 import { getLatestWeeklyNarrative } from "@/lib/weekly-narratives";
 import { addDays, getMondayOfWeek, todayISODate } from "@/lib/week";
@@ -197,7 +198,10 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
 
       <header className="mb-8 flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="font-mono text-xs uppercase tracking-wider text-label-2">{weekdayMonth}</p>
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+            <p className="font-mono text-xs uppercase tracking-wider text-label-2">{weekdayMonth}</p>
+            <SyncGarminButton compact />
+          </div>
           <h1 className="mt-2 text-[40px] font-bold leading-none sm:text-[56px]">
             {greeting(new Date().getHours(), profileName)}
           </h1>
