@@ -15,6 +15,7 @@ import { formatHrZoneMinutes } from "@/lib/hr-zones";
 import { describeHrAdjustment } from "@/lib/hr-adjustment";
 import { plannedStrengthTssForSession, loadBasedTss } from "@/lib/strength/tss";
 import { SendToGarminButton } from "./SendToGarminButton";
+import { SessionReview } from "./SessionReview";
 
 const GARMIN_SEND_TYPES = new Set(["quality", "z2"]);
 
@@ -163,6 +164,7 @@ export function PlannedSessionActions({
           </div>
         )}
         {hrZones && <p className="text-xs text-fog">{hrZones}</p>}
+        {session.status === "done" && linkedActivity && <SessionReview key={session.id} session={session} />}
         {hrAdjustmentNote && <p className="text-xs text-ember">{hrAdjustmentNote}</p>}
         {exercises.length > 0 && (
           <ul className="space-y-1">

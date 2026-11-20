@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { findMatchingActivity } from "./activity-matching";
+import { findEarlierUnresolvedSession, findMatchingActivity } from "./activity-matching";
 import type { ActivityRow, PlannedSession, PlannedSessionStatus } from "./types";
 
 function mkSession(
@@ -74,5 +74,51 @@ describe("findMatchingActivity", () => {
 
   it("sin actividades ese día, no hay coincidencia", () => {
     expect(findMatchingActivity(mkSession("z2", "planned", "h"), [])).toBeNull();
+  });
+});
+
+describe("findEarlierUnresolvedSession", () => {
+  const onDate = (date: string, type: PlannedSession["session_type"], status: PlannedSessionStatus, id: string): PlannedSession => ({
+    ...mkSession(type, status, id),
+    date,
+  });
+  const thursdayRide: ActivityRow = { ...mkActivity("cycling", 36), date: "2026-11-19" };
+
+  it("el jueves en bici completa la calidad sin hacer del miércoles", () => {
+    const week = [
+      onDate("2026-11-18", "quality", "planned", "wed"),
+      onDate("2026-11-19", "strength", "skipped", "thu"),
+    ];
+    expect(findEarlierUnresolvedSession(thursdayRide, week)?.id).toBe("wed");
+  });
+
+  it("elige la más cercana a la actividad si hay varias", () => {
+    const week = [
+      onDate("2026-11-16", "z2", "planned", "mon"),
+      onDate("2026-11-18", "quality", "planned", "wed"),
+    ];
+    expect(findEarlierUnresolvedSession(thursdayRide, week)?.id).toBe("wed");
+  });
+
+  it("ignora otro tipo, sesiones resueltas, ya enlazadas y fechas posteriores", () => {
+    const linked = { ...onDate("2026-11-17", "z2", "planned", "linked"), actual_activity_id: 5 };
+    const week = [
+      onDate("2026-11-18", "strength", "planned", "otro-tipo"),
+      onDate("2026-11-17", "quality", "skipped", "saltada"),
+      onDate("2026-11-16", "z2", "done", "hecha"),
+      linked,
+      onDate("2026-11-20", "z2", "planned", "futura"),
+      onDate("2026-11-19", "z2", "planned", "mismo-dia"),
+    ];
+    expect(findEarlierUnresolvedSession(thursdayRide, week)).toBeNull();
+  });
+
+  it("una actividad corta no completa una sesión de otro día", () => {
+    const short = { ...thursdayRide, duration_minutes: 20 };
+    expect(findEarlierUnresolvedSession(short, [onDate("2026-11-18", "quality", "planned", "wed")])).toBeNull();
+  });
+
+  it("degraded también cuenta", () => {
+    expect(findEarlierUnresolvedSession(thursdayRide, [onDate("2026-11-18", "z2", "degraded", "d")])?.id).toBe("d");
   });
 });

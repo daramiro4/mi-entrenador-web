@@ -47,6 +47,8 @@ export interface PlannedSessionNotes {
   /** Presente cuando saltar esta sesión movió su TSS a otra — bloquea "deshacer". */
   /** Evaluación por pulso de esta Z2 una vez hecha (lib/hr-adjustment.ts); su presencia evita reevaluar. */
   hr_adjustment?: HrAdjustmentRecord;
+  /** Reseña de IA del entreno hecho (lib/session-review.ts); `activity_id` ata la reseña a la actividad enlazada. */
+  review?: { text: string; generated_at: string; activity_id: number };
   /** Día original (YYYY-MM-DD) si la sesión se movió a mano a otra fecha; se muestra en el panel del día. */
   moved_from?: string;
   redistributed_to_session_id?: string;

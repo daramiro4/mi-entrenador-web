@@ -8,13 +8,14 @@ import {
   getPlannedSessionsForWeek,
   markPlannedSessionDoneFromActivity,
   mergePlannedSessionNotes,
+  movePlannedSession,
 } from "@/lib/planned-sessions";
 import { getLatestFtp } from "@/lib/metrics";
 import { setSeasonHrDiscount } from "@/lib/seasons";
 import { assessZ2, hrAdjustedFtp, type HrAdjustmentRecord } from "@/lib/hr-adjustment";
 import { addDays } from "@/lib/week";
 import { resolveBaseFtp } from "@/lib/ftp-base";
-import { findMatchingActivity } from "@/lib/activity-matching";
+import { findEarlierUnresolvedSession, findMatchingActivity } from "@/lib/activity-matching";
 import { getMondayOfWeek, todayISODate } from "@/lib/week";
 import type { ActivityRow, PlannedSession, Season } from "@/lib/types";
 import type { SupabaseClient } from "@supabase/supabase-js";
@@ -71,7 +72,24 @@ export async function ensureActivityMatchesAction(): Promise<void> {
     didChange = true;
   }
 
-  const sessionsNow = didChange ? await getPlannedSessionsForWeek(supabase, user.id, weekStartDate) : weekSessions;
+  // Actividades que no completaron ninguna sesión de su día: puede ser un entreno hecho otro día (p. ej. la
+  // calidad del miércoles, hecha el jueves). Se empareja con la sesión pasada sin hacer y se mueve a su día real.
+  let current = didChange ? await getPlannedSessionsForWeek(supabase, user.id, weekStartDate) : weekSessions;
+  const orphans = weekActivities
+    .filter((a) => !current.some((s) => s.actual_activity_id === a.id))
+    .sort((a, b) => a.date.localeCompare(b.date) || a.id - b.id);
+
+  for (const activity of orphans) {
+    const late = findEarlierUnresolvedSession(activity, current);
+    if (!late) continue;
+
+    await markPlannedSessionDoneFromActivity(supabase, user.id, late.id, activity.id);
+    await moveToActivityDate(supabase, user.id, late, activity.date, current);
+    current = await getPlannedSessionsForWeek(supabase, user.id, weekStartDate);
+    didChange = true;
+  }
+
+  const sessionsNow = current;
   const adjusted = await assessDoneZ2Sessions(supabase, user.id, season, sessionsNow, weekActivities);
 
   if (didChange || adjusted) {
@@ -137,4 +155,28 @@ async function assessDoneZ2Sessions(
   await mergePlannedSessionNotes(supabase, userId, latest, { hr_adjustment: record });
   if (record.pct_after !== pctBefore) await setSeasonHrDiscount(supabase, userId, season, record.pct_after);
   return true;
+}
+
+/**
+ * Lleva una sesión ya completada al día en que se hizo de verdad, para que el calendario la muestre ahí. Solo se
+ * mueve a un día libre, de descanso o con una sesión SALTADA (que se intercambia: sigue saltada, en el día que
+ * deja libre); nunca desplaza una sesión pendiente ni una ya hecha — en ese caso se queda en su día, enlazada.
+ */
+async function moveToActivityDate(
+  supabase: SupabaseClient<Database>,
+  userId: string,
+  session: PlannedSession,
+  activityDate: string,
+  weekSessions: PlannedSession[]
+): Promise<void> {
+  if (session.date === activityDate) return;
+  const other = weekSessions.find((s) => s.date === activityDate && s.id !== session.id);
+
+  if (!other) {
+    await movePlannedSession(supabase, userId, session, { date: activityDate, swapWith: null, restSessionId: null });
+  } else if (other.session_type === "rest") {
+    await movePlannedSession(supabase, userId, session, { date: activityDate, swapWith: null, restSessionId: other.id });
+  } else if (other.status === "skipped") {
+    await movePlannedSession(supabase, userId, session, { date: activityDate, swapWith: other, restSessionId: null });
+  }
 }
